@@ -1,0 +1,41 @@
+version = '1.0.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+defaultTasks = ['clean', 'jar']
+
+
+File javaHome = new File(System.getProperty('java.home'))
+logger.lifecycle "Using Java from $javaHome (version ${System.getProperty('java.version')})"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.+'
+}
+
+jar {
+    def versionFile = file('./src/main/resources/version.properties')
+ 
+    if(versionFile.canRead()){
+        def Properties props=new Properties()
+        props.load(new FileInputStream(versionFile))
+        def buildNumber=props['BUILD_NUMBER'].toInteger()+1
+        props['BUILD_NUMBER']=buildNumber.toString()
+        props['BUILD_DATE']=new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'",TimeZone.getTimeZone("UTC")).toString()
+        props['BUILD_VERSION']=version
+        props.store(versionFile.newWriter(),null)
+    }
+
+    baseName="lazyjson"
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest {
+        attributes 'Implementation-Title': 'LazyJSON Library', 'Implementation-Version': version
+    }
+}
