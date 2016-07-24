@@ -35,6 +35,14 @@ public class LazyArrayTest{
     }
 
     @Test
+    public void testStringValues() throws LazyException{
+        String str="[\"a\",\"\\u0061\"]";
+        LazyArray array=new LazyArray(str);
+        assertEquals("a",array.getString(0));
+        assertEquals("a",array.getString(1));
+    }
+
+    @Test
     public void testDoubleValues() throws LazyException{
         String str="[0.9,3.1415,-3.78,1.2345e+1,1.2345e-1,1.2345E+1,1.2345E-1,2e+1,2e-1,2e1]";
         LazyArray array=new LazyArray(str);

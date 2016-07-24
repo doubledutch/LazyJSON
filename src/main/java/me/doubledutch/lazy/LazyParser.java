@@ -82,13 +82,14 @@ public final class LazyParser{
 		n++;
 		char c=cbuf[n];
 		while(c!='"'){
-			n++;
-			c=cbuf[n];
 			if(c=='\\'){
-				n+=2;
+				n++;
 				c=cbuf[n];
+				// TODO: validate escape value
 				stackTop.escaped=true;
 			}
+			n++;
+			c=cbuf[n];
 		}
 	}
 

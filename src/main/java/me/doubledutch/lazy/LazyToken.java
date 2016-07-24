@@ -252,17 +252,16 @@ public final class LazyToken{
 					if(c=='"' || c=='\\' || c=='/'){
 						buf.append(c);
 					}else if(c=='b'){
-						buf.append("\b");
+						buf.append('\b');
 					}else if(c=='f'){
-						buf.append("\f");
+						buf.append('\f');
 					}else if(c=='n'){
-						buf.append("\n");
+						buf.append('\n');
 					}else if(c=='r'){
-						buf.append("\r");
+						buf.append('\r');
 					}else if(c=='u'){
-						String code=new String(source,i,i+4);
-						// TODO: extract and add properly to string
-						// sb.append((char)Integer.parseInt(this.next(4), 16));
+						String code=new String(source,i+1,4);
+						buf.append((char)Integer.parseInt(code, 16));
 						i+=4;
 					}
 				}else{
