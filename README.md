@@ -1,5 +1,5 @@
 # LazyJSON
-LazyJSON is a very fast JSON parser for Java that sprung out of the StroomData project at DoubleDutch. It has an API based on that of the `org.json` Java library.
+LazyJSON is a very fast JSON parser for Java that sprung out of the [StroomData](https://github.com/doubledutch/StroomData) project at DoubleDutch. It has an API based on that of the `org.json` Java library as demonstrated in the following sample:
 
 ```java
 String source="{\"title\":\"World\"}";
@@ -8,6 +8,31 @@ LazyObject obj=new LazyObject(source);
 System.out.println("Hello "+obj.getString("title")+"!");
 // Expected output: "Hello World!"
 ````
+
+The following table shows a speed comparison for parsing around 551kb of JSON data.
+
+JSON Library | Min | Max | Avg | Median
+-------------|-----|-----|-----|-------
+json.org | 7.75176 | 22.426924 | 11.096008 | 10.59668
+GSON JsonParser | 3.703044 | 9.933935 | 5.780482 | 5.690398
+Jackson ObjectMapper | 2.882437 | 8.55358 | 5.165173 | 4.887188
+Jackson JsonParser | 1.982652 | 6.068085 | 3.27319225 | 3.2957
+LazyJSON | 1.590227 | 3.763087 | 2.54875 | 2.566992
+GSON class based | 4.14453 | 12.330691 | 6.4768755 | 6.16929
+Boon | 4.100606 | 9.142838 | 5.808073 | 5.70455
+
+However, the real speed benefit comes when using LazyJSON to extract JSON objects from a string representation of JSON array with the intention of getting each object as a separate string (this is the usage of this library in [StroomData](https://github.com/doubledutch/StroomData)). The following table shows the same test data as above processed in this fashion.
+
+JSON Library | Min | Max | Avg | Median
+-------------|-----|-----|-----|-------
+json.org | 16.193432 | 34.084046 | 20.677518 | 19.336549
+GSON JsonParser based | 7.254918 | 17.019365 | 10.777558 | 10.150436
+Jackson ObjectMapper | 5.149789 | 13.676147 | 7.4314225 | 7.19378
+LazyJSON | 1.545074 | 4.47108 | 2.73187325 | 2.778728
+GSON class based | 8.921176 | 20.0559 | 12.446913 | 12.08505
+Boon | 10.468966 | 25.870486 | 14.332774 | 13.447765
+
+For more details about these tests, the source code and further benchmarks - see this repo [https://github.com/kasperjj/LazyJSONBenchmark](https://github.com/kasperjj/LazyJSONBenchmark)
 
 ## Design Principles
 
