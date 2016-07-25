@@ -42,6 +42,14 @@ public class LazyArrayTest{
         assertEquals("a",array.getString(1));
     }
 
+     @Test
+    public void testStringEscapeValues() throws LazyException{
+        String str="[\"\\t99\",\"foo\\r\\n\"]";
+        LazyArray array=new LazyArray(str);
+        assertEquals("\t99",array.getString(0));
+        assertEquals("foo\r\n",array.getString(1));
+    }
+
     @Test
     public void testDoubleValues() throws LazyException{
         String str="[0.9,3.1415,-3.78,1.2345e+1,1.2345e-1,1.2345E+1,1.2345E-1,2e+1,2e-1,2e1]";
