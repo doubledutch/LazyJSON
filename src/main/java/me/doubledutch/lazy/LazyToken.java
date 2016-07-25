@@ -259,6 +259,8 @@ public final class LazyToken{
 						buf.append('\n');
 					}else if(c=='r'){
 						buf.append('\r');
+					}else if(c=='t'){
+						buf.append('\t');
 					}else if(c=='u'){
 						String code=new String(source,i+1,4);
 						buf.append((char)Integer.parseInt(code, 16));
