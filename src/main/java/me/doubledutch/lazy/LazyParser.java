@@ -17,7 +17,7 @@ public final class LazyParser{
 	// The parser uses a crude stack while parsing that maintains a reference
 	// to the top element on the stack and automatically establishes a parent
 	// child relation ship when elements are pushed onto the stack.
-	private final LazyToken[] stack=new LazyToken[128];
+	private final LazyToken[] stack=new LazyToken[256];
 	private LazyToken stackTop=null;
 	private int stackPointer=1;
 
