@@ -9,7 +9,17 @@ import java.util.Iterator;
 import java.net.*;
 
 public class LazyObjectTest{
-	
+    @Test
+    public void testDeepNesting() throws LazyException{
+        String str="{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":42}}}}}}}}}}}}}}}}";
+        LazyObject obj=new LazyObject(str);
+        for(int i=0;i<15;i++){
+            obj=obj.getJSONObject("foo");
+            assertNotNull(obj);
+        }
+        assertEquals(42,obj.getInt("foo"));
+    }
+
     @Test
     public void testHas() throws LazyException{
         String str="{\"foo\":\"bar\",\"baz\":{\"key\":42}}";
