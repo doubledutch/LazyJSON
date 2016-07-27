@@ -10,6 +10,15 @@ import java.net.*;
 
 public class LazyObjectTest{
     @Test
+    public void testRyansSample() throws LazyException{
+        String str="{\"data\":{\"blah\":9},\"header\":{}}";
+        LazyObject obj=new LazyObject(str);
+        assertTrue(obj.has("header"));
+        assertTrue(obj.has("data"));
+        assertEquals(obj.toString(),str);
+    }
+
+    @Test
     public void testDeepNesting() throws LazyException{
         String str="{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":{\"foo\":42}}}}}}}}}}}}}}}}";
         LazyObject obj=new LazyObject(str);

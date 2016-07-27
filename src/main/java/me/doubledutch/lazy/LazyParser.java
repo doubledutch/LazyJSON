@@ -3,6 +3,8 @@ package me.doubledutch.lazy;
 import java.util.*;
 
 public final class LazyParser{
+	private final int STACK_INCREASE=127;
+	private int STACK_SIZE=128;
 	protected LazyToken root;
 	protected final char[] cbuf;
 	protected final int length;
@@ -17,13 +19,19 @@ public final class LazyParser{
 	// The parser uses a crude stack while parsing that maintains a reference
 	// to the top element on the stack and automatically establishes a parent
 	// child relation ship when elements are pushed onto the stack.
-	private final LazyToken[] stack=new LazyToken[256];
+	private LazyToken[] stack=new LazyToken[STACK_SIZE];
 	private LazyToken stackTop=null;
 	private int stackPointer=1;
 
 	// Push a token onto the stack and attach it to the previous top as a child
 	private void push(final LazyToken token){
 		stackTop.addChild(token);
+		if((stackPointer & STACK_INCREASE)==STACK_INCREASE){
+			LazyToken[] newStack=new LazyToken[STACK_SIZE*2];
+			System.arraycopy(stack,0,newStack,0,STACK_SIZE);
+			STACK_SIZE=STACK_SIZE+STACK_INCREASE+1;
+			stack=newStack;
+		}
 		stack[stackPointer++]=token;
 		stackTop=token;
 	}
