@@ -3,8 +3,10 @@ package me.doubledutch.lazy;
 import java.util.*;
 
 public final class LazyParser{
+	// Read the comments on push before changing these!
 	private final int STACK_INCREASE=127;
 	private int STACK_SIZE=128;
+	
 	protected LazyToken root;
 	protected final char[] cbuf;
 	protected final int length;
@@ -26,8 +28,13 @@ public final class LazyParser{
 	// Push a token onto the stack and attach it to the previous top as a child
 	private void push(final LazyToken token){
 		stackTop.addChild(token);
+		// The stack allocation strategy here is to increase it in increments
+		// of a power of two. This lets us check when all low bits are set and
+		// its time to increase the stack again.
+		// This lets us do a compare between a constant and a variable instead
+		// of between two variables.
 		if((stackPointer & STACK_INCREASE)==STACK_INCREASE){
-			LazyToken[] newStack=new LazyToken[STACK_SIZE*2];
+			LazyToken[] newStack=new LazyToken[STACK_SIZE+STACK_INCREASE+1];
 			System.arraycopy(stack,0,newStack,0,STACK_SIZE);
 			STACK_SIZE=STACK_SIZE+STACK_INCREASE+1;
 			stack=newStack;
