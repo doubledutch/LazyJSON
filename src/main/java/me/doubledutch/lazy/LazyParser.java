@@ -6,7 +6,7 @@ public final class LazyParser{
 	// Read the comments on push before changing these!
 	private final int STACK_INCREASE=127;
 	private int STACK_SIZE=128;
-	
+
 	protected LazyToken root;
 	protected final char[] cbuf;
 	protected final int length;
@@ -93,7 +93,8 @@ public final class LazyParser{
 
 	// Consume all characters in a string and correctly mark the stackTop
 	// element if an escape character is found
-	private final void consumeString(){
+	private final boolean consumeString(){
+		boolean escaped=false;
 		n++;
 		char c=cbuf[n];
 		while(c!='"'){
@@ -101,11 +102,12 @@ public final class LazyParser{
 				n++;
 				c=cbuf[n];
 				// TODO: validate escape value
-				stackTop.escaped=true;
+				escaped=true;
 			}
 			n++;
 			c=cbuf[n];
 		}
+		return escaped;
 	}
 
 	// Consume all characters in a number and throw an exception if the format
@@ -222,20 +224,19 @@ public final class LazyParser{
 					break;
 			case '"':
 				if(stackTop.type==LazyToken.ARRAY){
-					push(LazyToken.cValue(n+1));
-					consumeString();
-					stackTop.endIndex=n;
-					// Remove value again
-					drop();
+					token=LazyToken.cValue(n+1);
+					stackTop.addChild(token);
+					token.escaped=consumeString();
+					token.endIndex=n;
 				}else if(stackTop.type==LazyToken.FIELD){
-					push(LazyToken.cValue(n+1));
-					consumeString();
-					stackTop.endIndex=n;
-					// Remove value and field again
-					doubleDrop();
+					token=LazyToken.cValue(n+1);
+					stackTop.addChild(token);
+					token.escaped=consumeString();
+					token.endIndex=n;
+					drop();
 				}else if(stackTop.type==LazyToken.OBJECT){
 					push(LazyToken.cField(n+1));
-					consumeString();
+					stackTop.escaped=consumeString();
 					stackTop.endIndex=n;
 					n++;
 					consumeWhiteSpace();
@@ -306,8 +307,8 @@ public final class LazyParser{
 					if(c=='n'){
 						// Must be null value
 						if(cbuf[++n]=='u' && cbuf[++n]=='l' && cbuf[++n]=='l'){
-							push(LazyToken.cValueNull(n));
-							token=pop();
+							token=LazyToken.cValueNull(n);
+							stackTop.addChild(token);
 							token.endIndex=n;
 							if(stackTop.type==LazyToken.FIELD){
 								// This was the end of the value for a field, pop that too
@@ -319,8 +320,8 @@ public final class LazyParser{
 					}else if(c=='t'){
 						// Must be true value
 						if(cbuf[++n]=='r' && cbuf[++n]=='u' && cbuf[++n]=='e'){
-							push(LazyToken.cValueTrue(n));
-							token=pop();
+							token=LazyToken.cValueTrue(n);
+							stackTop.addChild(token);
 							token.endIndex=n;
 							if(stackTop.type==LazyToken.FIELD){
 								// This was the end of the value for a field, pop that too
@@ -332,8 +333,8 @@ public final class LazyParser{
 					}else if(c=='f'){
 						// Must be false value
 						if(cbuf[++n]=='a' && cbuf[++n]=='l' && cbuf[++n]=='s' && cbuf[++n]=='e'){
-							push(LazyToken.cValueFalse(n));
-							token=pop();
+							token=LazyToken.cValueFalse(n);
+							stackTop.addChild(token);
 							token.endIndex=n;
 							if(stackTop.type==LazyToken.FIELD){
 								// This was the end of the value for a field, pop that too
@@ -344,9 +345,9 @@ public final class LazyParser{
 						}
 					}else if(c=='-' || !(c<'0' || c>'9')){
 						// Must be a number
-						push(LazyToken.cValue(n));
+						token=LazyToken.cValue(n);
+						stackTop.addChild(token);
 						consumeNumber(c);
-						token=pop();
 						token.endIndex=n;
 						n--;
 						if(stackTop.type==LazyToken.FIELD){
