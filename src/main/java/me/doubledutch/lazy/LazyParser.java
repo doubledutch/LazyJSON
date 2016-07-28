@@ -275,7 +275,9 @@ public final class LazyParser{
 				break;
 			case ']':
 				token=pop();
-				if(token.type!=LazyToken.ARRAY){
+				if(token==null){
+						throw new LazyException("Unexpected end of array character",n);
+				}else if(token.type!=LazyToken.ARRAY){
 					if(token.endIndex==-1){
 						token.endIndex=n;
 					}
