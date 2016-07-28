@@ -10,14 +10,14 @@ import java.util.*;
  */
 public final class LazyToken{
 	// Token types used for classification during parsing
-	protected static final int OBJECT=0;
-	protected static final int ARRAY=1;
-	protected static final int FIELD=2;
-	protected static final int VALUE=3;
-	protected static final int VALUE_TRUE=4;
-	protected static final int VALUE_FALSE=5;
-	protected static final int VALUE_NULL=6;
-	protected final int type;
+	protected static final byte OBJECT=0;
+	protected static final byte ARRAY=1;
+	protected static final byte FIELD=2;
+	protected static final byte VALUE=3;
+	protected static final byte VALUE_TRUE=4;
+	protected static final byte VALUE_FALSE=5;
+	protected static final byte VALUE_NULL=6;
+	protected final byte type;
 
 	// Start and end index into source string for this token.
 	// For an object or array, the end index will be the end of the entire
@@ -42,7 +42,7 @@ public final class LazyToken{
 	 * @param type the type of this token
 	 * @param startIndex the index into the source string where this token was found
 	 */
-	protected LazyToken(int type,int startIndex){
+	protected LazyToken(byte type,int startIndex){
 		this.startIndex=startIndex;
 		this.type=type;
 	}

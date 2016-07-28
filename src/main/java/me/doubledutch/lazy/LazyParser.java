@@ -47,7 +47,9 @@ public final class LazyParser{
 	private LazyToken pop(){
 		LazyToken value=stackTop;
 		stackPointer--;
-		stackTop=stack[stackPointer-1];
+		if(stackPointer>0){
+			stackTop=stack[stackPointer-1];
+		}
 		return value;
 	}
 
@@ -203,13 +205,17 @@ public final class LazyParser{
 				case '}':
 					// The end of an object, pop off the last value and field if any
 					token=pop();
-					if(token.type!=LazyToken.OBJECT){
+					if(token==null){
+						throw new LazyException("Unexpected end of object character",n);
+					}else if(token.type!=LazyToken.OBJECT){
 						if(token.endIndex==-1){
 							token.endIndex=n;
 						}
 						token=pop();
 						if(token.type==LazyToken.FIELD){
 							token=pop();
+						}else{
+							throw new LazyException("Value without field",n);
 						}
 						// We should now be down to the actual object
 						if(token.type!=LazyToken.OBJECT){
@@ -360,6 +366,9 @@ public final class LazyParser{
 				}
 				break;
 			}
+		}
+		if(size()!=0){
+			throw new LazyException("Unexpected end of JSON data");
 		}
 	}
 }
