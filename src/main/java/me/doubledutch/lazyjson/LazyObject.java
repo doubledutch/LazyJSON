@@ -1,4 +1,4 @@
-package me.doubledutch.lazy;
+package me.doubledutch.lazyjson;
 
 import java.util.Iterator;
 
@@ -16,7 +16,6 @@ public class LazyObject{
 	 * Create a new Lazy JSON object based on the JSON representation in the given string.
 	 *
 	 * @param raw the input string
-	 * @return a new LazyObject
 	 * @throws LazyException if the string could not be parsed as a JSON object
 	 */
 	public LazyObject(String raw) throws LazyException{
@@ -40,7 +39,7 @@ public class LazyObject{
 	 *
 	 * @param key the name of the field on this object
 	 * @return a boolean value
-	 * @throws an exception if the value for the given key was not a string.
+	 * @throws LazyException if the value for the given key was not a string.
 	 */
 	public String getString(String key) throws LazyException{
 		LazyToken token=getFieldToken(key);
@@ -52,7 +51,7 @@ public class LazyObject{
 	 *
 	 * @param key the name of the field on this object
 	 * @return a boolean value
-	 * @throws an exception if the value for the given key was not an integer.
+	 * @throws LazyException if the value for the given key was not an integer.
 	 */
 	public int getInt(String key) throws LazyException{
 		LazyToken token=getFieldToken(key);
@@ -64,7 +63,7 @@ public class LazyObject{
 	 *
 	 * @param key the name of the field on this object
 	 * @return a boolean value
-	 * @throws an exception if the value for the given key was not a long.
+	 * @throws LazyException if the value for the given key was not a long.
 	 */
 	public long getLong(String key) throws LazyException{
 		LazyToken token=getFieldToken(key);
@@ -76,7 +75,7 @@ public class LazyObject{
 	 *
 	 * @param key the name of the field on this object
 	 * @return a boolean value
-	 * @throws an exception if the value for the given key was not a double.
+	 * @throws LazyException if the value for the given key was not a double.
 	 */
 	public double getDouble(String key) throws LazyException{
 		LazyToken token=getFieldToken(key);
@@ -88,7 +87,7 @@ public class LazyObject{
 	 *
 	 * @param key the name of the field on this object
 	 * @return true if the value is null, false otherwise
-	 * @throws an exception if no value was set for the given key.
+	 * @throws LazyException if no value was set for the given key.
 	 */
 	public boolean isNull(String key){
 		LazyToken token=getFieldToken(key);
@@ -101,7 +100,7 @@ public class LazyObject{
 	 *
 	 * @param key the name of the field on this object
 	 * @return a boolean value
-	 * @throws an exception if the value for the given key was not a boolean.
+	 * @throws LazyException if the value for the given key was not a boolean.
 	 */
 	public boolean getBoolean(String key){
 		LazyToken token=getFieldToken(key);
@@ -115,7 +114,7 @@ public class LazyObject{
 	 *
 	 * @param key the name of the field on this object
 	 * @return an array value
-	 * @throws an exception if the value for the given key was not an object.
+	 * @throws LazyException if the value for the given key was not an object.
 	 */
 	public LazyObject getJSONObject(String key) throws LazyException{
 		LazyToken token=getFieldToken(key);
@@ -128,7 +127,7 @@ public class LazyObject{
 	 *
 	 * @param key the name of the field on this object
 	 * @return an array value
-	 * @throws an exception if the value for the given key was not an array.
+	 * @throws LazyException if the value for the given key was not an array.
 	 */
 	public LazyArray getJSONArray(String key) throws LazyException{
 		LazyToken token=getFieldToken(key);

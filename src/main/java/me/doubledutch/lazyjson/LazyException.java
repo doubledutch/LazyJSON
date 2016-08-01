@@ -1,4 +1,4 @@
-package me.doubledutch.lazy;
+package me.doubledutch.lazyjson;
 
 /**
  * Exception used to indicate a parse or access error for LazyObject and LazyArray

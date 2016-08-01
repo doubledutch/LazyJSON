@@ -1,4 +1,4 @@
-package me.doubledutch.lazy;
+package me.doubledutch.lazyjson;
 
 import java.io.File;
 import org.junit.*;

@@ -1,6 +1,12 @@
-version = '1.0.1'
+version = '1.0.2'
+
+group = "me.doubledutch"
+archivesBaseName = "lazyjson"
 
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -16,9 +22,28 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    testCompile 'junit:junit:4.+'
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
 }
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
 
 jar {
     def versionFile = file('./src/main/resources/version.properties')
@@ -37,5 +62,51 @@ jar {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest {
         attributes 'Implementation-Title': 'LazyJSON Library', 'Implementation-Version': version
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+            authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'LazyJSON'
+                packaging 'jar'
+                // optionally artifactId can be defined here 
+                artifactId 'lazyjson'
+                description 'A very fast, very lazy JSON parser for Java.'
+                url 'https://github.com/doubledutch/LazyJSON'
+
+                scm {
+                  connection 'https://github.com/doubledutch/LazyJSON'
+                  developerConnection 'https://github.com/doubledutch/LazyJSON'
+                  url 'https://github.com/doubledutch/LazyJSON'
+                }
+
+                licenses {
+                  license {
+                    name 'The Apache License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                  }
+                }
+
+                developers {
+                  developer {
+                    id 'kasperjj'
+                    name 'Kasper Jeppe Jeppesen'
+                    email 'kasper@doubledutch.me'
+                  }
+                }
+            }
+        }
     }
 }

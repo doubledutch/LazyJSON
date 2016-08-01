@@ -1,4 +1,4 @@
-package me.doubledutch.lazy;
+package me.doubledutch.lazyjson;
 
 import java.util.*;
 
@@ -165,7 +165,7 @@ public final class LazyToken{
 	 *
 	 * @param source the source character array for this token
 	 * @return the integer value if it could be parsed
-	 * @throws an exception if the value could not be parsed
+	 * @throws LazyException if the value could not be parsed
 	 */
 	protected int getIntValue(char[] source) throws LazyException{
 		int i=startIndex;
@@ -192,7 +192,7 @@ public final class LazyToken{
 	 *
 	 * @param source the source character array for this token
 	 * @return the long value if it could be parsed
-	 * @throws an exception if the value could not be parsed
+	 * @throws LazyException if the value could not be parsed
 	 */
 	protected long getLongValue(char[] source) throws LazyException{
 		int i=startIndex;
@@ -219,7 +219,7 @@ public final class LazyToken{
 	 *
 	 * @param source the source character array for this token
 	 * @return the double value if it could be parsed
-	 * @throws an exception if the value could not be parsed
+	 * @throws LazyException if the value could not be parsed
 	 */
 	protected double getDoubleValue(char[] source) throws LazyException{
 		String str=getStringValue(source);

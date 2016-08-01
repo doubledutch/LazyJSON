@@ -1,4 +1,4 @@
-package me.doubledutch.lazy;
+package me.doubledutch.lazyjson;
 
 /**
  * An array used to parse and inspect JSON data given in the form of a string.
@@ -18,7 +18,6 @@ public class LazyArray{
 	 * Create a new Lazy JSON array based on the JSON representation in the given string.
 	 *
 	 * @param raw the input string
-	 * @return a new LazyArray
 	 * @throws LazyException if the string could not be parsed as a JSON array
 	 */
 	public LazyArray(String raw) throws LazyException{
