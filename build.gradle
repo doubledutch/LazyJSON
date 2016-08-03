@@ -64,7 +64,7 @@ jar {
         attributes 'Implementation-Title': 'LazyJSON Library', 'Implementation-Version': version
     }
 }
-
+/*
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -110,3 +110,4 @@ uploadArchives {
         }
     }
 }
+*/
