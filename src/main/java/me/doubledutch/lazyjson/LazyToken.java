@@ -30,7 +30,9 @@ public final class LazyToken{
 	// When strings are parsed we make a note of any escaped characters.
 	// This lets us do a quick char copy when accessing string values that
 	// do not have any escaped characters
-	protected boolean escaped=false;
+	// When numbers are parsed, we use the same field to mark floating point
+	// characters.
+	protected boolean modified=false;
 
 	// Children are stored as a linked list by maintaining the first and last
 	// child of this token, as well as a link to the next sibling
@@ -253,7 +255,7 @@ public final class LazyToken{
 	 * @return the string value held by this token
 	 */
 	protected String getStringValue(char[] source){
-		if(!escaped){
+		if(!modified){
 			return new String(source,startIndex,endIndex-startIndex);
 		}else{
 			StringBuilder buf=new StringBuilder(endIndex-startIndex);

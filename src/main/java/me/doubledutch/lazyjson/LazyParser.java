@@ -114,7 +114,8 @@ public final class LazyParser{
 
 	// Consume all characters in a number and throw an exception if the format
 	// of the number does not validate correctly
-	private final void consumeNumber(char c) throws LazyException{
+	private final boolean consumeNumber(char c) throws LazyException{
+		boolean floatChar=false;
 		if(c=='-'){
 			// If the number started with a minus sign it must be followed by at least one digit
 			n++;
@@ -130,6 +131,7 @@ public final class LazyParser{
 			c=cbuf[n];
 		}
 		if(c=='.'){
+			floatChar=true;
 			// The fractional part must contain one or more digits
 			n++;
 			c=cbuf[n];
@@ -144,6 +146,7 @@ public final class LazyParser{
 			}
 		}
 		if(c=='e' || c=='E'){
+			floatChar=true;
 			n++;
 			c=cbuf[n];
 			if(c=='-' || c=='+'){
@@ -163,6 +166,7 @@ public final class LazyParser{
 				c=cbuf[n];
 			}
 		}
+		return floatChar;
 	}
 
 	// This should probably be renamed to parse. This method started out as a
@@ -232,17 +236,17 @@ public final class LazyParser{
 				if(stackTop.type==LazyToken.ARRAY){
 					token=LazyToken.cStringValue(n+1);
 					stackTop.addChild(token);
-					token.escaped=consumeString();
+					token.modified=consumeString();
 					token.endIndex=n;
 				}else if(stackTop.type==LazyToken.FIELD){
 					token=LazyToken.cStringValue(n+1);
 					stackTop.addChild(token);
-					token.escaped=consumeString();
+					token.modified=consumeString();
 					token.endIndex=n;
 					drop();
 				}else if(stackTop.type==LazyToken.OBJECT){
 					push(LazyToken.cField(n+1));
-					stackTop.escaped=consumeString();
+					stackTop.modified=consumeString();
 					stackTop.endIndex=n;
 					n++;
 					consumeWhiteSpace();
@@ -334,9 +338,9 @@ public final class LazyParser{
 					}
 				}else if(c=='-' || !(c<'0' || c>'9')){
 					// Must be a number
-					token=LazyToken.cValue(n);
+					token=LazyToken.cNumberValue(n);
 					stackTop.addChild(token);
-					consumeNumber(c);
+					token.modified=consumeNumber(c);
 					token.endIndex=n;
 					n--;
 					if(stackTop.type==LazyToken.FIELD){
