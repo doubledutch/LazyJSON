@@ -230,12 +230,12 @@ public final class LazyParser{
 					break;
 			case '"':
 				if(stackTop.type==LazyToken.ARRAY){
-					token=LazyToken.cValue(n+1);
+					token=LazyToken.cStringValue(n+1);
 					stackTop.addChild(token);
 					token.escaped=consumeString();
 					token.endIndex=n;
 				}else if(stackTop.type==LazyToken.FIELD){
-					token=LazyToken.cValue(n+1);
+					token=LazyToken.cStringValue(n+1);
 					stackTop.addChild(token);
 					token.escaped=consumeString();
 					token.endIndex=n;
@@ -259,7 +259,7 @@ public final class LazyParser{
 				break;
 			case ',':
 				// This must be the end of a value and the start of another
-				if(stackTop.type==LazyToken.VALUE){
+				/*if(stackTop.type==LazyToken.VALUE){
 					token=pop();
 					if(token.endIndex==-1){
 						token.endIndex=n;
@@ -268,7 +268,7 @@ public final class LazyParser{
 						// This was the end of the value for a field, pop that too
 						drop();
 					}
-				}
+				}*/
 				break;
 			case '[':
 				push(LazyToken.cArray(n));
