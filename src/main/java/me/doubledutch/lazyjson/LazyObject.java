@@ -38,7 +38,7 @@ public class LazyObject{
 	 * Returns the string value stored in this object for the given key.
 	 *
 	 * @param key the name of the field on this object
-	 * @return a boolean value
+	 * @return the requested string value
 	 * @throws LazyException if the value for the given key was not a string.
 	 */
 	public String getString(String key) throws LazyException{
@@ -47,14 +47,72 @@ public class LazyObject{
 	}
 
 	/**
+	 * Returns the string value stored in this object for the given key.
+	 * Returns null if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @return the requested string value or null if there was no such key
+	 */
+	public String optString(String key){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return null;
+		if(token.type==LazyToken.VALUE_NULL)return null;
+		return token.getStringValue(cbuf);
+	}
+
+	/**
+	 * Returns the string value stored in this object for the given key.
+	 * Returns the default value if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @param defaltValue the default value to return
+	 * @return the requested string value or the default value if there was no such key
+	 */
+	public String optString(String key,String defaultValue){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		return token.getStringValue(cbuf);
+	}
+
+	/**
 	 * Returns the integer value stored in this object for the given key.
 	 *
 	 * @param key the name of the field on this object
-	 * @return a boolean value
+	 * @return an integer value
 	 * @throws LazyException if the value for the given key was not an integer.
 	 */
 	public int getInt(String key) throws LazyException{
 		LazyToken token=getFieldToken(key);
+		return token.getIntValue(cbuf);
+	}
+
+	/**
+	 * Returns the integer value stored in this object for the given key.
+	 * Returns 0 if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @return the requested integer value or 0 if there was no such key
+	 */
+	public int optInt(String key){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return 0;
+		if(token.type==LazyToken.VALUE_NULL)return 0;
+		return token.getIntValue(cbuf);
+	}
+
+	/**
+	 * Returns the integer value stored in this object for the given key.
+	 * Returns the default value if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @param defaltValue the default value to return
+	 * @return the requested integer value or the default value if there was no such key
+	 */
+	public int optInt(String key,int defaultValue){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
 		return token.getIntValue(cbuf);
 	}
 
@@ -71,6 +129,35 @@ public class LazyObject{
 	}
 
 	/**
+	 * Returns the long value stored in this object for the given key.
+	 * Returns 0 if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @return the requested long value or 0 if there was no such key
+	 */
+	public long optLong(String key){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return 0l;
+		if(token.type==LazyToken.VALUE_NULL)return 0l;
+		return token.getLongValue(cbuf);
+	}
+
+	/**
+	 * Returns the long value stored in this object for the given key.
+	 * Returns the default value if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @param defaltValue the default value to return
+	 * @return the requested long value or the default value if there was no such key
+	 */
+	public long optLong(String key,long defaultValue){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		return token.getLongValue(cbuf);
+	}
+
+	/**
 	 * Returns the double value stored in this object for the given key.
 	 *
 	 * @param key the name of the field on this object
@@ -79,6 +166,35 @@ public class LazyObject{
 	 */
 	public double getDouble(String key) throws LazyException{
 		LazyToken token=getFieldToken(key);
+		return token.getDoubleValue(cbuf);
+	}
+
+	/**
+	 * Returns the double value stored in this object for the given key.
+	 * Returns 0.0 if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @return the requested double value or 0.0 if there was no such key
+	 */
+	public double optDouble(String key){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return 0.0;
+		if(token.type==LazyToken.VALUE_NULL)return 0.0;
+		return token.getDoubleValue(cbuf);
+	}
+
+	/**
+	 * Returns the double value stored in this object for the given key.
+	 * Returns the default value if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @param defaltValue the default value to return
+	 * @return the requested long value or the default value if there was no such key
+	 */
+	public double optDouble(String key,double defaultValue){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
 		return token.getDoubleValue(cbuf);
 	}
 
@@ -110,6 +226,38 @@ public class LazyObject{
 	}
 
 	/**
+	 * Returns the boolean value stored in this object for the given key.
+	 * Returns false if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @return the requested boolean value or false if there was no such key
+	 */
+	public boolean optBoolean(String key){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return false;
+		// if(token.type==LazyToken.VALUE_NULL)return false;
+		if(token.type==LazyToken.VALUE_TRUE)return true;
+		// if(token.type==LazyToken.VALUE_FALSE)return false;
+		return false;
+	}
+
+	/**
+	 * Returns the boolean value stored in this object for the given key.
+	 * Returns the default value if there is no such key.
+	 *
+	 * @param key the name of the field on this object
+	 * @param defaltValue the default value to return
+	 * @return the requested boolean value or the default value if there was no such key
+	 */
+	public boolean optBoolean(String key,boolean defaultValue){
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyToken.VALUE_TRUE)return true;
+		return false;
+	}
+
+	/**
 	 * Returns the JSON object stored in this object for the given key.
 	 *
 	 * @param key the name of the field on this object
@@ -123,6 +271,21 @@ public class LazyObject{
 	}
 
 	/**
+	 * Returns the JSON object stored in this object for the given key on null if the key doesn't exist.
+	 *
+	 * @param key the name of the field on this object
+	 * @throws LazyException if the value for the given key was not an object.
+	 * @return an object value or null if there was no such key
+	 */
+	public LazyObject optJSONObject(String key) throws LazyException{
+		LazyToken token=getOptionalFieldToken(key);
+		if(token==null)return null;
+		if(token.type==LazyToken.VALUE_NULL)return null;
+		if(token.type!=LazyToken.OBJECT)throw new LazyException("Requested value is not an object",token);
+		return new LazyObject(token,cbuf);
+	}
+
+	/**
 	 * Returns the JSON array stored in this object for the given key.
 	 *
 	 * @param key the name of the field on this object
@@ -131,6 +294,21 @@ public class LazyObject{
 	 */
 	public LazyArray getJSONArray(String key) throws LazyException{
 		LazyToken token=getFieldToken(key);
+		if(token.type!=LazyToken.ARRAY)throw new LazyException("Requested value is not an array",token);
+		return new LazyArray(token,cbuf);
+	}
+
+	/**
+	 * Returns the JSON array stored in this object for the given key or null if the key doesn't exist.
+	 *
+	 * @param key the name of the field on this object
+	 * @return an array value or null if the key doesn't exist
+	 * @throws LazyException if the value for the given key was not an array.
+	 */
+	public LazyArray optJSONArray(String key) throws LazyException{
+		LazyToken token=getFieldToken(key);
+		if(token==null)return null;
+		if(token.type==LazyToken.VALUE_NULL)return null;
 		if(token.type!=LazyToken.ARRAY)throw new LazyException("Requested value is not an array",token);
 		return new LazyArray(token,cbuf);
 	}
@@ -228,6 +406,32 @@ public class LazyObject{
 			child=child.next;
 		}
 		throw new LazyException("Unknown field '"+key+"'");
+	}
+
+	/**
+	 * Fields for an object are attached as children on the token representing
+	 * the object itself. This method finds the correct field for a given key
+	 * and returns its first child - the child being the value for that field.
+	 * This is a utility method used internally to extract field values.
+	 *
+	 * @param key the name of the desired field
+	 * @return the first child of the matching field token if one exists, null otherwise
+	 */
+	private LazyToken getOptionalFieldToken(String key){
+		LazyToken child=root.child;
+		while(child!=null){
+			if(child.type==LazyToken.FIELD){
+				if(keyMatch(key,child)){
+					return child.child;
+				}
+			}else{
+				// Only field tokens should be attached to an object token
+				// This error would indicate a broken parser!
+				// throw new LazyException("Syntax error",child);
+			}
+			child=child.next;
+		}
+		return null;
 	}
 
 	/**

@@ -65,6 +65,21 @@ public class LazyArray{
 	}
 
 	/**
+	 * Returns the JSON array stored at the given index.
+	 *
+	 * @param index the location of the value in this array
+	 * @return the value if it could be parsed as a JSON array or null if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public LazyArray optJSONArray(int index) throws LazyException{
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return null;
+		if(token.type==LazyToken.VALUE_NULL)return null;
+		if(token.type!=LazyToken.ARRAY)throw new LazyException("Requested value is not an array",token);
+		return new LazyArray(token,cbuf);
+	}
+
+	/**
 	 * Returns the JSON object stored at the given index.
 	 *
 	 * @param index the location of the value in this array
@@ -73,6 +88,21 @@ public class LazyArray{
 	 */
 	public LazyObject getJSONObject(int index) throws LazyException{
 		LazyToken token=getValueToken(index);
+		if(token.type!=LazyToken.OBJECT)throw new LazyException("Requested value is not an object",token);
+		return new LazyObject(token,cbuf);
+	}
+
+	/**
+	 * Returns the JSON object stored at the given index.
+	 *
+	 * @param index the location of the value in this array
+	 * @return the value if it could be parsed as a JSON object or null if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public LazyObject optJSONObject(int index) throws LazyException{
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return null;
+		if(token.type==LazyToken.VALUE_NULL)return null;
 		if(token.type!=LazyToken.OBJECT)throw new LazyException("Requested value is not an object",token);
 		return new LazyObject(token,cbuf);
 	}
@@ -92,6 +122,39 @@ public class LazyArray{
 	}
 
 	/**
+	 * Returns the boolean value stored at the given index or null if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @return the value if it could be parsed as a boolean or null if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public boolean optBoolean(int index){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return false;
+		if(token.type==LazyToken.VALUE_NULL)return false;
+		if(token.type==LazyToken.VALUE_TRUE)return true;
+		if(token.type==LazyToken.VALUE_FALSE)return false;
+		throw new LazyException("Requested value is not a boolean",token);
+	}
+
+	/**
+	 * Returns the boolean value stored at the given index or the default value if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @param defaultValue the default value
+	 * @return the value if it could be parsed as a boolean or the default value if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public boolean optBoolean(int index,boolean defaultValue){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyToken.VALUE_TRUE)return true;
+		if(token.type==LazyToken.VALUE_FALSE)return false;
+		throw new LazyException("Requested value is not a boolean",token);
+	}
+
+	/**
 	 * Returns the string value stored at the given index.
 	 *
 	 * @param index the location of the value in this array
@@ -100,6 +163,35 @@ public class LazyArray{
 	 */
 	public String getString(int index) throws LazyException{
 		LazyToken token=getValueToken(index);
+		return token.getStringValue(cbuf);
+	}
+
+	/**
+	 * Returns the string value stored at the given index or null if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @return the value if it could be parsed as a boolean or null if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public String optString(int index){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return null;
+		if(token.type==LazyToken.VALUE_NULL)return null;
+		return token.getStringValue(cbuf);
+	}
+
+	/**
+	 * Returns the string value stored at the given index or the default value if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @param defaultValue the default value
+	 * @return the value if it could be parsed as a string or the default value if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public String optString(int index,String defaultValue){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
 		return token.getStringValue(cbuf);
 	}
 
@@ -116,6 +208,35 @@ public class LazyArray{
 	}
 
 	/**
+	 * Returns the int value stored at the given index or 0 if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @return the value if it could be parsed as a boolean or null if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public int optInt(int index){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return 0;
+		if(token.type==LazyToken.VALUE_NULL)return 0;
+		return token.getIntValue(cbuf);
+	}
+
+	/**
+	 * Returns the int value stored at the given index or the default value if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @param defaultValue the default value
+	 * @return the value if it could be parsed as a string or the default value if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public int optInt(int index,int defaultValue){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		return token.getIntValue(cbuf);
+	}
+
+	/**
 	 * Returns the long value stored at the given index.
 	 *
 	 * @param index the location of the value in this array
@@ -128,6 +249,35 @@ public class LazyArray{
 	}
 
 	/**
+	 * Returns the long value stored at the given index or 0 if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @return the value if it could be parsed as a boolean or null if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public long optLong(int index){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return 0l;
+		if(token.type==LazyToken.VALUE_NULL)return 0l;
+		return token.getLongValue(cbuf);
+	}
+
+	/**
+	 * Returns the long value stored at the given index or the default value if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @param defaultValue the default value
+	 * @return the value if it could be parsed as a string or the default value if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public long optLong(int index,long defaultValue){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		return token.getLongValue(cbuf);
+	}
+
+	/**
 	 * Returns the double value stored at the given index.
 	 *
 	 * @param index the location of the value in this array
@@ -136,6 +286,35 @@ public class LazyArray{
 	 */
 	public double getDouble(int index) throws LazyException{
 		LazyToken token=getValueToken(index);
+		return token.getDoubleValue(cbuf);
+	}
+
+	/**
+	 * Returns the double value stored at the given index or 0.0 if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @return the value if it could be parsed as a boolean or null if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public double optDouble(int index){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return 0.0;
+		if(token.type==LazyToken.VALUE_NULL)return 0.0;
+		return token.getDoubleValue(cbuf);
+	}
+
+	/**
+	 * Returns the double value stored at the given index or the default value if there was no such value.
+	 *
+	 * @param index the location of the value in this array
+	 * @param defaultValue the default value
+	 * @return the value if it could be parsed as a string or the default value if there was no such value
+	 * @throws LazyException if the index is out of bounds
+	 */
+	public double optDouble(int index,long defaultValue){
+		LazyToken token=getOptionalValueToken(index);
+		if(token==null)return defaultValue;
+		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
 		return token.getDoubleValue(cbuf);
 	}
 
@@ -188,6 +367,44 @@ public class LazyArray{
 			child=child.next;
 		}
 		throw new LazyException("Array index out of bounds "+index);
+	}
+
+	/**
+	 * Values for an array are attached as children on the token representing
+	 * the array itself. This method finds the correct child for a given index
+	 * and returns it.
+	 *
+	 * Since children are stored as a linked list, this method is likely to be
+	 * a serious O(n) performance bottleneck for array access. To improve this
+	 * for the most common case, we maintain a traversal index and pointer into
+	 * the children - meaning that if you traverse the array from the beginning
+	 * the complexity will be O(1) for each access request instead.
+	 *
+	 * @param index the location of the desired value
+	 * @return the child for the given index or null if the index does not exist
+	 * @throws LazyException if the index is out of bounds
+	 */
+	private LazyToken getOptionalValueToken(int index) throws LazyException{
+		if(index<0)throw new LazyException("Array undex can not be negative");
+		int num=0;
+		LazyToken child=root.child;
+		// If the value we are looking for is past our previous traversal point
+		// continue at the previous point
+		if(selectInt>-1 && index>=selectInt){
+			num=selectInt;
+			child=selectToken;
+		}
+		while(child!=null){
+			if(num==index){
+				// Store the traversal point and return the current token
+				selectInt=index;
+				selectToken=child;
+				return child;
+			}
+			num++;
+			child=child.next;
+		}
+		return null;
 	}
 
 	/**
