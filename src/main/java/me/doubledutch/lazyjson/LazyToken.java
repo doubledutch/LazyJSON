@@ -17,6 +17,9 @@ public final class LazyToken{
 	protected static final byte VALUE_TRUE=4;
 	protected static final byte VALUE_FALSE=5;
 	protected static final byte VALUE_NULL=6;
+	protected static final byte VALUE_STRING=7;
+	protected static final byte VALUE_INTEGER=8;
+	protected static final byte VALUE_FLOAT=9;
 	protected final byte type;
 
 	// Start and end index into source string for this token.
