@@ -3,13 +3,24 @@ version = '1.0.3'
 group = "me.doubledutch"
 archivesBaseName = "lazyjson"
 
+apply plugin: 'jacoco'
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
 
 defaultTasks = ['clean', 'jar']
 
