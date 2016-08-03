@@ -130,6 +130,39 @@ public final class LazyToken{
 	}
 
 	/**
+	 * Convenience method to create a new token with the type set to string value and
+	 * with the starting index set to the given index.
+	 *
+	 * @param index the starting index for this token
+	 * @return a new token
+	 */
+	protected static LazyToken cStringValue(int index){
+		return new LazyToken(VALUE_STRING,index);
+	}
+
+	/**
+	 * Convenience method to create a new token with the type set to integer value and
+	 * with the starting index set to the given index.
+	 *
+	 * @param index the starting index for this token
+	 * @return a new token
+	 */
+	protected static LazyToken cIntValue(int index){
+		return new LazyToken(VALUE_INTEGER,index);
+	}
+
+	/**
+	 * Convenience method to create a new token with the type set to float value and
+	 * with the starting index set to the given index.
+	 *
+	 * @param index the starting index for this token
+	 * @return a new token
+	 */
+	protected static LazyToken cFloatValue(int index){
+		return new LazyToken(VALUE_FLOAT,index);
+	}
+
+	/**
 	 * Convenience method to create a new token with the type set to a boolean true value and
 	 * with the starting index set to the given index.
 	 *
