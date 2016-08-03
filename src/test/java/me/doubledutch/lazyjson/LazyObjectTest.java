@@ -10,6 +10,59 @@ import java.net.*;
 
 public class LazyObjectTest{
     @Test
+    public void optionalStringTest() throws LazyException{
+        String str="{\"foo\":\"43\",\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        assertNull(obj.optString("bar"));
+        assertEquals(obj.optString("foo"),"43");
+        assertEquals(obj.optString("foo","44"),"43");
+        assertEquals(obj.optString("bar","44"),"44");
+        assertEquals(obj.optString("baz","44"),"44");
+    }
+
+    @Test
+    public void optionalIntTest() throws LazyException{
+        String str="{\"foo\":43,\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        assertEquals(obj.optInt("bar"),0);
+        assertEquals(obj.optInt("foo"),43);
+        assertEquals(obj.optInt("foo",44),43);
+        assertEquals(obj.optInt("bar",44),44);
+        assertEquals(obj.optInt("baz",44),44);
+    }
+
+    @Test
+    public void optionalLongTest() throws LazyException{
+        String str="{\"foo\":43,\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        assertEquals(obj.optLong("bar"),0l);
+        assertEquals(obj.optLong("foo"),43l);
+        assertEquals(obj.optLong("foo",44l),43l);
+        assertEquals(obj.optLong("bar",44l),44l);
+        assertEquals(obj.optLong("baz",44l),44l);
+    }
+
+    @Test
+    public void optionalDoubleTest() throws LazyException{
+        String str="{\"foo\":43.0,\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        assertEquals(obj.optDouble("bar"),0.0,0);
+        assertEquals(obj.optDouble("foo"),43.0,0);
+        assertEquals(obj.optDouble("foo",44.0),43.0,0);
+        assertEquals(obj.optDouble("bar",44.0),44.0,0);
+        assertEquals(obj.optDouble("baz",44.0),44.0,0);
+    }
+
+    @Test
+    public void optionalObjectTest() throws LazyException{
+        String str="{\"foo\":{},\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        assertNull(obj.optJSONObject("bar"));
+        assertNull(obj.optJSONObject("baz"));
+        assertNotNull(obj.optJSONObject("foo"));
+    }
+
+    @Test
     public void testRyansSample() throws LazyException{
         String str="{\"data\":{\"blah\":9},\"header\":{}}";
         LazyObject obj=new LazyObject(str);

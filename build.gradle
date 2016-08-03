@@ -1,15 +1,26 @@
-version = '1.0.3'
+version = '1.1.0'
 
 group = "me.doubledutch"
 archivesBaseName = "lazyjson"
 
+apply plugin: 'jacoco'
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
 
 defaultTasks = ['clean', 'jar']
 
@@ -40,9 +51,10 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
+/*
 signing {
     sign configurations.archives
-}
+}*/
 
 
 jar {
@@ -64,7 +76,7 @@ jar {
         attributes 'Implementation-Title': 'LazyJSON Library', 'Implementation-Version': version
     }
 }
-
+/*
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -110,3 +122,4 @@ uploadArchives {
         }
     }
 }
+*/
