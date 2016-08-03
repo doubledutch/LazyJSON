@@ -65,7 +65,7 @@ public class LazyObject{
 	 * Returns the default value if there is no such key.
 	 *
 	 * @param key the name of the field on this object
-	 * @param defaltValue the default value to return
+	 * @param defaultValue the default value to return
 	 * @return the requested string value or the default value if there was no such key
 	 */
 	public String optString(String key,String defaultValue){
@@ -106,7 +106,7 @@ public class LazyObject{
 	 * Returns the default value if there is no such key.
 	 *
 	 * @param key the name of the field on this object
-	 * @param defaltValue the default value to return
+	 * @param defaultValue the default value to return
 	 * @return the requested integer value or the default value if there was no such key
 	 */
 	public int optInt(String key,int defaultValue){
@@ -147,7 +147,7 @@ public class LazyObject{
 	 * Returns the default value if there is no such key.
 	 *
 	 * @param key the name of the field on this object
-	 * @param defaltValue the default value to return
+	 * @param defaultValue the default value to return
 	 * @return the requested long value or the default value if there was no such key
 	 */
 	public long optLong(String key,long defaultValue){
@@ -188,7 +188,7 @@ public class LazyObject{
 	 * Returns the default value if there is no such key.
 	 *
 	 * @param key the name of the field on this object
-	 * @param defaltValue the default value to return
+	 * @param defaultValue the default value to return
 	 * @return the requested long value or the default value if there was no such key
 	 */
 	public double optDouble(String key,double defaultValue){
@@ -246,7 +246,7 @@ public class LazyObject{
 	 * Returns the default value if there is no such key.
 	 *
 	 * @param key the name of the field on this object
-	 * @param defaltValue the default value to return
+	 * @param defaultValue the default value to return
 	 * @return the requested boolean value or the default value if there was no such key
 	 */
 	public boolean optBoolean(String key,boolean defaultValue){
