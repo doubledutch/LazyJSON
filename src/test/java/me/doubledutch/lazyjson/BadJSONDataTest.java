@@ -40,6 +40,12 @@ public class BadJSONDataTest{
     }
 
     @Test(expected=LazyException.class)
+    public void testMissingFieldForArray() throws LazyException{
+        String str="{[\"foo\"]}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
     public void testHalfArray() throws LazyException{
         String str="[";
         LazyArray obj=new LazyArray(str);
