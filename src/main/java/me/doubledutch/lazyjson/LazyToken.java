@@ -13,13 +13,12 @@ public final class LazyToken{
 	protected static final byte OBJECT=0;
 	protected static final byte ARRAY=1;
 	protected static final byte FIELD=2;
-	protected static final byte VALUE=3;
+	// protected static final byte VALUE=3;
 	protected static final byte VALUE_TRUE=4;
 	protected static final byte VALUE_FALSE=5;
 	protected static final byte VALUE_NULL=6;
 	protected static final byte VALUE_STRING=7;
-	protected static final byte VALUE_INTEGER=8;
-	protected static final byte VALUE_FLOAT=9;
+	protected static final byte VALUE_NUMBER=8;
 	protected final byte type;
 
 	// Start and end index into source string for this token.
@@ -119,17 +118,6 @@ public final class LazyToken{
 	}
 
 	/**
-	 * Convenience method to create a new token with the type set to value and
-	 * with the starting index set to the given index.
-	 *
-	 * @param index the starting index for this token
-	 * @return a new token
-	 */
-	protected static LazyToken cValue(int index){
-		return new LazyToken(VALUE,index);
-	}
-
-	/**
 	 * Convenience method to create a new token with the type set to string value and
 	 * with the starting index set to the given index.
 	 *
@@ -141,25 +129,14 @@ public final class LazyToken{
 	}
 
 	/**
-	 * Convenience method to create a new token with the type set to integer value and
+	 * Convenience method to create a new token with the type set to number value and
 	 * with the starting index set to the given index.
 	 *
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cIntValue(int index){
-		return new LazyToken(VALUE_INTEGER,index);
-	}
-
-	/**
-	 * Convenience method to create a new token with the type set to float value and
-	 * with the starting index set to the given index.
-	 *
-	 * @param index the starting index for this token
-	 * @return a new token
-	 */
-	protected static LazyToken cFloatValue(int index){
-		return new LazyToken(VALUE_FLOAT,index);
+	protected static LazyToken cNumberValue(int index){
+		return new LazyToken(VALUE_NUMBER,index);
 	}
 
 	/**
