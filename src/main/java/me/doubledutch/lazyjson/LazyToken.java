@@ -344,6 +344,10 @@ public final class LazyToken{
 			return next!=null;
 		}
 
+		public void remove() throws UnsupportedOperationException{
+			throw new UnsupportedOperationException("Can't remove from token");
+		}
+
 		public String next() throws NoSuchElementException{
 			if(hasNext()){
 				String value=next.getStringValue(cbuf);
