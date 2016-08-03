@@ -114,7 +114,8 @@ public final class LazyParser{
 
 	// Consume all characters in a number and throw an exception if the format
 	// of the number does not validate correctly
-	private final void consumeNumber(char c) throws LazyException{
+	private final boolean consumeNumber(char c) throws LazyException{
+		boolean floatChar=false;
 		if(c=='-'){
 			// If the number started with a minus sign it must be followed by at least one digit
 			n++;
@@ -130,6 +131,7 @@ public final class LazyParser{
 			c=cbuf[n];
 		}
 		if(c=='.'){
+			floatChar=true;
 			// The fractional part must contain one or more digits
 			n++;
 			c=cbuf[n];
@@ -144,6 +146,7 @@ public final class LazyParser{
 			}
 		}
 		if(c=='e' || c=='E'){
+			floatChar=true;
 			n++;
 			c=cbuf[n];
 			if(c=='-' || c=='+'){
@@ -163,6 +166,7 @@ public final class LazyParser{
 				c=cbuf[n];
 			}
 		}
+		return floatChar;
 	}
 
 	// This should probably be renamed to parse. This method started out as a
@@ -230,19 +234,19 @@ public final class LazyParser{
 					break;
 			case '"':
 				if(stackTop.type==LazyToken.ARRAY){
-					token=LazyToken.cValue(n+1);
+					token=LazyToken.cStringValue(n+1);
 					stackTop.addChild(token);
-					token.escaped=consumeString();
+					token.modified=consumeString();
 					token.endIndex=n;
 				}else if(stackTop.type==LazyToken.FIELD){
-					token=LazyToken.cValue(n+1);
+					token=LazyToken.cStringValue(n+1);
 					stackTop.addChild(token);
-					token.escaped=consumeString();
+					token.modified=consumeString();
 					token.endIndex=n;
 					drop();
 				}else if(stackTop.type==LazyToken.OBJECT){
 					push(LazyToken.cField(n+1));
-					stackTop.escaped=consumeString();
+					stackTop.modified=consumeString();
 					stackTop.endIndex=n;
 					n++;
 					consumeWhiteSpace();
@@ -259,18 +263,11 @@ public final class LazyParser{
 				break;
 			case ',':
 				// This must be the end of a value and the start of another
-				if(stackTop.type==LazyToken.VALUE){
-					token=pop();
-					if(token.endIndex==-1){
-						token.endIndex=n;
-					}
-					if(stackTop.type==LazyToken.FIELD){
-						// This was the end of the value for a field, pop that too
-						drop();
-					}
-				}
 				break;
 			case '[':
+				if(stackTop.type==LazyToken.OBJECT){
+					throw new LazyException("Missing field name for array",n);
+				}
 				push(LazyToken.cArray(n));
 				break;
 			case ']':
@@ -296,76 +293,64 @@ public final class LazyParser{
 			case '\t':
 			case '\n':
 			case '\r':
-				if(stackTop!=null && stackTop.type==LazyToken.VALUE){
-					token=pop();
-					if(token.endIndex==-1){
-						token.endIndex=n;
-					}
-					if(stackTop.type==LazyToken.FIELD){
-						// This was the end of the value for a field, pop that too
-						drop();
-					}
-				}
+				// Ignore white space characters here
 				break;
 			default:
-				if(stackTop.type==LazyToken.VALUE){
-					// We are just collecting more data for the current value
-				}else{
-					// This must be a new value
-					if(c=='n'){
-						// Must be null value
-						if(cbuf[++n]=='u' && cbuf[++n]=='l' && cbuf[++n]=='l'){
-							token=LazyToken.cValueNull(n);
-							stackTop.addChild(token);
-							token.endIndex=n;
-							if(stackTop.type==LazyToken.FIELD){
-								// This was the end of the value for a field, pop that too
-								drop();
-							}
-						}else{
-							throw new LazyException("Syntax error",n);
-						}
-					}else if(c=='t'){
-						// Must be true value
-						if(cbuf[++n]=='r' && cbuf[++n]=='u' && cbuf[++n]=='e'){
-							token=LazyToken.cValueTrue(n);
-							stackTop.addChild(token);
-							token.endIndex=n;
-							if(stackTop.type==LazyToken.FIELD){
-								// This was the end of the value for a field, pop that too
-								drop();
-							}
-						}else{
-							throw new LazyException("Syntax error",n);
-						}
-					}else if(c=='f'){
-						// Must be false value
-						if(cbuf[++n]=='a' && cbuf[++n]=='l' && cbuf[++n]=='s' && cbuf[++n]=='e'){
-							token=LazyToken.cValueFalse(n);
-							stackTop.addChild(token);
-							token.endIndex=n;
-							if(stackTop.type==LazyToken.FIELD){
-								// This was the end of the value for a field, pop that too
-								drop();
-							}
-						}else{
-							throw new LazyException("Syntax error",n);
-						}
-					}else if(c=='-' || !(c<'0' || c>'9')){
-						// Must be a number
-						token=LazyToken.cValue(n);
+				// This must be a new value
+				if(c=='n'){
+					// Must be null value
+					if(cbuf[++n]=='u' && cbuf[++n]=='l' && cbuf[++n]=='l'){
+						token=LazyToken.cValueNull(n);
 						stackTop.addChild(token);
-						consumeNumber(c);
 						token.endIndex=n;
-						n--;
 						if(stackTop.type==LazyToken.FIELD){
 							// This was the end of the value for a field, pop that too
 							drop();
 						}
 					}else{
 						throw new LazyException("Syntax error",n);
-					}				
-				}
+					}
+				}else if(c=='t'){
+					// Must be true value
+					if(cbuf[++n]=='r' && cbuf[++n]=='u' && cbuf[++n]=='e'){
+						token=LazyToken.cValueTrue(n);
+						stackTop.addChild(token);
+						token.endIndex=n;
+						if(stackTop.type==LazyToken.FIELD){
+							// This was the end of the value for a field, pop that too
+							drop();
+						}
+					}else{
+						throw new LazyException("Syntax error",n);
+					}
+				}else if(c=='f'){
+					// Must be false value
+					if(cbuf[++n]=='a' && cbuf[++n]=='l' && cbuf[++n]=='s' && cbuf[++n]=='e'){
+						token=LazyToken.cValueFalse(n);
+						stackTop.addChild(token);
+						token.endIndex=n;
+						if(stackTop.type==LazyToken.FIELD){
+							// This was the end of the value for a field, pop that too
+							drop();
+						}
+					}else{
+						throw new LazyException("Syntax error",n);
+					}
+				}else if(c=='-' || !(c<'0' || c>'9')){
+					// Must be a number
+					token=LazyToken.cNumberValue(n);
+					stackTop.addChild(token);
+					token.modified=consumeNumber(c);
+					token.endIndex=n;
+					n--;
+					if(stackTop.type==LazyToken.FIELD){
+						// This was the end of the value for a field, pop that too
+						drop();
+					}
+				}else{
+					throw new LazyException("Syntax error",n);
+				}				
+			
 				break;
 			}
 		}

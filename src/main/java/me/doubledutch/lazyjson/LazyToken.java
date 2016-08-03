@@ -13,10 +13,12 @@ public final class LazyToken{
 	protected static final byte OBJECT=0;
 	protected static final byte ARRAY=1;
 	protected static final byte FIELD=2;
-	protected static final byte VALUE=3;
+	// protected static final byte VALUE=3;
 	protected static final byte VALUE_TRUE=4;
 	protected static final byte VALUE_FALSE=5;
 	protected static final byte VALUE_NULL=6;
+	protected static final byte VALUE_STRING=7;
+	protected static final byte VALUE_NUMBER=8;
 	protected final byte type;
 
 	// Start and end index into source string for this token.
@@ -28,7 +30,9 @@ public final class LazyToken{
 	// When strings are parsed we make a note of any escaped characters.
 	// This lets us do a quick char copy when accessing string values that
 	// do not have any escaped characters
-	protected boolean escaped=false;
+	// When numbers are parsed, we use the same field to mark floating point
+	// characters.
+	protected boolean modified=false;
 
 	// Children are stored as a linked list by maintaining the first and last
 	// child of this token, as well as a link to the next sibling
@@ -116,14 +120,25 @@ public final class LazyToken{
 	}
 
 	/**
-	 * Convenience method to create a new token with the type set to value and
+	 * Convenience method to create a new token with the type set to string value and
 	 * with the starting index set to the given index.
 	 *
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cValue(int index){
-		return new LazyToken(VALUE,index);
+	protected static LazyToken cStringValue(int index){
+		return new LazyToken(VALUE_STRING,index);
+	}
+
+	/**
+	 * Convenience method to create a new token with the type set to number value and
+	 * with the starting index set to the given index.
+	 *
+	 * @param index the starting index for this token
+	 * @return a new token
+	 */
+	protected static LazyToken cNumberValue(int index){
+		return new LazyToken(VALUE_NUMBER,index);
 	}
 
 	/**
@@ -240,7 +255,7 @@ public final class LazyToken{
 	 * @return the string value held by this token
 	 */
 	protected String getStringValue(char[] source){
-		if(!escaped){
+		if(!modified){
 			return new String(source,startIndex,endIndex-startIndex);
 		}else{
 			StringBuilder buf=new StringBuilder(endIndex-startIndex);
