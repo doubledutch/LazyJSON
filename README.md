@@ -1,6 +1,7 @@
 # LazyJSON
 LazyJSON is a very fast JSON parser for Java that sprung out of the [StroomData](https://github.com/doubledutch/StroomData) project at DoubleDutch. You can read more about the origin of the library in [this blogpost](http://engineering.doubledutch.me/h/i/275207067-the-curious-case-of-the-very-lazy-but-blazingly-fast-json-parser).
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/me.doubledutch/lazyjson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/me.doubledutch/lazyjson)
 [![Javadocs](http://www.javadoc.io/badge/me.doubledutch/lazyjson.svg)](http://www.javadoc.io/doc/me.doubledutch/lazyjson)
 
 ## Usage
