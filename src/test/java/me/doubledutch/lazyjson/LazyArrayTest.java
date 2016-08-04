@@ -16,6 +16,13 @@ public class LazyArrayTest{
     }
 
     @Test
+    public void testEmptyLength() throws LazyException{
+        String str="[]";
+        LazyArray array=new LazyArray(str);
+        assertEquals(0,array.length());
+    }
+
+    @Test
     public void testNullValues() throws LazyException{
         String str="[false,null,true]";
         LazyArray array=new LazyArray(str);

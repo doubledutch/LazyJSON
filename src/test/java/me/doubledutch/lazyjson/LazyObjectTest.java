@@ -185,7 +185,7 @@ public class LazyObjectTest{
 
     @Test
     public void testStringFields() throws LazyException{
-        String str="{\"foo\":\"bar\",\"baz\":\"\"}";
+        String str="{\"foo\":\"bar\",\"baz\":\"\",\"bonk\":\"\\t\\b\\r\\n\\\\\\\"\\f\"}";
         LazyObject obj=new LazyObject(str);
         String value=obj.getString("foo");
         assertNotNull(value);
@@ -193,6 +193,7 @@ public class LazyObjectTest{
         value=obj.getString("baz");
         assertNotNull(value);
         assertEquals(value,"");
+        assertEquals(obj.getString("bonk"),"\t\b\r\n\\\"\f");
     }
 
     @Test

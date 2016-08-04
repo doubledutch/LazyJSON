@@ -183,6 +183,7 @@ public final class LazyToken{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected int getIntValue(char[] source) throws LazyException{
+		if(type!=VALUE_NUMBER || modified)throw new LazyException("Not an integer",startIndex);
 		int i=startIndex;
 		boolean sign=false;
 		if(source[i]=='-'){
@@ -192,7 +193,8 @@ public final class LazyToken{
 		int value=0;
 		for(;i<endIndex;i++){
 			char c=source[i];
-			if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
+			// If we only allow this to be called on integer values, the parsing is pre done!
+			// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
 			value+='0'-c;
 			if(i+1<endIndex){
 				value*=10;
@@ -210,6 +212,7 @@ public final class LazyToken{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected long getLongValue(char[] source) throws LazyException{
+		if(type!=VALUE_NUMBER || modified)throw new LazyException("Not a long",startIndex);
 		int i=startIndex;
 		boolean sign=false;
 		if(source[i]=='-'){
@@ -219,7 +222,6 @@ public final class LazyToken{
 		long value=0;
 		for(;i<endIndex;i++){
 			char c=source[i];
-			if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
 			value+='0'-c;
 			if(i+1<endIndex){
 				value*=10;
