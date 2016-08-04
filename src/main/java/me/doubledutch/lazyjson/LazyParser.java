@@ -59,11 +59,6 @@ public final class LazyParser{
 		stackTop=stack[stackPointer-1];
 	}
 
-	// return the stackTop pointer
-	private final LazyToken peek(){
-		return stackTop;
-	}
-
 	private int size(){
 		return stackPointer-1;
 	}
