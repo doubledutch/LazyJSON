@@ -158,6 +158,18 @@ public class LazyObjectTest{
     }
 
     @Test
+    public void testLongFields() throws LazyException{
+        String str="{\"foo\":999,\"bar\":0,\"baz\":42,\"bonk\":-378,\"crazy\":12147483647}";
+        LazyObject obj=new LazyObject(str);
+        assertEquals(999,obj.getLong("foo"));
+        assertEquals(0,obj.getLong("bar"));
+        assertEquals(42,obj.getLong("baz"));
+        assertEquals(-378,obj.getLong("bonk"));
+        assertEquals(12147483647l,obj.getLong("crazy"));
+
+    }
+
+    @Test
     public void testDoubleFields() throws LazyException{
         String str="{\"foo\":3.1415,\"bar\":0.0,\"baz\":1.2345e+1,\"bonk\":-3.78}";
         LazyObject obj=new LazyObject(str);
