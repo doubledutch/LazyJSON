@@ -33,9 +33,40 @@ public class BadJSONDataTest{
         LazyObject obj=new LazyObject(str);
     }
 
+    
+    @Test(expected=LazyException.class)
+    public void testRawValue() throws LazyException{
+        String str="9";
+        LazyObject obj=new LazyObject(str);
+    }
+
     @Test(expected=LazyException.class)
     public void testHalfObject() throws LazyException{
         String str="{";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testHalfObject2() throws LazyException{
+        String str="{}}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testUnexpectedEndObjectChar() throws LazyException{
+        String str="[}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testUnexpectedEndArrayChar() throws LazyException{
+        String str="{]";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testUnexpectedEndArrayChar2() throws LazyException{
+        String str="{\"foo\"]";
         LazyObject obj=new LazyObject(str);
     }
 
@@ -57,6 +88,24 @@ public class BadJSONDataTest{
         LazyObject obj=new LazyObject(str);
     }
 
+     @Test(expected=LazyException.class)
+    public void testBadFieldValue1() throws LazyException{
+        String str="{\"foo\":trye}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+     @Test(expected=LazyException.class)
+    public void testBadFieldValue2() throws LazyException{
+        String str="{\"foo\":nil}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+     @Test(expected=LazyException.class)
+    public void testBadFieldValue3() throws LazyException{
+        String str="{\"foo\":folse}";
+        LazyObject obj=new LazyObject(str);
+    }
+
     @Test(expected=LazyException.class)
     public void testBadField() throws LazyException{
         String str="{42:\"foo\"}";
@@ -72,6 +121,12 @@ public class BadJSONDataTest{
     @Test(expected=LazyException.class)
     public void testHalfArray() throws LazyException{
         String str="[";
+        LazyArray obj=new LazyArray(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testHalfArray2() throws LazyException{
+        String str="[]]";
         LazyArray obj=new LazyArray(str);
     }
 

@@ -4,8 +4,8 @@ import java.util.*;
 
 public final class LazyParser{
 	// Read the comments on push before changing these!
-	private final int STACK_INCREASE=127;
-	private int STACK_SIZE=128;
+	private final int STACK_INCREASE=31;
+	private int STACK_SIZE=32;
 
 	protected LazyToken root;
 	protected final char[] cbuf;
@@ -200,10 +200,14 @@ public final class LazyParser{
 					if(token==null){
 						throw new LazyException("Unexpected end of object character",n);
 					}else if(token.type!=LazyToken.OBJECT){
+						// TODO: Do we have any legal cases that should send us in here?
 						if(token.endIndex==-1){
 							token.endIndex=n;
 						}
 						token=pop();
+						if(token==null){
+							throw new LazyException("Unexpected end of object character",n);
+						}
 						if(token.type==LazyToken.FIELD){
 							token=pop();
 						}else{
@@ -244,9 +248,6 @@ public final class LazyParser{
 					}else{
 						throw new LazyException("Unexpected character! Was expecting field separator ':'",n);
 					}
-				}else{
-					// This shouldn't occur should it?
-					throw new LazyException("Syntax error",n);
 				}
 				break;
 			case ',':
@@ -267,7 +268,7 @@ public final class LazyParser{
 						token.endIndex=n;
 					}
 					token=pop();
-					if(token.type!=LazyToken.ARRAY){
+					if(token==null || token.type!=LazyToken.ARRAY){
 						throw new LazyException("Unexpected end of array",n);
 					}
 				}
