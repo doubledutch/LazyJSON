@@ -10,6 +10,30 @@ import java.net.*;
 
 public class BadJSONDataTest{
     @Test(expected=LazyException.class)
+    public void testBadNumber1() throws LazyException{
+        String str="{\"foo\":-f}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBadNumber2() throws LazyException{
+        String str="{\"foo\":-9.f}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBadNumber3() throws LazyException{
+        String str="{\"foo\":-9.1ef}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBadNumber4() throws LazyException{
+        String str="{\"foo\":-9.1e-f}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
     public void testHalfObject() throws LazyException{
         String str="{";
         LazyObject obj=new LazyObject(str);

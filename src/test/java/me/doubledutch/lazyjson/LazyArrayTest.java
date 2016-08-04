@@ -52,7 +52,7 @@ public class LazyArrayTest{
 
     @Test
     public void testDoubleValues() throws LazyException{
-        String str="[0.9,3.1415,-3.78,1.2345e+1,1.2345e-1,1.2345E+1,1.2345E-1,2e+1,2e-1,2e1]";
+        String str="[0.9,3.1415,-3.78,1.2345e+1,1.2345e-1,1.2345E+1,1.2345E-1,2e+1,2e-1,2e1,0.34e-10]";
         LazyArray array=new LazyArray(str);
         assertEquals(0.9,array.getDouble(0),0);
         assertEquals(3.1415,array.getDouble(1),0);
