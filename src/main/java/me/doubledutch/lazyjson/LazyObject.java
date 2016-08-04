@@ -434,16 +434,6 @@ public class LazyObject{
 		return null;
 	}
 
-	/**
-	 * Utility method to get the string value of a specific token
-	 *
-	 * @param token the token for which to extract a string
-	 * @return the string value of the given token
-	 */
-	private String getString(LazyToken token){
-		return token.getStringValue(cbuf);
-	}
-
 	/*
 	// For debug purposes only
 	public String toString(int pad){
