@@ -59,13 +59,6 @@ public final class LazyParser{
 		stackTop=stack[stackPointer-1];
 	}
 
-	// Pop two tokens off the stack and reset the stackTop pointer without returning their values
-	private void doubleDrop(){
-		stackPointer-=2;
-		stackTop=stack[stackPointer-1];
-	}
-
-
 	// return the stackTop pointer
 	private final LazyToken peek(){
 		return stackTop;
