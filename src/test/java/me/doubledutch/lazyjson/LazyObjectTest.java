@@ -9,6 +9,15 @@ import java.util.Iterator;
 import java.net.*;
 
 public class LazyObjectTest{
+   @Test
+    public void optionalArrayTest() throws LazyException{
+        String str="{\"foo\":[],\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        assertNull(obj.optJSONArray("bar"));
+        assertNull(obj.optJSONArray("baz"));
+        assertNotNull(obj.optJSONArray("foo"));
+    }
+
     @Test
     public void optionalStringTest() throws LazyException{
         String str="{\"foo\":\"43\",\"bar\":null}";
@@ -18,6 +27,17 @@ public class LazyObjectTest{
         assertEquals(obj.optString("foo","44"),"43");
         assertEquals(obj.optString("bar","44"),"44");
         assertEquals(obj.optString("baz","44"),"44");
+    }
+
+    @Test
+    public void optionalBooleanTest() throws LazyException{
+        String str="{\"foo\":true,\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        assertEquals(obj.optBoolean("bar"),false);
+        assertEquals(obj.optBoolean("foo"),true);
+        assertEquals(obj.optBoolean("foo",false),true);
+        assertEquals(obj.optBoolean("bar",true),true);
+        assertEquals(obj.optBoolean("baz",true),true);
     }
 
     @Test

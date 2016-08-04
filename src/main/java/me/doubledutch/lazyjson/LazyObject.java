@@ -306,7 +306,7 @@ public class LazyObject{
 	 * @throws LazyException if the value for the given key was not an array.
 	 */
 	public LazyArray optJSONArray(String key) throws LazyException{
-		LazyToken token=getFieldToken(key);
+		LazyToken token=getOptionalFieldToken(key);
 		if(token==null)return null;
 		if(token.type==LazyToken.VALUE_NULL)return null;
 		if(token.type!=LazyToken.ARRAY)throw new LazyException("Requested value is not an array",token);

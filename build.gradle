@@ -10,7 +10,7 @@ apply plugin: 'signing'
 
 jacoco {
     toolVersion = "0.7.6.201602180812"
-    reportsDir = file("$buildDir/customJacocoReportDir")
+    reportsDir = file("$buildDir/jacoco")
 }
 
 sourceCompatibility = 1.7
@@ -51,8 +51,8 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
-/*
-signing {
+
+/*signing {
     sign configurations.archives
 }*/
 
@@ -76,8 +76,8 @@ jar {
         attributes 'Implementation-Title': 'LazyJSON Library', 'Implementation-Version': version
     }
 }
-/*
-uploadArchives {
+
+/*uploadArchives {
     repositories {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
@@ -121,5 +121,4 @@ uploadArchives {
             }
         }
     }
-}
-*/
+}*/
