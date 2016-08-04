@@ -9,6 +9,14 @@ import java.util.Iterator;
 import java.net.*;
 
 public class LazyObjectTest{
+
+    @Test(expected=LazyException.class)
+    public void testMissingFields() throws LazyException{
+        String str="{\"foo\":42}";
+        LazyObject obj=new LazyObject(str);
+        obj.getString("bar");
+    }
+
    @Test
     public void optionalArrayTest() throws LazyException{
         String str="{\"foo\":[],\"bar\":null}";
@@ -57,6 +65,7 @@ public class LazyObjectTest{
         LazyObject obj=new LazyObject(str);
         assertEquals(obj.optLong("bar"),0l);
         assertEquals(obj.optLong("foo"),43l);
+        assertEquals(obj.optLong("baz"),0l);
         assertEquals(obj.optLong("foo",44l),43l);
         assertEquals(obj.optLong("bar",44l),44l);
         assertEquals(obj.optLong("baz",44l),44l);
@@ -129,6 +138,7 @@ public class LazyObjectTest{
     public void testLength() throws LazyException{
         String str="{\"foo\":\"bar\",\"baz\":{\"key\":42}}";
         LazyObject obj=new LazyObject(str);
+        assertEquals(2,obj.length());
         assertEquals(2,obj.length());
         str="{}";
         obj=new LazyObject(str);
