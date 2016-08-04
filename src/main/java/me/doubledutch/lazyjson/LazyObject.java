@@ -371,10 +371,8 @@ public class LazyObject{
 	public boolean has(String key){
 		LazyToken child=root.child;
 		while(child!=null){
-			if(child.type==LazyToken.FIELD){
-				if(keyMatch(key,child)){
-					return true;
-				}
+			if(keyMatch(key,child)){
+				return true;
 			}
 			child=child.next;
 		}
@@ -394,14 +392,8 @@ public class LazyObject{
 	private LazyToken getFieldToken(String key) throws LazyException{
 		LazyToken child=root.child;
 		while(child!=null){
-			if(child.type==LazyToken.FIELD){
-				if(keyMatch(key,child)){
-					return child.child;
-				}
-			}else{
-				// Only field tokens should be attached to an object token
-				// This error would indicate a broken parser!
-				throw new LazyException("Syntax error",child);
+			if(keyMatch(key,child)){
+				return child.child;
 			}
 			child=child.next;
 		}
@@ -420,14 +412,8 @@ public class LazyObject{
 	private LazyToken getOptionalFieldToken(String key){
 		LazyToken child=root.child;
 		while(child!=null){
-			if(child.type==LazyToken.FIELD){
-				if(keyMatch(key,child)){
-					return child.child;
-				}
-			}else{
-				// Only field tokens should be attached to an object token
-				// This error would indicate a broken parser!
-				// throw new LazyException("Syntax error",child);
+			if(keyMatch(key,child)){
+				return child.child;
 			}
 			child=child.next;
 		}
