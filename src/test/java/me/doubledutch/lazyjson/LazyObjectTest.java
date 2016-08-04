@@ -9,6 +9,11 @@ import java.util.Iterator;
 import java.net.*;
 
 public class LazyObjectTest{
+    @Test(expected=LazyException.class)
+    public void testNonObject() throws LazyException{
+        String str="[{\"foo\":42}]";
+        LazyObject obj=new LazyObject(str);
+    }
 
     @Test(expected=LazyException.class)
     public void testMissingFields() throws LazyException{
@@ -35,17 +40,20 @@ public class LazyObjectTest{
         assertEquals(obj.optString("foo","44"),"43");
         assertEquals(obj.optString("bar","44"),"44");
         assertEquals(obj.optString("baz","44"),"44");
+        assertNull(obj.optString("baz"));
     }
 
     @Test
     public void optionalBooleanTest() throws LazyException{
-        String str="{\"foo\":true,\"bar\":null}";
+        String str="{\"foo\":true,\"bar\":null,\"off\":false}";
         LazyObject obj=new LazyObject(str);
+        assertEquals(obj.optBoolean("badonk"),false);
         assertEquals(obj.optBoolean("bar"),false);
         assertEquals(obj.optBoolean("foo"),true);
         assertEquals(obj.optBoolean("foo",false),true);
         assertEquals(obj.optBoolean("bar",true),true);
         assertEquals(obj.optBoolean("baz",true),true);
+        assertEquals(obj.optBoolean("off",true),false);
     }
 
     @Test
@@ -57,6 +65,7 @@ public class LazyObjectTest{
         assertEquals(obj.optInt("foo",44),43);
         assertEquals(obj.optInt("bar",44),44);
         assertEquals(obj.optInt("baz",44),44);
+        assertEquals(obj.optInt("baz"),0);
     }
 
     @Test
@@ -80,6 +89,7 @@ public class LazyObjectTest{
         assertEquals(obj.optDouble("foo",44.0),43.0,0);
         assertEquals(obj.optDouble("bar",44.0),44.0,0);
         assertEquals(obj.optDouble("baz",44.0),44.0,0);
+        assertEquals(obj.optDouble("baz"),0.0,0);
     }
 
     @Test
@@ -89,6 +99,34 @@ public class LazyObjectTest{
         assertNull(obj.optJSONObject("bar"));
         assertNull(obj.optJSONObject("baz"));
         assertNotNull(obj.optJSONObject("foo"));
+    }
+
+     @Test(expected=LazyException.class)
+    public void optionalNonObjectTest() throws LazyException{
+        String str="{\"foo\":22,\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        obj.optJSONObject("foo");
+    }
+
+    @Test(expected=LazyException.class)
+    public void getNonObjectTest() throws LazyException{
+        String str="{\"foo\":22,\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        obj.getJSONObject("foo");
+    }
+
+     @Test(expected=LazyException.class)
+    public void optionalNonArrayTest() throws LazyException{
+        String str="{\"foo\":22,\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        obj.optJSONArray("foo");
+    }
+
+    @Test(expected=LazyException.class)
+    public void getNonArrayTest() throws LazyException{
+        String str="{\"foo\":22,\"bar\":null}";
+        LazyObject obj=new LazyObject(str);
+        obj.getJSONArray("foo");
     }
 
     @Test
@@ -195,6 +233,13 @@ public class LazyObjectTest{
         LazyObject obj=new LazyObject(str);
         assertEquals(false,obj.getBoolean("foo"));
         assertEquals(true,obj.getBoolean("bar"));
+    }
+
+    @Test(expected=LazyException.class)
+    public void testNonBooleanFields() throws LazyException{
+        String str="{\"foo\":false,\"bar\":42}";
+        LazyObject obj=new LazyObject(str);
+        obj.getBoolean("bar");
     }
 
     @Test
