@@ -18,9 +18,9 @@ public final class LazyException extends RuntimeException{
 		this.message=str;
 	}
 
-	public LazyException(String str,LazyToken token){
+	public LazyException(String str,LazyNode node){
 		super(str);
-		this.position=token.startIndex;
+		this.position=node.startIndex;
 		this.message=str;
 	}
 

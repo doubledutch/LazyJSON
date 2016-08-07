@@ -3,12 +3,12 @@ package me.doubledutch.lazyjson;
 import java.util.*;
 
 /**
- * The LazyToken is the primary output of the LazyParser.
- * It should probably be named LazyNode instead of LazyToken, but as the
+ * The LazyNode is the primary output of the LazyParser.
+ * It should probably be named LazyNode instead of LazyNode, but as the
  * project evolved, the name stuck and I have ironically been too lazy to
  * change it!
  */
-public final class LazyToken{
+public final class LazyNode{
 	// Token types used for classification during parsing
 	protected static final byte OBJECT=0;
 	protected static final byte ARRAY=1;
@@ -36,17 +36,17 @@ public final class LazyToken{
 
 	// Children are stored as a linked list by maintaining the first and last
 	// child of this token, as well as a link to the next sibling
-	protected LazyToken child;
-	protected LazyToken lastChild;
-	protected LazyToken next;
+	protected LazyNode child;
+	protected LazyNode lastChild;
+	protected LazyNode next;
 
 	/**
-	 * Construct a new LazyToken with the given type and index into the source string
+	 * Construct a new LazyNode with the given type and index into the source string
 	 *
 	 * @param type the type of this token
 	 * @param startIndex the index into the source string where this token was found
 	 */
-	protected LazyToken(byte type,int startIndex){
+	protected LazyNode(byte type,int startIndex){
 		this.startIndex=startIndex;
 		this.type=type;
 	}
@@ -56,7 +56,7 @@ public final class LazyToken{
 	 *
 	 * @param token the child to add
 	 */
-	protected void addChild(LazyToken token){
+	protected void addChild(LazyNode token){
 		// If no children have been added yet, lastChild will be null
 		if(lastChild==null){
 			child=token;
@@ -78,7 +78,7 @@ public final class LazyToken{
 			return 0;
 		}
 		int num=0;
-		LazyToken token=child;
+		LazyNode token=child;
 		while(token!=null){
 			num++;
 			token=token.next;
@@ -93,8 +93,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cArray(int index){
-		return new LazyToken(ARRAY,index);
+	protected static LazyNode cArray(int index){
+		return new LazyNode(ARRAY,index);
 	}
 
 	/**
@@ -104,8 +104,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cObject(int index){
-		return new LazyToken(OBJECT,index);
+	protected static LazyNode cObject(int index){
+		return new LazyNode(OBJECT,index);
 	}
 
 	/**
@@ -115,8 +115,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cField(int index){
-		return new LazyToken(FIELD,index);
+	protected static LazyNode cField(int index){
+		return new LazyNode(FIELD,index);
 	}
 
 	/**
@@ -126,8 +126,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cStringValue(int index){
-		return new LazyToken(VALUE_STRING,index);
+	protected static LazyNode cStringValue(int index){
+		return new LazyNode(VALUE_STRING,index);
 	}
 
 	/**
@@ -137,8 +137,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cNumberValue(int index){
-		return new LazyToken(VALUE_NUMBER,index);
+	protected static LazyNode cNumberValue(int index){
+		return new LazyNode(VALUE_NUMBER,index);
 	}
 
 	/**
@@ -148,8 +148,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cValueTrue(int index){
-		return new LazyToken(VALUE_TRUE,index);
+	protected static LazyNode cValueTrue(int index){
+		return new LazyNode(VALUE_TRUE,index);
 	}
 
 	/**
@@ -159,8 +159,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cValueFalse(int index){
-		return new LazyToken(VALUE_FALSE,index);
+	protected static LazyNode cValueFalse(int index){
+		return new LazyNode(VALUE_FALSE,index);
 	}
 
 	/**
@@ -170,8 +170,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cValueNull(int index){
-		return new LazyToken(VALUE_NULL,index);
+	protected static LazyNode cValueNull(int index){
+		return new LazyNode(VALUE_NULL,index);
 	}
 
 	/**
@@ -319,7 +319,7 @@ public final class LazyToken{
 		out+=":["+startIndex+","+endIndex+"]";
 		out+="\n";
 		if(child!=null){
-			LazyToken token=child;
+			LazyNode token=child;
 			while(token!=null){
 				out+=token.toString(pad+2);
 				token=token.next;
@@ -334,10 +334,10 @@ public final class LazyToken{
 
 	// Internal class used to iterate over children as strings
 	private final class StringIterator implements Iterator<String>{
-		private LazyToken next;
+		private LazyNode next;
 		private char[] cbuf;
 
-		protected StringIterator(LazyToken token,char[] cbuf){
+		protected StringIterator(LazyNode token,char[] cbuf){
 			next=token.child;
 			this.cbuf=cbuf;
 		}
