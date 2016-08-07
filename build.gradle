@@ -13,14 +13,16 @@ jacoco {
     reportsDir = file("$buildDir/jacoco")
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
 jacocoTestReport {
     reports {
         xml.enabled true
     }
 }
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+
 
 defaultTasks = ['clean', 'jar']
 
@@ -52,7 +54,7 @@ artifacts {
 }
 
 check{
-    jacocoTestReport
+    dependsOn jacocoTestReport
 }
 
 
