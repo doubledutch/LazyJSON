@@ -1,6 +1,7 @@
 package me.doubledutch.lazyjson;
 
 import java.util.Iterator;
+import java.nio.ByteBuffer;
 
 /**
  * An object used to parse and inspect JSON data given in the form of a string.
@@ -32,6 +33,10 @@ public class LazyObject{
 	protected LazyObject(LazyNode root,char[] source){
 		this.root=root;
 		this.cbuf=source;
+	}
+
+	protected char[] getCharBuffer(){
+		return cbuf;
 	}
 
 	/**
@@ -435,5 +440,13 @@ public class LazyObject{
 	 */
 	public String toString(){
 		return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
+	}
+
+	// TODO: this is going to be copied to LazyArray - perhaps its time to give them a shared parent class
+	public byte[] toByteArray(){
+		int size=root.getBufferSize();
+		ByteBuffer buf=ByteBuffer.allocate(size);
+		root.writeToBuffer(buf);
+		return buf.array();
 	}
 }

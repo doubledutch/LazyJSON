@@ -1,6 +1,7 @@
 package me.doubledutch.lazyjson;
 
 import java.util.*;
+import java.nio.ByteBuffer;
 
 /**
  * The LazyNode is the primary output of the LazyParser.
@@ -19,6 +20,9 @@ public final class LazyNode{
 	protected static final byte VALUE_NULL=6;
 	protected static final byte VALUE_STRING=7;
 	protected static final byte VALUE_NUMBER=8;
+
+	protected static final byte END_MARKER=9;
+
 	protected final byte type;
 
 	// Start and end index into source string for this token.
@@ -359,4 +363,78 @@ public final class LazyNode{
 			throw new NoSuchElementException();
 		}
 	}
+
+	protected static LazyNode readFromBuffer(byte[] raw){
+		ByteBuffer buf=ByteBuffer.wrap(raw);
+		return readFromBuffer(buf);
+	}
+
+	protected static LazyNode readFromBuffer(ByteBuffer buf){
+		byte type=buf.get();
+		if(type==END_MARKER)return null;
+		int startIndex=buf.getInt();
+		int endIndex=buf.getInt();
+		byte modified=buf.get();
+		// TODO: add constructor for this purpose
+		LazyNode node=new LazyNode(type,startIndex);
+		node.endIndex=endIndex; 
+		node.modified=modified==0;
+		if(type==OBJECT || type==ARRAY){
+			LazyNode child=readFromBuffer(buf);
+			node.child=child;
+			node.lastChild=child;
+			child=readFromBuffer(buf);
+			while(child!=null){
+				node.lastChild.next=child;
+				node.lastChild=child;
+				child=readFromBuffer(buf);
+			}
+		}else if(type==FIELD){
+			LazyNode child=readFromBuffer(buf);
+			node.child=child;
+			node.lastChild=child;
+		}
+		return node;
+	}
+
+	protected void writeToBuffer(ByteBuffer buf){
+		// ByterBuffer must be allocated with enough space before calling
+		buf.put(type);
+		buf.putInt(startIndex);
+		buf.putInt(endIndex);
+		if(modified){
+			buf.put((byte)0);
+		}else{
+			buf.put((byte)1);
+		}
+		if(type==OBJECT || type==ARRAY){
+			LazyNode n=child;
+			while(n!=null){
+				n.writeToBuffer(buf);
+				n=n.next;
+			}
+			buf.put(END_MARKER);
+		}else if(type==FIELD){
+			child.writeToBuffer(buf);
+		}
+	}
+
+
+
+	protected int getBufferSize(){
+		int size=1+4+4+1; // type, start and end index, modifier
+		if(type==OBJECT || type==ARRAY){
+			LazyNode n=child;
+			while(n!=null){
+				size+=n.getBufferSize();
+				n=n.next;
+			}
+			size+=1;
+		}else if(type==FIELD){
+			size+=child.getBufferSize();
+		}
+		return size;
+	}
+
+
 }
