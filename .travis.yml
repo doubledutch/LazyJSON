@@ -1,6 +1,6 @@
 language: java
 
 after_success:
-  - ls -al 
+  - ls -al /build/jacoco/test/ 
   - find / -name 'jacocoTestReport.xml'
   - bash <(curl -s https://codecov.io/bash)
