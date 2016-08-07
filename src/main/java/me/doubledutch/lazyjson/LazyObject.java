@@ -6,13 +6,7 @@ import java.nio.ByteBuffer;
 /**
  * An object used to parse and inspect JSON data given in the form of a string.
  */
-public class LazyObject{
-	private LazyNode root;
-	private char[] cbuf;
-
-	// Cache value for length
-	private int length=-1;
-
+public class LazyObject extends LazyElement{
 	/**
 	 * Create a new Lazy JSON object based on the JSON representation in the given string.
 	 *
@@ -31,12 +25,7 @@ public class LazyObject{
 	}
 
 	protected LazyObject(LazyNode root,char[] source){
-		this.root=root;
-		this.cbuf=source;
-	}
-
-	protected char[] getCharBuffer(){
-		return cbuf;
+		super(root,source);
 	}
 
 	/**
@@ -319,22 +308,6 @@ public class LazyObject{
 	}
 
 	/**
-	 * Returns the number of fields on this object
-	 *
-	 * @return the number of fields
-	 */
-	public int length(){
-		if(root.child==null){
-			return 0;
-		}
-		if(length>-1){
-			return length;
-		}
-		length=root.getChildCount();
-		return length;
-	}
-
-	/**
 	 * Returns a string iterator with the fields of this object as values.
 	 *
 	 * @return an iterator of object field names
@@ -432,21 +405,5 @@ public class LazyObject{
 	}
 	*/
 
-	/**
-	 * Returns a raw string extracted from the source string that covers the
-	 * start and end index of this object.
-	 *
-	 * @return as string representation of this object as given in the source string
-	 */
-	public String toString(){
-		return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
-	}
-
-	// TODO: this is going to be copied to LazyArray - perhaps its time to give them a shared parent class
-	public byte[] toByteArray(){
-		int size=root.getBufferSize();
-		ByteBuffer buf=ByteBuffer.allocate(size);
-		root.writeToBuffer(buf);
-		return buf.array();
-	}
+	
 }

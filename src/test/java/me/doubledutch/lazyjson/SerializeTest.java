@@ -22,7 +22,6 @@ public class SerializeTest{
         // If serialization in and out worked, this should be a working object
         assertEquals(obj.getInt("foo"),obj2.getInt("foo"));
         assertEquals(obj.getJSONObject("bar").getString("baz"),obj2.getJSONObject("bar").getString("baz"));
-
         // System.out.println(raw.length+" vs "+str.length());
     }
 }

@@ -3,13 +3,7 @@ package me.doubledutch.lazyjson;
 /**
  * An array used to parse and inspect JSON data given in the form of a string.
  */
-public class LazyArray{
-	private LazyNode root;
-	private char[] cbuf;
-
-	// Cache value for length
-	private int length=-1;
-
+public class LazyArray extends LazyElement{
 	// Stored traversal location for fast in order traversals
 	private LazyNode selectToken=null;
 	private int selectInt=-1;
@@ -31,24 +25,7 @@ public class LazyArray{
 	}
 
 	protected LazyArray(LazyNode root,char[] source){
-		this.root=root;
-		this.cbuf=source;
-	}
-
-	/**
-	 * Returns the number of values in this array
-	 *
-	 * @return the number of values
-	 */
-	public int length(){
-		if(root.child==null){
-			return 0;
-		}
-		if(length>-1){
-			return length;
-		}
-		length=root.getChildCount();
-		return length;
+		super(root,source);
 	}
 
 	/**
@@ -415,16 +392,6 @@ public class LazyArray{
 	 */
 	private String getString(LazyNode token){
 		return token.getStringValue(cbuf);
-	}
-
-	/**
-	 * Returns a raw string extracted from the source string that covers the
-	 * start and end index of this object.
-	 *
-	 * @return as string representation of this object as given in the source string
-	 */
-	public String toString(){
-		return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
 	}
 
 	/*
