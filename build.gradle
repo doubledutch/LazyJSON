@@ -51,6 +51,10 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
+check{
+    jacocoTestReport
+}
+
 
 /*signing {
     sign configurations.archives
