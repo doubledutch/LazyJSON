@@ -364,6 +364,7 @@ public final class LazyNode{
 		}
 	}
 
+	// Functionality for reading and writing LazyNode structures
 	protected static LazyNode readFromBuffer(byte[] raw){
 		ByteBuffer buf=ByteBuffer.wrap(raw);
 		return readFromBuffer(buf);
@@ -398,7 +399,7 @@ public final class LazyNode{
 	}
 
 	protected void writeToBuffer(ByteBuffer buf){
-		// ByterBuffer must be allocated with enough space before calling
+		// ByteBuffer must be allocated with enough space before calling
 		buf.put(type);
 		buf.putInt(startIndex);
 		buf.putInt(endIndex);
@@ -418,8 +419,6 @@ public final class LazyNode{
 			child.writeToBuffer(buf);
 		}
 	}
-
-
 
 	protected int getBufferSize(){
 		int size=1+4+4+1; // type, start and end index, modifier

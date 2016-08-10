@@ -404,6 +404,5 @@ public class LazyObject extends LazyElement{
 		return root.toString(pad);
 	}
 	*/
-
 	
 }

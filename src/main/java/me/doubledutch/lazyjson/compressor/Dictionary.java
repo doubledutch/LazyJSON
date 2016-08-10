@@ -1,0 +1,95 @@
+package me.doubledutch.lazyjson.compressor;
+
+import java.util.*;
+
+public class Dictionary{
+	private String[] data=new String[32767];
+	private short next=0;
+	private Map<String,Short> dataMap=new HashMap<String,Short>();
+	private LinkedHashMap<String,Integer> slidingWindow;
+	private final int windowSize;
+	private int minRepetitions;
+
+	/**
+	 * Create a new dictionary with the given window size and given repetition
+	 * requirement before new values are added to the dictionary.
+	 *
+	 * @param windowSizeArg the size of the sliding window of values
+	 * @param minRepetitions the number of times a value must be seen within the sliding window before its added to the dictionary
+	 */
+	public Dictionary(int windowSizeArg,int minRepetitions){
+		this.windowSize=windowSizeArg;
+		this.minRepetitions=minRepetitions;
+		// We are going to use a linked hash map to maintain our sliding window
+		slidingWindow=new LinkedHashMap<String,Integer>(windowSize+1, .75F, false){
+            protected boolean removeEldestEntry(Map.Entry<String,Integer> eldest){
+                return size()>windowSize;                                  
+            }
+        };
+	}
+
+	/**
+	 * Returns the value held at a specific location in the dictionary.
+	 *
+	 * @param index the value to look up
+	 * @return the value from the dictionary or null if no such value exists
+	 */
+	public String get(short index){
+		if(next<0)return null;
+		if(index>=next)return null;
+		return data[index];
+	}
+
+	/**
+	 * Returns the location of a value in the dictionary if it is present, but
+	 * does not increase the sliding window stats or attempt to put the value
+	 * in the dictionary.
+	 *
+	 * @param value the value to lookup
+	 * @return the location in the dictionary if the value was present
+	 */
+
+	public short get(String value){
+		if(dataMap.containsKey(value))return dataMap.get(value);
+		return -1;
+	}
+
+	/**
+	 * Add a new value to the dictionary if we have seen it a certain number
+	 * of times within the current sliding window. If not, return -1 and mark
+	 * that we saw it. If the value is already in the dictionary, just return
+	 * the lookup position.
+	 *
+	 * @param value the value to add
+	 * @return the index of the value in the dictionary of -1 if it wasn't added
+	 */
+	public short put(String value){
+		// Do we already have this value?
+		if(dataMap.containsKey(value))return dataMap.get(value);
+		// Are we filled up?
+		if(next==32767)return -1;
+		// Should we add values without actual repetitions?
+		if(minRepetitions==0){
+			data[next]=value;
+			dataMap.put(value,next);
+			return next++;
+		}
+		// Have we seen this value before?
+		if(slidingWindow.containsKey(value)){
+			int count=slidingWindow.get(value)+1;
+			// Does it satisfy the minimum repetition count?
+			if(count>minRepetitions){
+				slidingWindow.remove(value);
+				data[next]=value;
+				dataMap.put(value,next);
+				return next++;
+			}else{
+				slidingWindow.put(value,count);
+			}
+		}else{
+			// Add this new value to the map
+			slidingWindow.put(value,1);
+		}
+		return -1;
+	}
+}

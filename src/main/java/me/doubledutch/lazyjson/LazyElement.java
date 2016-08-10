@@ -48,7 +48,6 @@ public class LazyElement{
 		return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
 	}
 
-	// TODO: this is going to be copied to LazyArray - perhaps its time to give them a shared parent class
 	public byte[] toByteArray(){
 		int size=root.getBufferSize();
 		ByteBuffer buf=ByteBuffer.allocate(size);
