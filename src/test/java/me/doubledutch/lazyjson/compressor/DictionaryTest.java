@@ -25,6 +25,34 @@ public class DictionaryTest{
     }
 
     @Test
+    public void getValues(){
+    	Dictionary d=new Dictionary(1000,0);
+    	short i1=d.put("foo");
+    	short i2=d.put("bar");
+    	short i3=d.put("baz");
+
+    	assertNotNull(d.get(i1));
+    	assertNotNull(d.get(i2));
+    	assertNotNull(d.get(i3));
+    }
+
+     @Test
+    public void getNonExistingValues(){
+    	Dictionary d=new Dictionary(1000,0);
+    	short i1=d.put("foo");
+    	short i2=d.put("bar");
+    	short i3=d.put("baz");
+
+    	assertNull(d.get((short)9283));
+    }
+
+    @Test
+    public void checkWithoutAdding(){
+    	Dictionary d=new Dictionary(1000,0);
+    	assertEquals(-1,d.get("foo"));
+    }
+
+    @Test
     public void addValues(){
     	Dictionary d=new Dictionary(1000,1);
     	int i1=d.put("foo");
