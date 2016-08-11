@@ -9,21 +9,37 @@ import java.nio.charset.StandardCharsets;
  * object - and a type reference to the local data stored in a bytebuffer.
  */
 public class Segment{
-	private static final byte VOID=-1;
-	private static final byte BYTE=0;
-	private static final byte SHORT=1;
-	private static final byte INT=2;
-	private static final byte LONG=3;
-	private static final byte FLOAT=4;
-	private static final byte DOUBLE=5;
-	private static final byte BOOLEAN=6;
-	private static final byte STRING=7;
-	private static final byte NULL=8;
-	private static final byte LOOKUP=9;
+	public static final byte VOID=-1;
+	public static final byte BYTE=0;
+	public static final byte SHORT=1;
+	public static final byte INT=2;
+	public static final byte LONG=3;
+	public static final byte FLOAT=4;
+	public static final byte DOUBLE=5;
+	public static final byte BOOLEAN=6;
+	public static final byte STRING=7;
+	public static final byte NULL=8;
+	public static final byte LOOKUP=9;
 
 	private String pre;
 	private byte type;
 	private short lookup;
+
+	public Segment(String pre){
+		this.pre=pre;
+		this.type=VOID;
+	}
+
+	public Segment(String pre,byte type){
+		this.pre=pre;
+		this.type=type;
+	}
+
+	public Segment(String pre,byte type,short lookup){
+		this.pre=pre;
+		this.type=type;
+		this.lookup=lookup;
+	}
 
 	/**
 	 * Read this segment from a byte buffer using the given dictionary for
@@ -35,16 +51,45 @@ public class Segment{
 	 * @return the string constant held in this segment, with the segment value appended
 	 */
 	public String read(ByteBuffer buf,Dictionary dict){
-		if(type==VOID)return pre;
-		if(type==NULL)return pre+"null";
-		if(type==BYTE)return pre+buf.get();
-		if(type==SHORT)return pre+buf.getShort();
-		if(type==INT)return pre+buf.getInt();
-		if(type==LONG)return pre+buf.getLong();
-		if(type==FLOAT)return pre+buf.getFloat();
-		if(type==DOUBLE)return pre+buf.getDouble();
-		if(type==BOOLEAN)return pre+(buf.get()==0?"false":"true");
-		if(type==LOOKUP)return dict.get(lookup);
+		StringBuilder out=new StringBuilder();
+		if(pre!=null)out.append(pre);
+		if(type==VOID)return out.toString();
+		if(type==NULL){
+			out.append("null");
+			return out.toString();
+		}
+		if(type==BYTE){
+			out.append(buf.get());
+			return out.toString();
+		}
+		if(type==SHORT){
+			out.append(buf.getShort());
+			return out.toString();
+		}
+		if(type==INT){
+			out.append(buf.getInt());
+			return out.toString();
+		}
+		if(type==LONG){
+			out.append(buf.getLong());
+			return out.toString();
+		}
+		if(type==FLOAT){
+			out.append(buf.getFloat());
+			return out.toString();
+		}
+		if(type==DOUBLE){
+			out.append(buf.getDouble());
+			return out.toString();
+		}
+		if(type==BOOLEAN){
+			out.append((buf.get()==0?"false":"true"));
+			return out.toString();
+		}
+		if(type==LOOKUP){
+			out.append(dict.get(lookup));
+			return out.toString();
+		}
 		if(type==STRING){
 			int size=0;
 			int val=buf.get() & 0xFF;
@@ -55,7 +100,8 @@ public class Segment{
 			size+=val;
 			byte[] data=new byte[size];
 			buf.get(data);
-			return pre+new String(data,StandardCharsets.UTF_8);
+			out.append(new String(data,StandardCharsets.UTF_8));
+			return out.toString();
 		}
 		return null;
 	}

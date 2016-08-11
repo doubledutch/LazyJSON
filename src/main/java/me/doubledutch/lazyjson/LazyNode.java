@@ -2,7 +2,7 @@ package me.doubledutch.lazyjson;
 
 import java.util.*;
 import java.nio.ByteBuffer;
-
+import me.doubledutch.lazyjson.compressor.*;
 /**
  * The LazyNode is the primary output of the LazyParser.
  * It should probably be named LazyNode instead of LazyNode, but as the
@@ -295,6 +295,10 @@ public final class LazyNode{
 		}
 	}
 
+	private String getRawStringValue(char[] source){
+		return new String(source,startIndex,endIndex-startIndex);
+	}
+
 	/**
 	 * Returns a string iterator for this tokens children.
 	 *
@@ -361,6 +365,57 @@ public final class LazyNode{
 				return value;
 			}
 			throw new NoSuchElementException();
+		}
+	}
+	// Functionality for extracting templates
+	private void addCommaSeparatedChildren(char[] cbuf,Template template){
+		LazyNode next=child;
+		boolean first=true;
+		while(next!=null){
+			if(first){
+				first=false;
+			}else{
+				template.addConstant(",");
+			}
+			next.addSegments(cbuf,template);
+			next=next.next;
+		}
+	}
+
+	private String getFieldString(char[] cbuf){
+		return "\""+getRawStringValue(cbuf)+"\":";
+	}
+
+	protected void addSegments(char[] cbuf,Template template){
+		if(type==OBJECT){
+			template.addConstant("{");
+			addCommaSeparatedChildren(cbuf,template);
+			template.addConstant("}");
+		}else if(type==ARRAY){
+			template.addConstant("[");
+			addCommaSeparatedChildren(cbuf,template);
+			template.addConstant("]");
+		}else if(type==FIELD){
+			if(child.type==VALUE_TRUE || child.type==VALUE_FALSE){
+				template.addBoolean(getFieldString(cbuf));
+			}else if(child.type==VALUE_STRING){
+				template.addString(getFieldString(cbuf));
+			}else if(child.type==VALUE_NULL){
+				template.addNull(getFieldString(cbuf));
+			}else if(child.type==VALUE_NUMBER){
+				// template.addNumber(getFieldString(cbuf));
+			}else{
+				template.addConstant(getFieldString(cbuf));
+				child.addSegments(cbuf,template);
+			}
+		}else if(type==VALUE_TRUE || type==VALUE_FALSE){
+			template.addBoolean();
+		}else if(type==VALUE_NULL){
+			template.addNull();
+		}else if(type==VALUE_STRING){
+			template.addString();
+		}else if(type==VALUE_NUMBER){
+			// template.addNumber();
 		}
 	}
 
