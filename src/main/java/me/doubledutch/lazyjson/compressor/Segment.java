@@ -33,12 +33,6 @@ public class Segment{
 		this.type=type;
 	}
 
-	public Segment(String pre,byte type,short lookup){
-		this.pre=pre;
-		this.type=type;
-		this.lookup=lookup;
-	}
-
 	/**
 	 * Read this segment from a byte buffer using the given dictionary for
 	 * lookups. The dictionary may be null if no dictionary values were used

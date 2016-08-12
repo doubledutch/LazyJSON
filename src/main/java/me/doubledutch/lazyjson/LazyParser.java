@@ -228,17 +228,23 @@ public final class LazyParser{
 				if(stackTop.type==LazyNode.ARRAY){
 					token=LazyNode.cStringValue(n+1);
 					stackTop.addChild(token);
-					token.modified=consumeString();
+					if(consumeString()){
+						token.type=LazyNode.VALUE_ESTRING;
+					}
 					token.endIndex=n;
 				}else if(stackTop.type==LazyNode.FIELD){
 					token=LazyNode.cStringValue(n+1);
 					stackTop.addChild(token);
-					token.modified=consumeString();
+					if(consumeString()){
+						token.type=LazyNode.VALUE_ESTRING;
+					}
 					token.endIndex=n;
 					drop();
 				}else if(stackTop.type==LazyNode.OBJECT){
 					push(LazyNode.cField(n+1));
-					stackTop.modified=consumeString();
+					if(consumeString()){
+						stackTop.type=LazyNode.VALUE_ESTRING;
+					}
 					stackTop.endIndex=n;
 					n++;
 					consumeWhiteSpace();
@@ -329,7 +335,9 @@ public final class LazyParser{
 					// Must be a number
 					token=LazyNode.cNumberValue(n);
 					stackTop.addChild(token);
-					token.modified=consumeNumber(c);
+					if(consumeNumber(c)){
+						token.type=LazyNode.VALUE_FLOAT;
+					}
 					token.endIndex=n;
 					n--;
 					if(stackTop.type==LazyNode.FIELD){

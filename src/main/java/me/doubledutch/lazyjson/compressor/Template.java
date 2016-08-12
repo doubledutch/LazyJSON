@@ -30,6 +30,30 @@ public class Template{
 		addSegment(new Segment(pre,Segment.STRING));
 	}
 
+	public void addByte(String pre){
+		addSegment(new Segment(pre,Segment.BYTE));
+	}
+
+	public void addShort(String pre){
+		addSegment(new Segment(pre,Segment.SHORT));
+	}
+
+	public void addInt(String pre){
+		addSegment(new Segment(pre,Segment.INT));
+	}
+
+	public void addLong(String pre){
+		addSegment(new Segment(pre,Segment.LONG));
+	}
+
+	public void addFloat(String pre){
+		addSegment(new Segment(pre,Segment.FLOAT));
+	}
+
+	public void addDouble(String pre){
+		addSegment(new Segment(pre,Segment.DOUBLE));
+	}
+
 	public void addNull(){
 		addSegment(new Segment(null,Segment.NULL));
 	}
@@ -40,6 +64,30 @@ public class Template{
 
 	public void addString(){
 		addSegment(new Segment(null,Segment.STRING));
+	}
+
+	public void addByte(){
+		addSegment(new Segment(null,Segment.BYTE));
+	}
+
+	public void addShort(){
+		addSegment(new Segment(null,Segment.SHORT));
+	}
+
+	public void addInt(){
+		addSegment(new Segment(null,Segment.INT));
+	}
+
+	public void addLong(){
+		addSegment(new Segment(null,Segment.LONG));
+	}
+
+	public void addFloat(){
+		addSegment(new Segment(null,Segment.FLOAT));
+	}
+
+	public void addDouble(){
+		addSegment(new Segment(null,Segment.DOUBLE));
 	}
 
 	public void compact(){

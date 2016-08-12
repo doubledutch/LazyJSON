@@ -20,24 +20,19 @@ public final class LazyNode{
 	protected static final byte VALUE_FALSE=5;
 	protected static final byte VALUE_NULL=6;
 	protected static final byte VALUE_STRING=7;
-	protected static final byte VALUE_NUMBER=8;
+	protected static final byte VALUE_ESTRING=8; // A string with escaped characters
+	protected static final byte VALUE_INTEGER=9;
+	protected static final byte VALUE_FLOAT=10;
 
-	protected static final byte END_MARKER=9;
+	protected static final byte END_MARKER=11;
 
-	protected final byte type;
+	protected byte type;
 
 	// Start and end index into source string for this token.
 	// For an object or array, the end index will be the end of the entire
 	// object or array.
 	protected final int startIndex;
 	protected int endIndex=-1;
-
-	// When strings are parsed we make a note of any escaped characters.
-	// This lets us do a quick char copy when accessing string values that
-	// do not have any escaped characters
-	// When numbers are parsed, we use the same field to mark floating point
-	// characters.
-	protected boolean modified=false;
 
 	// Children are stored as a linked list by maintaining the first and last
 	// child of this token, as well as a link to the next sibling
@@ -143,7 +138,7 @@ public final class LazyNode{
 	 * @return a new token
 	 */
 	protected static LazyNode cNumberValue(int index){
-		return new LazyNode(VALUE_NUMBER,index);
+		return new LazyNode(VALUE_INTEGER,index);
 	}
 
 	/**
@@ -188,7 +183,7 @@ public final class LazyNode{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected int getIntValue(char[] source) throws LazyException{
-		if(type!=VALUE_NUMBER || modified)throw new LazyException("Not an integer",startIndex);
+		if(type!=VALUE_INTEGER)throw new LazyException("Not an integer",startIndex);
 		int i=startIndex;
 		boolean sign=false;
 		if(source[i]=='-'){
@@ -217,7 +212,7 @@ public final class LazyNode{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected long getLongValue(char[] source) throws LazyException{
-		if(type!=VALUE_NUMBER || modified)throw new LazyException("Not a long",startIndex);
+		if(type!=VALUE_INTEGER)throw new LazyException("Not a long",startIndex);
 		int i=startIndex;
 		boolean sign=false;
 		if(source[i]=='-'){
@@ -262,7 +257,7 @@ public final class LazyNode{
 	 * @return the string value held by this token
 	 */
 	protected String getStringValue(char[] source){
-		if(!modified){
+		if(type!=VALUE_ESTRING){
 			return new String(source,startIndex,endIndex-startIndex);
 		}else{
 			StringBuilder buf=new StringBuilder(endIndex-startIndex);
@@ -412,8 +407,19 @@ public final class LazyNode{
 				buf.put((byte)0);
 			}else if(child.type==VALUE_STRING){
 				child.putString(cbuf,buf);
-			}else if(child.type==VALUE_NUMBER){
-				// TODO: number stuff
+			}else if(child.type==VALUE_INTEGER){
+				long l=child.getLongValue(cbuf);
+				if(l<128 && l>=-128){
+					buf.put((byte)l);
+				}else if(l<32768 && l>=-32768){
+					buf.putShort((short)l);
+				}else if(l<=2147483647 && l>=-2147483648){
+					buf.putInt((int)l);
+				}else{
+					buf.putLong(l);
+				}
+			}else if(child.type==VALUE_FLOAT){
+				buf.putDouble(child.getDoubleValue(cbuf));
 			}else{
 				child.writeSegmentValues(cbuf,buf,dict);
 			}
@@ -423,8 +429,19 @@ public final class LazyNode{
 			buf.put((byte)0);
 		}else if(type==VALUE_STRING){
 			putString(cbuf,buf);
-		}else if(type==VALUE_NUMBER){
-			// TODO: number stuff
+		}else if(type==VALUE_INTEGER){
+			long l=getLongValue(cbuf);
+			if(l<128 && l>=-128){
+				buf.put((byte)l);
+			}else if(l<32768 && l>=-32768){
+				buf.putShort((short)l);
+			}else if(l<=2147483647 && l>=-2147483648){
+				buf.putInt((int)l);
+			}else{
+				buf.putLong(l);
+			}
+		}else if(type==VALUE_FLOAT){
+			buf.putDouble(getDoubleValue(cbuf));
 		}
 	}
 
@@ -444,8 +461,20 @@ public final class LazyNode{
 				template.addString(getFieldString(cbuf));
 			}else if(child.type==VALUE_NULL){
 				template.addNull(getFieldString(cbuf));
-			}else if(child.type==VALUE_NUMBER){
-				// template.addNumber(getFieldString(cbuf));
+			}else if(child.type==VALUE_INTEGER){
+				long l=child.getLongValue(cbuf);
+				if(l<128 && l>=-128){
+					template.addByte(getFieldString(cbuf));
+				}else if(l<32768 && l>=-32768){
+					template.addShort(getFieldString(cbuf));
+				}else if(l<=2147483647 && l>=-2147483648){
+					template.addInt(getFieldString(cbuf));
+				}else{
+					template.addLong(getFieldString(cbuf));
+				}
+			}else if(child.type==VALUE_FLOAT){
+				// TODO: could we differentiate for float's vs doubles?
+				template.addDouble(getFieldString(cbuf));
 			}else{
 				template.addConstant(getFieldString(cbuf));
 				child.addSegments(cbuf,template);
@@ -456,8 +485,19 @@ public final class LazyNode{
 			template.addNull();
 		}else if(type==VALUE_STRING){
 			template.addString();
-		}else if(type==VALUE_NUMBER){
-			// template.addNumber();
+		}else if(type==VALUE_INTEGER){
+			long l=child.getLongValue(cbuf);
+			if(l<128 && l>=-128){
+				template.addByte();
+			}else if(l<32768 && l>=-32768){
+				template.addShort();
+			}else if(l<=2147483647 && l>=-2147483648){
+				template.addInt();
+			}else{
+				template.addLong();
+			}
+		}else if(type==VALUE_FLOAT){
+			template.addDouble();
 		}
 	}
 
@@ -472,11 +512,9 @@ public final class LazyNode{
 		if(type==END_MARKER)return null;
 		int startIndex=buf.getInt();
 		int endIndex=buf.getInt();
-		byte modified=buf.get();
 		// TODO: add constructor for this purpose
 		LazyNode node=new LazyNode(type,startIndex);
 		node.endIndex=endIndex; 
-		node.modified=modified==0;
 		if(type==OBJECT || type==ARRAY){
 			LazyNode child=readFromBuffer(buf);
 			node.child=child;
@@ -500,11 +538,6 @@ public final class LazyNode{
 		buf.put(type);
 		buf.putInt(startIndex);
 		buf.putInt(endIndex);
-		if(modified){
-			buf.put((byte)0);
-		}else{
-			buf.put((byte)1);
-		}
 		if(type==OBJECT || type==ARRAY){
 			LazyNode n=child;
 			while(n!=null){
@@ -518,7 +551,7 @@ public final class LazyNode{
 	}
 
 	protected int getBufferSize(){
-		int size=1+4+4+1; // type, start and end index, modifier
+		int size=1+4+4; // type, start and end index, modifier
 		if(type==OBJECT || type==ARRAY){
 			LazyNode n=child;
 			while(n!=null){
