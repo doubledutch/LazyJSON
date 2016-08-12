@@ -19,11 +19,9 @@ public class Segment{
 	public static final byte BOOLEAN=6;
 	public static final byte STRING=7;
 	public static final byte NULL=8;
-	public static final byte LOOKUP=9;
 
 	protected String pre;
 	protected byte type;
-	protected short lookup;
 
 	public Segment(String pre){
 		this.pre=pre;
@@ -86,11 +84,8 @@ public class Segment{
 			out.append((buf.get()==0?"false":"true"));
 			return out.toString();
 		}
-		if(type==LOOKUP){
-			out.append(dict.get(lookup));
-			return out.toString();
-		}
 		if(type==STRING){
+			// TODO: add dictionary lookups!
 			int size=0;
 			int val=buf.get() & 0xFF;
 			while(val==255){
@@ -112,9 +107,6 @@ public class Segment{
 		if(!(obj instanceof Segment))return false;
 		Segment s=(Segment)obj;
 		if(s.type!=type)return false;
-		if(type==LOOKUP){
-			if(s.lookup!=lookup)return false;
-		}
 		if(pre==null){
 			if(s.pre!=null)return false;
 		}else{
