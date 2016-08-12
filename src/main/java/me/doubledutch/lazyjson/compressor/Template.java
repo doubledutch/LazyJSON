@@ -63,7 +63,7 @@ public class Template{
 		segmentList=compactList;
 	}
 
-	public String read(ByteBuffer buf,Dictionary dict){
+	public String read(ByteBuffer buf,DictionaryCache dict){
 		StringBuilder data=new StringBuilder();
 		for(Segment segment:segmentList){
 			data.append(segment.read(buf,dict));

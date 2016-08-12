@@ -50,7 +50,7 @@ public class Segment{
 	 * @param dict a dictionary holding lookup values or null if a dictionary was not used for encoding
 	 * @return the string constant held in this segment, with the segment value appended
 	 */
-	public String read(ByteBuffer buf,Dictionary dict){
+	public String read(ByteBuffer buf,DictionaryCache dict){
 		StringBuilder out=new StringBuilder();
 		if(pre!=null)out.append(pre);
 		if(type==VOID)return out.toString();
@@ -100,7 +100,9 @@ public class Segment{
 			size+=val;
 			byte[] data=new byte[size];
 			buf.get(data);
+			out.append("\"");
 			out.append(new String(data,StandardCharsets.UTF_8));
+			out.append("\"");
 			return out.toString();
 		}
 		return null;

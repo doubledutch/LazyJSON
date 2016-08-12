@@ -10,7 +10,7 @@ import java.net.*;
 public class DictionaryTest{
 	@Test
     public void addValuesImmediately(){
-    	Dictionary d=new Dictionary(1000,0);
+    	DictionaryCache d=new DictionaryCache(1000,0);
     	int i1=d.put("foo");
     	int i2=d.put("bar");
     	int i3=d.put("baz");
@@ -26,7 +26,7 @@ public class DictionaryTest{
 
     @Test
     public void getValues(){
-    	Dictionary d=new Dictionary(1000,0);
+    	DictionaryCache d=new DictionaryCache(1000,0);
     	short i1=d.put("foo");
     	short i2=d.put("bar");
     	short i3=d.put("baz");
@@ -38,7 +38,7 @@ public class DictionaryTest{
 
      @Test
     public void getNonExistingValues(){
-    	Dictionary d=new Dictionary(1000,0);
+    	DictionaryCache d=new DictionaryCache(1000,0);
     	short i1=d.put("foo");
     	short i2=d.put("bar");
     	short i3=d.put("baz");
@@ -48,13 +48,13 @@ public class DictionaryTest{
 
     @Test
     public void checkWithoutAdding(){
-    	Dictionary d=new Dictionary(1000,0);
+    	DictionaryCache d=new DictionaryCache(1000,0);
     	assertEquals(-1,d.get("foo"));
     }
 
     @Test
     public void addValues(){
-    	Dictionary d=new Dictionary(1000,1);
+    	DictionaryCache d=new DictionaryCache(1000,1);
     	int i1=d.put("foo");
     	assertEquals(i1,-1);
     	i1=d.put("foo");
@@ -63,7 +63,7 @@ public class DictionaryTest{
 
     @Test
     public void onlyAddWithinWindow(){
-    	Dictionary d=new Dictionary(3,1);
+    	DictionaryCache d=new DictionaryCache(3,1);
     	int i1=d.put("foo");
     	assertEquals(i1,-1);
     	d.put("bar");
@@ -75,7 +75,7 @@ public class DictionaryTest{
 
     @Test
     public void addRepeatedValues(){
-    	Dictionary d=new Dictionary(1000,2);
+    	DictionaryCache d=new DictionaryCache(1000,2);
     	int i1=d.put("foo");
     	assertEquals(i1,-1);
     	i1=d.put("foo");

@@ -3,6 +3,7 @@ package me.doubledutch.lazyjson;
 import java.util.*;
 import java.nio.ByteBuffer;
 import me.doubledutch.lazyjson.compressor.*;
+import java.nio.charset.StandardCharsets;
 /**
  * The LazyNode is the primary output of the LazyParser.
  * It should probably be named LazyNode instead of LazyNode, but as the
@@ -384,6 +385,47 @@ public final class LazyNode{
 
 	private String getFieldString(char[] cbuf){
 		return "\""+getRawStringValue(cbuf)+"\":";
+	}
+
+	private void putString(char[] cbuf,ByteBuffer buf){
+		byte[] data=getStringValue(cbuf).getBytes(StandardCharsets.UTF_8);
+		int size=data.length;
+		while(size>255){
+			buf.put((byte)0xFF);
+			size-=255;
+		}
+		buf.put((byte)size);
+		buf.put(data);
+	}
+
+	protected void writeSegmentValues(char cbuf[], ByteBuffer buf,DictionaryCache dict){
+		if(type==OBJECT || type==ARRAY){
+			LazyNode next=child;
+			while(next!=null){
+				next.writeSegmentValues(cbuf,buf,dict);
+				next=next.next;
+			}
+		}else if(type==FIELD){
+			if(child.type==VALUE_TRUE){
+				buf.put((byte)1);
+			}else if(child.type==VALUE_FALSE){
+				buf.put((byte)0);
+			}else if(child.type==VALUE_STRING){
+				child.putString(cbuf,buf);
+			}else if(child.type==VALUE_NUMBER){
+				// TODO: number stuff
+			}else{
+				child.writeSegmentValues(cbuf,buf,dict);
+			}
+		}else if(type==VALUE_TRUE){
+			buf.put((byte)1);
+		}else if(type==VALUE_FALSE){
+			buf.put((byte)0);
+		}else if(type==VALUE_STRING){
+			putString(cbuf,buf);
+		}else if(type==VALUE_NUMBER){
+			// TODO: number stuff
+		}
 	}
 
 	protected void addSegments(char[] cbuf,Template template){

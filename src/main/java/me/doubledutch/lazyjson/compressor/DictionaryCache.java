@@ -2,7 +2,7 @@ package me.doubledutch.lazyjson.compressor;
 
 import java.util.*;
 
-public class Dictionary{
+public class DictionaryCache{
 	private String[] data=new String[32767];
 	private short next=0;
 	private Map<String,Short> dataMap=new HashMap<String,Short>();
@@ -17,7 +17,7 @@ public class Dictionary{
 	 * @param windowSizeArg the size of the sliding window of values
 	 * @param minRepetitions the number of times a value must be seen within the sliding window before its added to the dictionary
 	 */
-	public Dictionary(int windowSizeArg,int minRepetitions){
+	public DictionaryCache(int windowSizeArg,int minRepetitions){
 		this.windowSize=windowSizeArg;
 		this.minRepetitions=minRepetitions;
 		// We are going to use a linked hash map to maintain our sliding window

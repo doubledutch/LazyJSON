@@ -1,5 +1,6 @@
 package me.doubledutch.lazyjson;
 
+import me.doubledutch.lazyjson.compressor.DictionaryCache;
 import me.doubledutch.lazyjson.compressor.Template;
 import java.util.Iterator;
 import java.nio.ByteBuffer;
@@ -404,6 +405,14 @@ public class LazyObject extends LazyElement{
 		root.addSegments(cbuf,t);
 		t.compact();
 		return t;
+	}
+
+	public void writeTemplateValues(ByteBuffer buf,DictionaryCache dict){
+		root.writeSegmentValues(cbuf,buf,dict);
+	}
+
+	public static LazyObject readFromTemplate(Template t,ByteBuffer buf,DictionaryCache dict){
+		return new LazyObject(t.read(buf,dict));
 	}
 
 	/*
