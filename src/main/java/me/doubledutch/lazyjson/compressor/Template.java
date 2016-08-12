@@ -42,6 +42,27 @@ public class Template{
 		addSegment(new Segment(null,Segment.STRING));
 	}
 
+	public void compact(){
+		List<Segment> compactList=new ArrayList<Segment>();
+		StringBuilder buf=new StringBuilder();
+		for(Segment segment:segmentList){
+			if(segment.type==Segment.VOID){
+				buf.append(segment.pre);
+			}else{
+				if(buf.length()>0){
+					buf.append(segment.pre);
+					segment.pre=buf.toString();
+					buf=new StringBuilder();
+				}
+				compactList.add(segment);
+			}
+		}
+		if(buf.length()>0){
+			compactList.add(new Segment(buf.toString()));
+		}
+		segmentList=compactList;
+	}
+
 	public String read(ByteBuffer buf,Dictionary dict){
 		StringBuilder data=new StringBuilder();
 		for(Segment segment:segmentList){

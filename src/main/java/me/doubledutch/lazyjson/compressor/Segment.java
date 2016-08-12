@@ -21,9 +21,9 @@ public class Segment{
 	public static final byte NULL=8;
 	public static final byte LOOKUP=9;
 
-	private String pre;
-	private byte type;
-	private short lookup;
+	protected String pre;
+	protected byte type;
+	protected short lookup;
 
 	public Segment(String pre){
 		this.pre=pre;

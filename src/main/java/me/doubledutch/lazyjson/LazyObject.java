@@ -1,5 +1,6 @@
 package me.doubledutch.lazyjson;
 
+import me.doubledutch.lazyjson.compressor.Template;
 import java.util.Iterator;
 import java.nio.ByteBuffer;
 
@@ -396,6 +397,13 @@ public class LazyObject extends LazyElement{
 			child=child.next;
 		}
 		return null;
+	}
+
+	private Template extractTemplate(){
+		Template t=new Template();
+		root.addSegments(cbuf,t);
+		t.compact();
+		return t;
 	}
 
 	/*
