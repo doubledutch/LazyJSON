@@ -36,9 +36,6 @@ public class CompressionTest{
 		buf.mark();
 		DictionaryCache dict=new DictionaryCache(100,2);
 		obj1.writeTemplateValues(buf,dict);
-		System.out.println(str.length()+" vs "+buf.position());
-		buf.reset();
-		System.out.println(t.read(buf,dict));
 		buf.reset();
 		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
 		assertEquals(obj1.getInt("foo"),obj2.getInt("foo"));
