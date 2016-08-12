@@ -43,4 +43,20 @@ public class CompressionTest{
 		assertEquals(obj1.getInt("baz"),obj2.getInt("baz"));
 		assertEquals(obj1.getLong("giant"),obj2.getLong("giant"));
 	}
+
+	@Test
+	public void testBooleanValues() throws Exception{
+		String str="{\"foo\":{\"bar\":false}}";
+		LazyObject obj1=new LazyObject(str);
+		Template t=obj1.extractTemplate();
+		ByteBuffer buf=ByteBuffer.allocate(4096);
+		buf.mark();
+		DictionaryCache dict=new DictionaryCache(100,2);
+		obj1.writeTemplateValues(buf,dict);
+		// System.out.println(str.length()+" vs "+buf.position());
+		buf.reset();
+		// System.out.println(t.read(buf,dict));
+		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
+		assertEquals(obj1.getJSONObject("foo").getBoolean("bar"),obj2.getJSONObject("foo").getBoolean("bar"));
+	}
 }
