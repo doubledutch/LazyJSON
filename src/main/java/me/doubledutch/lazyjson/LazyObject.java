@@ -412,7 +412,9 @@ public class LazyObject extends LazyElement{
 	}
 
 	public static LazyObject readFromTemplate(Template t,ByteBuffer buf,DictionaryCache dict){
-		return new LazyObject(t.read(buf,dict));
+		String str=t.read(buf,dict);
+		// System.out.println(str);
+		return new LazyObject(str);
 	}
 
 	/*

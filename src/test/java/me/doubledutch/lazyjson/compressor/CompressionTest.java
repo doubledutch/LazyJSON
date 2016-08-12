@@ -59,4 +59,31 @@ public class CompressionTest{
 		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
 		assertEquals(obj1.getJSONObject("foo").getBoolean("bar"),obj2.getJSONObject("foo").getBoolean("bar"));
 	}
+
+	@Test
+	public void testDictionaryEffect() throws Exception{
+		String str="{\"foo\":\"Hello World!\",\"bar\":0}";
+		LazyObject obj1=new LazyObject(str);
+		Template t=obj1.extractTemplate();
+		ByteBuffer buf=ByteBuffer.allocate(1024*4096);
+		buf.mark();
+		DictionaryCache dict=new DictionaryCache(100,1);
+		int fullSize=0;
+		for(int i=0;i<100;i++){
+			str="{\"foo\":\"Hello World!\",\"bar\":"+i+"}";
+			fullSize+=str.length();
+			obj1=new LazyObject(str);
+			obj1.writeTemplateValues(buf,dict);
+		}
+		// System.out.println(fullSize+" vs "+buf.position());
+		buf.reset();
+		// System.out.println(t.read(buf,dict));
+		LazyObject obj2=null;
+		for(int i=0;i<100;i++){
+			// System.out.println(i);
+			obj2=LazyObject.readFromTemplate(t,buf,dict);
+		}
+		assertEquals(obj1.getString("foo"),obj2.getString("foo"));
+		assertEquals(obj2.getInt("bar"),99);
+	}
 }

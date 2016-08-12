@@ -382,8 +382,14 @@ public final class LazyNode{
 		return "\""+getRawStringValue(cbuf)+"\":";
 	}
 
-	private void putString(char[] cbuf,ByteBuffer buf){
-		byte[] data=getStringValue(cbuf).getBytes(StandardCharsets.UTF_8);
+	private void putString(char[] cbuf,ByteBuffer buf,DictionaryCache dict){
+		String str=getStringValue(cbuf);
+		short pos=dict.put(str);
+		buf.putShort(pos);
+		if(pos>-1){
+			return;
+		}
+		byte[] data=str.getBytes(StandardCharsets.UTF_8);
 		int size=data.length;
 		while(size>255){
 			buf.put((byte)0xFF);
@@ -405,8 +411,8 @@ public final class LazyNode{
 				buf.put((byte)1);
 			}else if(child.type==VALUE_FALSE){
 				buf.put((byte)0);
-			}else if(child.type==VALUE_STRING){
-				child.putString(cbuf,buf);
+			}else if(child.type==VALUE_STRING || type==VALUE_ESTRING){
+				child.putString(cbuf,buf,dict);
 			}else if(child.type==VALUE_INTEGER){
 				long l=child.getLongValue(cbuf);
 				if(l<128 && l>=-128){
@@ -427,8 +433,8 @@ public final class LazyNode{
 			buf.put((byte)1);
 		}else if(type==VALUE_FALSE){
 			buf.put((byte)0);
-		}else if(type==VALUE_STRING){
-			putString(cbuf,buf);
+		}else if(type==VALUE_STRING || type==VALUE_ESTRING){
+			putString(cbuf,buf,dict);
 		}else if(type==VALUE_INTEGER){
 			long l=getLongValue(cbuf);
 			if(l<128 && l>=-128){

@@ -79,19 +79,25 @@ public class Segment{
 			return out.toString();
 		}
 		if(type==STRING){
-			// TODO: add dictionary lookups!
-			int size=0;
-			int val=buf.get() & 0xFF;
-			while(val==255){
+			short pos=buf.getShort();
+			if(pos>-1){
+				out.append("\"");
+				out.append(dict.get(pos));
+				out.append("\"");
+			}else{
+				int size=0;
+				int val=buf.get() & 0xFF;
+				while(val==255){
+					size+=val;
+					val=buf.get() & 0xFF;
+				}
 				size+=val;
-				val=buf.get() & 0xFF;
+				byte[] data=new byte[size];
+				buf.get(data);
+				out.append("\"");
+				out.append(new String(data,StandardCharsets.UTF_8));
+				out.append("\"");
 			}
-			size+=val;
-			byte[] data=new byte[size];
-			buf.get(data);
-			out.append("\"");
-			out.append(new String(data,StandardCharsets.UTF_8));
-			out.append("\"");
 			return out.toString();
 		}
 		return null;
