@@ -105,4 +105,21 @@ public class Segment{
 		}
 		return null;
 	}
+
+	public boolean equals(Object obj){
+		if(!(obj instanceof Segment))return false;
+		Segment s=(Segment)obj;
+		if(s.type!=type)return false;
+		if(type==LOOKUP){
+			if(s.lookup!=lookup)return false;
+		}
+		if(pre==null){
+			if(s.pre!=null)return false;
+		}else{
+			if(!pre.equals(s.pre)){
+				return false;
+			}
+		}
+		return true;
+	}
 }

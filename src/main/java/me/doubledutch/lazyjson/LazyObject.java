@@ -399,7 +399,7 @@ public class LazyObject extends LazyElement{
 		return null;
 	}
 
-	private Template extractTemplate(){
+	public Template extractTemplate(){
 		Template t=new Template();
 		root.addSegments(cbuf,t);
 		t.compact();
