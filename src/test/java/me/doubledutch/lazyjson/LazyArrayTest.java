@@ -16,6 +16,13 @@ public class LazyArrayTest{
     }
 
     @Test(expected=LazyException.class)
+    public void testOutOfBoundOp() throws LazyException{
+        String str="[\"foo\",-1]";
+        LazyArray array=new LazyArray(str);
+        array.optInt(-1);
+    }
+
+    @Test(expected=LazyException.class)
     public void testOutOfBound() throws LazyException{
         String str="[\"foo\",-1]";
         LazyArray array=new LazyArray(str);
@@ -89,6 +96,8 @@ public class LazyArrayTest{
         assertEquals(true,array.optBoolean(0));
         assertEquals(true,array.optBoolean(0,false));
         assertEquals(false,array.optBoolean(10));
+        assertEquals(false,array.optBoolean(6));
+        assertEquals(true,array.optBoolean(6,true));
         assertEquals(true,array.optBoolean(10,true));
 
         assertEquals(false,array.optBoolean(7,true));
@@ -117,7 +126,9 @@ public class LazyArrayTest{
         assertEquals(3.1415,array.optDouble(3),0);
         assertEquals(3.1415,array.optDouble(3,7.9),0);
         assertEquals(0.0,array.optDouble(20),0);
+        assertEquals(0.0,array.optDouble(6),0);
         assertEquals(7.9,array.optDouble(20,7.9),0);
+        assertEquals(7.9,array.optDouble(6,7.9),0);
 
         assertNotNull(array.optJSONArray(5));
         assertNull(array.optJSONArray(50));

@@ -182,9 +182,27 @@ public class BadJSONDataTest{
         obj.optJSONObject("foo");
     }
 
+    @Test(expected=LazyException.class)
+    public void testBadValueType() throws LazyException{
+        String str="{\"foo\":\"bar\"}";
+        LazyObject obj=new LazyObject(str);
+        obj.getLong("foo");
+    }
+
     @Test
     public void testLazyException(){
         String str="{{\"foo\":4}";
+        try{
+            LazyObject obj=new LazyObject(str);
+            obj.getString("bar");
+        }catch(LazyException e){
+            e.toString();
+        }
+    }
+
+    @Test
+    public void testLazyException2(){
+        String str="{\"foo\":}";
         try{
             LazyObject obj=new LazyObject(str);
             obj.getString("bar");
