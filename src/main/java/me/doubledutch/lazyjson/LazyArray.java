@@ -288,7 +288,7 @@ public class LazyArray extends LazyElement{
 	 * @return the value if it could be parsed as a string or the default value if there was no such value
 	 * @throws LazyException if the index is out of bounds
 	 */
-	public double optDouble(int index,long defaultValue){
+	public double optDouble(int index,double defaultValue){
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
@@ -390,9 +390,9 @@ public class LazyArray extends LazyElement{
 	 * @param token the token for which to extract a string
 	 * @return the string value of the given token
 	 */
-	private String getString(LazyNode token){
-		return token.getStringValue(cbuf);
-	}
+	// private String getString(LazyNode token){
+	//	return token.getStringValue(cbuf);
+	// }
 
 	/*
 	// For debug purposes only

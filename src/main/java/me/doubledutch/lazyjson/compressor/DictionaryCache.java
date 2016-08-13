@@ -35,7 +35,7 @@ public class DictionaryCache{
 	 * @return the value from the dictionary or null if no such value exists
 	 */
 	public String get(short index){
-		if(next<0)return null;
+		if(index<0)return null;
 		if(index>=next)return null;
 		return data[index];
 	}

@@ -25,6 +25,22 @@ public class DictionaryTest{
     }
 
     @Test
+    public void repeatedAdd(){
+        DictionaryCache d=new DictionaryCache(1000,0);
+        int i1=d.put("foo");
+        int i2=d.put("foo");
+        int i3=d.put("foo");
+        assertEquals(i1,i2);
+        assertEquals(i1,i3);
+    }
+
+    @Test
+    public void outOfBounds(){
+        DictionaryCache d=new DictionaryCache(1000,0);
+        assertNull(d.get((short)-1));
+    }
+
+    @Test
     public void getValues(){
     	DictionaryCache d=new DictionaryCache(1000,0);
     	short i1=d.put("foo");

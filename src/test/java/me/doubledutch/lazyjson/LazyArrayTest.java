@@ -15,6 +15,40 @@ public class LazyArrayTest{
         assertEquals(3,array.length());
     }
 
+    @Test(expected=LazyException.class)
+    public void testOutOfBound() throws LazyException{
+        String str="[\"foo\",-1]";
+        LazyArray array=new LazyArray(str);
+        array.getInt(100);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBooleanTypeError() throws LazyException{
+        String str="[\"foo\",-1]";
+        LazyArray array=new LazyArray(str);
+        array.getBoolean(0);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testOptBooleanTypeError() throws LazyException{
+        String str="[\"foo\",-1]";
+        LazyArray array=new LazyArray(str);
+        array.optBoolean(0);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testOptBooleanTypeError2() throws LazyException{
+        String str="[\"foo\",-1]";
+        LazyArray array=new LazyArray(str);
+        array.optBoolean(0,false);
+    }
+
+    @Test(expected=LazyException.class)
+    public void notJSONArray() throws LazyException{
+        String str="{\"foo\":-1}";
+        LazyArray array=new LazyArray(str);
+    }
+
     @Test
     public void testEmptyLength() throws LazyException{
         String str="[]";
@@ -39,6 +73,48 @@ public class LazyArrayTest{
         assertEquals(false,array.getBoolean(0));
         assertEquals(42,array.getInt(1));
         assertEquals(true,array.getBoolean(2));
+    }
+
+    @Test
+    public void testOptionalValues() throws LazyException{
+        String str="[true,9,\"foo\",3.1415,{},[],null,false]";
+        LazyArray array=new LazyArray(str);
+        assertEquals(true,array.optBoolean(0));
+        assertEquals(true,array.optBoolean(0,false));
+        assertEquals(false,array.optBoolean(10));
+        assertEquals(true,array.optBoolean(10,true));
+
+        assertEquals(false,array.optBoolean(7,true));
+        assertEquals(false,array.optBoolean(7));
+        assertEquals(true,array.optBoolean(10,true));
+
+        assertEquals(9,array.optInt(1));
+        assertEquals(9,array.optInt(1,42));
+        assertEquals(0,array.optInt(10));
+        assertEquals(42,array.optInt(10,42));
+
+        assertEquals(9,array.optLong(1));
+        assertEquals(9,array.optLong(1,42));
+        assertEquals(0,array.optLong(10));
+        assertEquals(42,array.optLong(10,42));
+        
+        assertEquals("foo",array.optString(2));
+        assertEquals("foo",array.optString(2,"bar"));
+        assertEquals(null,array.optString(20));
+        assertEquals("bar",array.optString(20,"bar"));
+
+        assertEquals(3.1415,array.optDouble(3),0);
+        assertEquals(3.1415,array.optDouble(3,7.9),0);
+        assertEquals(0.0,array.optDouble(20),0);
+        assertEquals(7.9,array.optDouble(20,7.9),0);
+
+        assertNotNull(array.optJSONArray(5));
+        assertNull(array.optJSONArray(50));
+        assertNull(array.optJSONArray(6));
+
+        assertNotNull(array.optJSONObject(4));
+        assertNull(array.optJSONObject(50));
+
     }
 
     @Test

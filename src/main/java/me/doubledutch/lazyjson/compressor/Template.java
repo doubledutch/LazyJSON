@@ -46,9 +46,9 @@ public class Template{
 		addSegment(new Segment(pre,Segment.LONG));
 	}
 
-	public void addFloat(String pre){
-		addSegment(new Segment(pre,Segment.FLOAT));
-	}
+	// public void addFloat(String pre){
+	//	addSegment(new Segment(pre,Segment.FLOAT));
+	// }
 
 	public void addDouble(String pre){
 		addSegment(new Segment(pre,Segment.DOUBLE));
@@ -82,9 +82,9 @@ public class Template{
 		addSegment(new Segment(null,Segment.LONG));
 	}
 
-	public void addFloat(){
-		addSegment(new Segment(null,Segment.FLOAT));
-	}
+	// public void addFloat(){
+	//	addSegment(new Segment(null,Segment.FLOAT));
+	// }
 
 	public void addDouble(){
 		addSegment(new Segment(null,Segment.DOUBLE));
@@ -95,10 +95,14 @@ public class Template{
 		StringBuilder buf=new StringBuilder();
 		for(Segment segment:segmentList){
 			if(segment.type==Segment.VOID){
-				buf.append(segment.pre);
+				if(segment.pre!=null){
+					buf.append(segment.pre);
+				}
 			}else{
 				if(buf.length()>0){
-					buf.append(segment.pre);
+					if(segment.pre!=null){
+						buf.append(segment.pre);
+					}
 					segment.pre=buf.toString();
 					buf=new StringBuilder();
 				}

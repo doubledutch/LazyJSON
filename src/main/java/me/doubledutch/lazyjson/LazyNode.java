@@ -492,7 +492,7 @@ public final class LazyNode{
 		}else if(type==VALUE_STRING){
 			template.addString();
 		}else if(type==VALUE_INTEGER){
-			long l=child.getLongValue(cbuf);
+			long l=getLongValue(cbuf);
 			if(l<128 && l>=-128){
 				template.addByte();
 			}else if(l<32768 && l>=-32768){

@@ -14,7 +14,7 @@ public class Segment{
 	public static final byte SHORT=1;
 	public static final byte INT=2;
 	public static final byte LONG=3;
-	public static final byte FLOAT=4;
+	// public static final byte FLOAT=4; Needs validation for fit
 	public static final byte DOUBLE=5;
 	public static final byte BOOLEAN=6;
 	public static final byte STRING=7;
@@ -66,10 +66,10 @@ public class Segment{
 			out.append(buf.getLong());
 			return out.toString();
 		}
-		if(type==FLOAT){
-			out.append(buf.getFloat());
-			return out.toString();
-		}
+		//if(type==FLOAT){
+		//	out.append(buf.getFloat());
+		//	return out.toString();
+		//}
 		if(type==DOUBLE){
 			out.append(buf.getDouble());
 			return out.toString();
