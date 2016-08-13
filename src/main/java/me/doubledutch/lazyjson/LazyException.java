@@ -26,7 +26,7 @@ public final class LazyException extends RuntimeException{
 
 	public String toString(){
 		if(position>-1){
-			return position+":"+message;
+			return "@"+position+":"+message;
 		}
 		return message;
 	}
