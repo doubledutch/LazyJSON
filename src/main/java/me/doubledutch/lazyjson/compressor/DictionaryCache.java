@@ -9,6 +9,7 @@ public class DictionaryCache{
 	private LinkedHashMap<String,Integer> slidingWindow;
 	private final int windowSize;
 	private int minRepetitions;
+	private boolean dirty=false;
 
 	/**
 	 * Create a new dictionary with the given window size and given repetition
@@ -27,6 +28,17 @@ public class DictionaryCache{
             }
         };
 	}
+
+	/**
+	 * Returns a flag specifying wether or not the dictionary has been modified.
+	 *
+	 * @return a boolean specifying wether or not the dictionary has been modified
+	 */
+	public boolean isDirty(){
+		return dirty;
+	}
+
+	
 
 	/**
 	 * Returns the value held at a specific location in the dictionary.
@@ -72,6 +84,7 @@ public class DictionaryCache{
 		if(minRepetitions==0){
 			data[next]=value;
 			dataMap.put(value,next);
+			dirty=true;
 			return next++;
 		}
 		// Have we seen this value before?
@@ -82,6 +95,7 @@ public class DictionaryCache{
 				slidingWindow.remove(value);
 				data[next]=value;
 				dataMap.put(value,next);
+				dirty=true;
 				return next++;
 			}else{
 				slidingWindow.put(value,count);
