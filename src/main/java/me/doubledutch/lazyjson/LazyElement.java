@@ -23,6 +23,21 @@ public class LazyElement{
 	}
 
 	/**
+	 * Parses a string and returns either a LazyObject or LazyArray
+	 *
+	 * @param str the source json data
+	 * @return either a LazyObject or LazyArray instance
+	 * @throws LazyException if the string could not be parsed
+	 */
+	public static Object parse(String str) throws LazyException{
+		if(str.startsWith("[")){
+			return new LazyArray(str);
+		}else{
+			return new LazyObject(str);
+		}
+	}
+
+	/**
 	 * Returns the number of fields on this object
 	 *
 	 * @return the number of fields
