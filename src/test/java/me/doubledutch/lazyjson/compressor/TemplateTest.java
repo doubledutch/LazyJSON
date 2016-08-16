@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 
 import me.doubledutch.lazyjson.*;
 
-public class CompressionTest{
+public class TemplateTest{
 	@Test
 	public void testStringValues() throws Exception{
 		String str="{\"foo\":\"Hello World!\"}";
