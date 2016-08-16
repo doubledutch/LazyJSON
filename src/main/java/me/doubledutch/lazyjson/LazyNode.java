@@ -240,13 +240,15 @@ public final class LazyNode{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected double getDoubleValue(char[] source) throws LazyException{
+		double d=0.0;
 		String str=getStringValue(source);
 		try{
-			double d=Double.parseDouble(str);
-			return d;
+			d=Double.parseDouble(str);
 		}catch(NumberFormatException nfe){
-			throw new LazyException("'"+str+"' is not a valid double",startIndex);
+			// This basically can't happen since we already validate the numeric format when parsing
+			// throw new LazyException("'"+str+"' is not a valid double",startIndex);
 		}
+		return d;
 	}
 
 	/**

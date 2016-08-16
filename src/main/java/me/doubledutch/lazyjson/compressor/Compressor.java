@@ -14,15 +14,13 @@ public class Compressor{
 	private LinkedHashMap<Template,Integer> slidingWindow;
 	private final int windowSize;
 	private int minRepetitions;
-	private boolean useDictionary;
 	private String prefix;
 	private boolean dirtyFlag=false;
 	private DictionaryCache dictionary;
 
-	public Compressor(String prefix,int windowSizeArg,int minRepetitions, boolean useDictionary){
+	public Compressor(String prefix,int windowSizeArg,int minRepetitions) throws IOException{
 		this.windowSize=windowSizeArg;
 		this.minRepetitions=minRepetitions;
-		this.useDictionary=useDictionary;
 		this.prefix=prefix;
 		// We are going to use a linked hash map to maintain our sliding window
 		slidingWindow=new LinkedHashMap<Template,Integer>(windowSize+1, .75F, false){
@@ -31,6 +29,7 @@ public class Compressor{
             }
         };
         dictionary=new DictionaryCache(windowSize,minRepetitions);
+        reloadState();
 	}
 
 	private boolean shouldCompress(Template t){
@@ -75,7 +74,11 @@ public class Compressor{
 				ByteBuffer buf=ByteBuffer.allocate(str.length()-2);
 				buf.putShort((short)templateSet.get(t));
 				elm.writeTemplateValues(buf,dictionary);
-				return buf.array();
+				int pos=buf.position();
+				buf.rewind();
+				byte[] result=new byte[pos];
+				buf.get(result);
+				return result;
 			}catch(BufferOverflowException boe){
 				// Compressed output larger than raw data
 			}
@@ -104,7 +107,48 @@ public class Compressor{
 		return str;
 	}
 
+	private void reloadState() throws IOException{
+		File ftest=new File(prefix+".templates");
+		if(ftest.exists()){
+			DataInputStream in=new DataInputStream(new FileInputStream(prefix+".templates"));
+			nextTemplate=(short)in.readInt();
+			for(int i=0;i<nextTemplate;i++){
+				Template t=Template.fromDataInput(in);
+				templateSet.put(t,(short)i);
+				templateIdMap.put((short)i,t);
+			}
+			in.close();
+		}
+		ftest=new File(prefix+".dictionary");
+		if(ftest.exists()){
+			DataInputStream in=new DataInputStream(new FileInputStream(prefix+".dictionary"));
+			dictionary.fromDataInputStream(in);
+			in.close();
+		}
+	}
+
 	public void commit() throws IOException{
 		// Save state of templates and dictionary if needed
+		if(dirtyFlag){
+			DataOutputStream out=new DataOutputStream(new FileOutputStream(prefix+".templates-tmp"));
+			out.writeInt(nextTemplate);
+			for(Template t:templateSet.keySet()){
+				t.toDataOutput(out);
+			}
+			out.flush();
+			out.close();
+			File ftest=new File(prefix+".templates-tmp");
+			ftest.renameTo(new File(prefix+".templates"));
+			dirtyFlag=false;
+		}
+		// Save dictionary
+		if(dictionary.isDirty()){
+			DataOutputStream out=new DataOutputStream(new FileOutputStream(prefix+".dictionary-tmp"));
+			dictionary.toDataOutputStream(out);
+			out.flush();
+			out.close();
+			File ftest=new File(prefix+".dictionary-tmp");
+			ftest.renameTo(new File(prefix+".dictionary"));
+		}
 	}
 }

@@ -24,7 +24,7 @@ public class DictionaryTest{
     	assertEquals(i2,d.get("bar"));
     	assertEquals(i3,d.get("baz"));
     }
-
+    
     @Test
     public void serialize() throws IOException{
         DictionaryCache d=new DictionaryCache(1000,0);
@@ -32,8 +32,13 @@ public class DictionaryTest{
         int i2=d.put("bar");
         int i3=d.put("baz");
         int i4=d.put("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        byte[] buf=d.toByteArray();
-        DictionaryCache d2=new DictionaryCache(buf,1000,0);
+        ByteArrayOutputStream out=new ByteArrayOutputStream();
+        DataOutputStream dout=new DataOutputStream(out);
+        d.toDataOutputStream(dout);
+        byte[] bytes=out.toByteArray();
+        DictionaryCache d2=new DictionaryCache(1000,0);
+        DataInputStream din=new DataInputStream(new ByteArrayInputStream(bytes));
+        d2.fromDataInputStream(din);
         assertEquals(i1,d2.get("foo"));
         assertEquals(i2,d2.get("bar"));
         assertEquals(i3,d2.get("baz"));

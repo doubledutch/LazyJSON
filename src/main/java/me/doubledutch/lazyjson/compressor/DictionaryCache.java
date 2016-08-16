@@ -28,23 +28,6 @@ public class DictionaryCache{
 	}
 
 	/**
-	 * Create a new dictionary with the given window size and given repetition
-	 * requirement before new values are added to the dictionary.
-	 * The dictionary is initialized with the data in the given byte array.
-	 *
-	 * @param dictdata the dictionary contents to initialize with
-	 * @param windowSizeArg the size of the sliding window of values
-	 * @param minRepetitions the number of times a value must be seen within the sliding window before its added to the dictionary
-	 * @throws IOException if the data could not be read
-	 */
-	public DictionaryCache(byte[] dictdata, int windowSizeArg,int minRepetitions) throws IOException{
-		this.windowSize=windowSizeArg;
-		this.minRepetitions=minRepetitions;
-		init();
-		fromByteArray(dictdata);
-	}
-
-	/**
 	 * Initializes the internal sliding window data structure.
 	 */
 	private void init(){
@@ -72,8 +55,7 @@ public class DictionaryCache{
 		dirty=false;
 	}
 
-	private void fromByteArray(byte[] dictdata) throws IOException{
-		DataInputStream din=new DataInputStream(new ByteArrayInputStream(dictdata));
+	protected void fromDataInputStream(DataInputStream din) throws IOException{
 		next=(short)din.readInt();
 		for(int i=0;i<next;i++){
 			int val=0;
@@ -93,9 +75,7 @@ public class DictionaryCache{
 		}
 	}
 
-	public byte[] toByteArray() throws IOException{
-		ByteArrayOutputStream out=new ByteArrayOutputStream();
-		DataOutputStream dout=new DataOutputStream(out);
+	protected void toDataOutputStream(DataOutputStream dout) throws IOException{
 		dout.writeInt(next);
 		for(int i=0;i<next;i++){
 			String raw=data[i];
@@ -113,7 +93,6 @@ public class DictionaryCache{
 			dout.write(encoded);
 		}
 		dout.flush();
-		return out.toByteArray();
 	}
 
 	/**
