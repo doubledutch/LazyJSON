@@ -152,4 +152,17 @@ public class Template{
 		}
 	}
 
+	public int hashCode(){
+		int acc=0;
+		for(Segment s:segmentList){
+			if(s.pre!=null){
+				acc+=s.pre.length();
+			}
+			if(s.type>0){
+				acc*=s.type;
+			}
+		}
+		return acc;
+	}
+
 }

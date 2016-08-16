@@ -22,6 +22,19 @@ public class TemplateExtractionTest{
     }
 
     @Test
+    public void hashcodeTests(){
+        LazyObject obj1=new LazyObject("{\"foo\":\"bar\"}");
+        LazyObject obj2=new LazyObject("{\"foo\":\"Hello World!\"}");
+        LazyObject obj3=new LazyObject("{\"foobar\":[0,1,\"Hello World!\"]}");
+
+        Template t1=obj1.extractTemplate();
+        Template t2=obj2.extractTemplate();
+        Template t3=obj3.extractTemplate();
+        assertEquals(t1.hashCode(),t2.hashCode());
+        assertNotEquals(t1.hashCode(),t3.hashCode());
+    }
+
+    @Test
     public void differentTemplates(){
     	LazyObject obj1=new LazyObject("{\"foo\":\"bar\"}");
     	LazyObject obj2=new LazyObject("{\"foo\":\"Hello World!\",\"baz\":\"42\"}");
