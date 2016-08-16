@@ -16,6 +16,18 @@ System.out.println("Hello "+obj.getString("title")+"!");
 // Expected output: "Hello World!"
 ````
 
+The library includes a JSON compression feature that uses template based encoding an http2 header cache inspired caching of repeated string values.
+
+```java
+String source="{\"title\":\"World\"}";
+Compressor cmp=new Compressor("./compression_cache",100,1);
+byte[] data=cmp.compress(source);
+cmp.commit(); // Write out templates and dictionary data
+String output=cmp.decompress(data);
+````
+
+## Performance
+
 The following table shows a speed comparison for parsing around 551kb of JSON data.
 
 JSON Library | Min | Max | Avg | Median

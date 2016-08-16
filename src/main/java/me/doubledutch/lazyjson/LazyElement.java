@@ -82,6 +82,15 @@ public class LazyElement{
 		return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
 	}
 
+	/**
+	 * Returns the character count of the source string.
+	 * 
+	 * @return the length of the source string for this element
+	 */
+	public int getSourceLength(){
+		return root.endIndex-root.startIndex;
+	}
+
 	public byte[] toByteArray(){
 		int size=root.getBufferSize();
 		ByteBuffer buf=ByteBuffer.allocate(size);

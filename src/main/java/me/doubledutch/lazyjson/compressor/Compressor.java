@@ -64,14 +64,19 @@ public class Compressor{
 	}
 
 	public byte[] compress(String str){
+		return compress(LazyElement.parse(str));
+	}
+
+
+	public byte[] compress(LazyElement elm){
 		// 1. Parse data
-		LazyElement elm=LazyElement.parse(str);
+		// LazyElement elm=LazyElement.parse(str);
 		// 2. Generate template
 		Template t=elm.extractTemplate();
 		// 3. If template satisfies criterea - compress
 		if(shouldCompress(t)){
 			try{
-				ByteBuffer buf=ByteBuffer.allocate(str.length()-2);
+				ByteBuffer buf=ByteBuffer.allocate(elm.getSourceLength()-2);
 				buf.putShort((short)templateSet.get(t));
 				elm.writeTemplateValues(buf,dictionary);
 				int pos=buf.position();
@@ -85,11 +90,23 @@ public class Compressor{
 		}
 		// 4. return encoded data
 		// TODO: this is incredibly inefficient... fix!
-		byte[] encoded=str.getBytes(StandardCharsets.UTF_8);
+		byte[] encoded=elm.toString().getBytes(StandardCharsets.UTF_8);
 		ByteBuffer buf=ByteBuffer.allocate(2+encoded.length);
 		buf.putShort((short)-1);
 		buf.put(encoded);
 		return buf.array();
+	}
+
+	public LazyElement decompressElement(byte[] data){
+		return LazyElement.parse(decompress(data));
+	}
+
+	public LazyObject decompressObject(byte[] data){
+		return new LazyObject(decompress(data));
+	}
+
+	public LazyArray decompressArray(byte[] data){
+		return new LazyArray(decompress(data));
 	}
 
 	public String decompress(byte[] data){
