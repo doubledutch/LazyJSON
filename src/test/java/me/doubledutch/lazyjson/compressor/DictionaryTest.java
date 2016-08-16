@@ -37,8 +37,11 @@ public class DictionaryTest{
         assertEquals(i1,d2.get("foo"));
         assertEquals(i2,d2.get("bar"));
         assertEquals(i3,d2.get("baz"));
+        assertEquals(i4,d2.get("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"));
+        int i5=d2.put("bonk");
+        assertEquals(i5,d2.get("bonk"));
     }
-    
+
      @Test
     public void verifyDirtyFlag(){
         DictionaryCache d=new DictionaryCache(1000,0);

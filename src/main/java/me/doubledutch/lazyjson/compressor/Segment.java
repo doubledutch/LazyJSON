@@ -2,6 +2,7 @@ package me.doubledutch.lazyjson.compressor;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.io.*;
 
 /**
  * Segments are the core components of templates.
@@ -31,6 +32,45 @@ public class Segment{
 	public Segment(String pre,byte type){
 		this.pre=pre;
 		this.type=type;
+	}
+
+	protected static Segment fromDataInput(DataInput din) throws IOException{
+		byte type=din.readByte();
+		String pre=null;
+		int val=0;
+		int read=din.readUnsignedByte();
+		while(read==255){
+			val+=read;
+			read=din.readUnsignedByte();
+		}
+		val+=read;
+		if(val>0){
+			byte[] raw=new byte[val];
+			din.readFully(raw);
+			pre=new String(raw,StandardCharsets.UTF_8);
+		}
+		return new Segment(pre,type);
+	}
+
+	protected void toDataOutput(DataOutput dout) throws IOException{
+		dout.writeByte(type);
+		if(pre==null){
+			dout.writeByte(0);
+		}else{
+			byte[] encoded=pre.getBytes(StandardCharsets.UTF_8);
+			int length=encoded.length;
+			if(length==0)System.out.println("found 0");
+			while(length>0){
+				if(length>255){
+					dout.writeByte(255);
+					length=length-255;
+				}else{
+					dout.writeByte(length);
+					length=0;
+				}
+			}
+			dout.write(encoded);
+		}
 	}
 
 	/**
@@ -116,4 +156,5 @@ public class Segment{
 		}
 		return true;
 	}
+
 }

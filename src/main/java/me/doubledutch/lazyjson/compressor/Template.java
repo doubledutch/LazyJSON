@@ -2,6 +2,7 @@ package me.doubledutch.lazyjson.compressor;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.io.*;
 
 public class Template{
 	private List<Segment> segmentList;
@@ -134,4 +135,21 @@ public class Template{
 		}
 		return true;
 	}
+
+	public static Template fromDataInput(DataInput din) throws IOException{
+		Template t=new Template();
+		int size=din.readInt();
+		for(int i=0;i<size;i++){
+			t.addSegment(Segment.fromDataInput(din));
+		}
+		return t;
+	}
+
+	public void toDataOutput(DataOutput dout) throws IOException{
+		dout.writeInt(segmentList.size());
+		for(Segment s:segmentList){
+			s.toDataOutput(dout);
+		}
+	}
+
 }
