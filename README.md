@@ -16,7 +16,7 @@ System.out.println("Hello "+obj.getString("title")+"!");
 // Expected output: "Hello World!"
 ````
 
-The library includes a JSON compression feature that uses template based encoding an http2 header cache inspired caching of repeated string values.
+The library includes a JSON compression feature that uses template based encoding and caching of repeated string values using an http2 header cache inspired scheme.
 
 ```java
 String source="{\"title\":\"World\"}";
