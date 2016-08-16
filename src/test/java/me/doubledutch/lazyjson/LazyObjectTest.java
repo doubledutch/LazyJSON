@@ -3,9 +3,7 @@ package me.doubledutch.lazyjson;
 import java.io.File;
 import org.junit.*;
 import static org.junit.Assert.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.net.*;
 
 public class LazyObjectTest{
@@ -170,6 +168,27 @@ public class LazyObjectTest{
         assertTrue(it.hasNext());
         assertEquals("baz",it.next());
         assertFalse(it.hasNext());
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void testKeysRemove() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":{\"key\":42}}";
+        LazyObject obj=new LazyObject(str);
+        Iterator<String> it=obj.keys();
+        assertTrue(it.hasNext());
+        it.remove();
+    }
+
+     @Test(expected=NoSuchElementException.class)
+    public void testNoMoreKeys() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":{\"key\":42}}";
+        LazyObject obj=new LazyObject(str);
+        Iterator<String> it=obj.keys();
+        assertTrue(it.hasNext());
+        it.next();
+        it.next();
+        it.next();
+        it.next();
     }
 
      @Test

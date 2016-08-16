@@ -1,17 +1,14 @@
 package me.doubledutch.lazyjson;
 
+import me.doubledutch.lazyjson.compressor.DictionaryCache;
+import me.doubledutch.lazyjson.compressor.Template;
 import java.util.Iterator;
+import java.nio.ByteBuffer;
 
 /**
  * An object used to parse and inspect JSON data given in the form of a string.
  */
-public class LazyObject{
-	private LazyToken root;
-	private char[] cbuf;
-
-	// Cache value for length
-	private int length=-1;
-
+public class LazyObject extends LazyElement{
 	/**
 	 * Create a new Lazy JSON object based on the JSON representation in the given string.
 	 *
@@ -21,7 +18,7 @@ public class LazyObject{
 	public LazyObject(String raw) throws LazyException{
 		LazyParser parser=new LazyParser(raw);
 		parser.tokenize();	
-		if(parser.root.type!=LazyToken.OBJECT){
+		if(parser.root.type!=LazyNode.OBJECT){
 			throw new LazyException("JSON Object must start with {",0);
 		}
 		root=parser.root;
@@ -29,9 +26,8 @@ public class LazyObject{
 		// source=raw;
 	}
 
-	protected LazyObject(LazyToken root,char[] source){
-		this.root=root;
-		this.cbuf=source;
+	protected LazyObject(LazyNode root,char[] source){
+		super(root,source);
 	}
 
 	/**
@@ -42,7 +38,7 @@ public class LazyObject{
 	 * @throws LazyException if the value for the given key was not a string.
 	 */
 	public String getString(String key) throws LazyException{
-		LazyToken token=getFieldToken(key);
+		LazyNode token=getFieldToken(key);
 		return token.getStringValue(cbuf);
 	}
 
@@ -54,9 +50,9 @@ public class LazyObject{
 	 * @return the requested string value or null if there was no such key
 	 */
 	public String optString(String key){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return null;
-		if(token.type==LazyToken.VALUE_NULL)return null;
+		if(token.type==LazyNode.VALUE_NULL)return null;
 		return token.getStringValue(cbuf);
 	}
 
@@ -69,9 +65,9 @@ public class LazyObject{
 	 * @return the requested string value or the default value if there was no such key
 	 */
 	public String optString(String key,String defaultValue){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
 		return token.getStringValue(cbuf);
 	}
 
@@ -83,7 +79,7 @@ public class LazyObject{
 	 * @throws LazyException if the value for the given key was not an integer.
 	 */
 	public int getInt(String key) throws LazyException{
-		LazyToken token=getFieldToken(key);
+		LazyNode token=getFieldToken(key);
 		return token.getIntValue(cbuf);
 	}
 
@@ -95,9 +91,9 @@ public class LazyObject{
 	 * @return the requested integer value or 0 if there was no such key
 	 */
 	public int optInt(String key){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return 0;
-		if(token.type==LazyToken.VALUE_NULL)return 0;
+		if(token.type==LazyNode.VALUE_NULL)return 0;
 		return token.getIntValue(cbuf);
 	}
 
@@ -110,9 +106,9 @@ public class LazyObject{
 	 * @return the requested integer value or the default value if there was no such key
 	 */
 	public int optInt(String key,int defaultValue){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
 		return token.getIntValue(cbuf);
 	}
 
@@ -124,7 +120,7 @@ public class LazyObject{
 	 * @throws LazyException if the value for the given key was not a long.
 	 */
 	public long getLong(String key) throws LazyException{
-		LazyToken token=getFieldToken(key);
+		LazyNode token=getFieldToken(key);
 		return token.getLongValue(cbuf);
 	}
 
@@ -136,9 +132,9 @@ public class LazyObject{
 	 * @return the requested long value or 0 if there was no such key
 	 */
 	public long optLong(String key){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return 0l;
-		if(token.type==LazyToken.VALUE_NULL)return 0l;
+		if(token.type==LazyNode.VALUE_NULL)return 0l;
 		return token.getLongValue(cbuf);
 	}
 
@@ -151,9 +147,9 @@ public class LazyObject{
 	 * @return the requested long value or the default value if there was no such key
 	 */
 	public long optLong(String key,long defaultValue){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
 		return token.getLongValue(cbuf);
 	}
 
@@ -165,7 +161,7 @@ public class LazyObject{
 	 * @throws LazyException if the value for the given key was not a double.
 	 */
 	public double getDouble(String key) throws LazyException{
-		LazyToken token=getFieldToken(key);
+		LazyNode token=getFieldToken(key);
 		return token.getDoubleValue(cbuf);
 	}
 
@@ -177,9 +173,9 @@ public class LazyObject{
 	 * @return the requested double value or 0.0 if there was no such key
 	 */
 	public double optDouble(String key){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return 0.0;
-		if(token.type==LazyToken.VALUE_NULL)return 0.0;
+		if(token.type==LazyNode.VALUE_NULL)return 0.0;
 		return token.getDoubleValue(cbuf);
 	}
 
@@ -192,9 +188,9 @@ public class LazyObject{
 	 * @return the requested long value or the default value if there was no such key
 	 */
 	public double optDouble(String key,double defaultValue){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
 		return token.getDoubleValue(cbuf);
 	}
 
@@ -206,8 +202,8 @@ public class LazyObject{
 	 * @throws LazyException if no value was set for the given key.
 	 */
 	public boolean isNull(String key){
-		LazyToken token=getFieldToken(key);
-		if(token.type==LazyToken.VALUE_NULL)return true;
+		LazyNode token=getFieldToken(key);
+		if(token.type==LazyNode.VALUE_NULL)return true;
 		return false;
 	}
 
@@ -219,9 +215,9 @@ public class LazyObject{
 	 * @throws LazyException if the value for the given key was not a boolean.
 	 */
 	public boolean getBoolean(String key){
-		LazyToken token=getFieldToken(key);
-		if(token.type==LazyToken.VALUE_TRUE)return true;
-		if(token.type==LazyToken.VALUE_FALSE)return false;
+		LazyNode token=getFieldToken(key);
+		if(token.type==LazyNode.VALUE_TRUE)return true;
+		if(token.type==LazyNode.VALUE_FALSE)return false;
 		throw new LazyException("Requested value is not a boolean",token);
 	}
 
@@ -233,11 +229,11 @@ public class LazyObject{
 	 * @return the requested boolean value or false if there was no such key
 	 */
 	public boolean optBoolean(String key){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return false;
-		// if(token.type==LazyToken.VALUE_NULL)return false;
-		if(token.type==LazyToken.VALUE_TRUE)return true;
-		// if(token.type==LazyToken.VALUE_FALSE)return false;
+		// if(token.type==LazyNode.VALUE_NULL)return false;
+		if(token.type==LazyNode.VALUE_TRUE)return true;
+		// if(token.type==LazyNode.VALUE_FALSE)return false;
 		return false;
 	}
 
@@ -250,10 +246,10 @@ public class LazyObject{
 	 * @return the requested boolean value or the default value if there was no such key
 	 */
 	public boolean optBoolean(String key,boolean defaultValue){
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
-		if(token.type==LazyToken.VALUE_TRUE)return true;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_TRUE)return true;
 		return false;
 	}
 
@@ -265,8 +261,8 @@ public class LazyObject{
 	 * @throws LazyException if the value for the given key was not an object.
 	 */
 	public LazyObject getJSONObject(String key) throws LazyException{
-		LazyToken token=getFieldToken(key);
-		if(token.type!=LazyToken.OBJECT)throw new LazyException("Requested value is not an object",token);
+		LazyNode token=getFieldToken(key);
+		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
 		return new LazyObject(token,cbuf);
 	}
 
@@ -278,10 +274,10 @@ public class LazyObject{
 	 * @return an object value or null if there was no such key
 	 */
 	public LazyObject optJSONObject(String key) throws LazyException{
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return null;
-		if(token.type==LazyToken.VALUE_NULL)return null;
-		if(token.type!=LazyToken.OBJECT)throw new LazyException("Requested value is not an object",token);
+		if(token.type==LazyNode.VALUE_NULL)return null;
+		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
 		return new LazyObject(token,cbuf);
 	}
 
@@ -293,8 +289,8 @@ public class LazyObject{
 	 * @throws LazyException if the value for the given key was not an array.
 	 */
 	public LazyArray getJSONArray(String key) throws LazyException{
-		LazyToken token=getFieldToken(key);
-		if(token.type!=LazyToken.ARRAY)throw new LazyException("Requested value is not an array",token);
+		LazyNode token=getFieldToken(key);
+		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
 		return new LazyArray(token,cbuf);
 	}
 
@@ -306,27 +302,11 @@ public class LazyObject{
 	 * @throws LazyException if the value for the given key was not an array.
 	 */
 	public LazyArray optJSONArray(String key) throws LazyException{
-		LazyToken token=getOptionalFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return null;
-		if(token.type==LazyToken.VALUE_NULL)return null;
-		if(token.type!=LazyToken.ARRAY)throw new LazyException("Requested value is not an array",token);
+		if(token.type==LazyNode.VALUE_NULL)return null;
+		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
 		return new LazyArray(token,cbuf);
-	}
-
-	/**
-	 * Returns the number of fields on this object
-	 *
-	 * @return the number of fields
-	 */
-	public int length(){
-		if(root.child==null){
-			return 0;
-		}
-		if(length>-1){
-			return length;
-		}
-		length=root.getChildCount();
-		return length;
 	}
 
 	/**
@@ -346,7 +326,7 @@ public class LazyObject{
 	 * @param token the field token
 	 * @return true if the key matches, false otherwise
 	 */
-	private boolean keyMatch(String key,LazyToken token){
+	private boolean keyMatch(String key,LazyNode token){
 		// Quickly check the length first
 		int length=key.length();
 		if(token.endIndex-token.startIndex!=length){
@@ -369,7 +349,7 @@ public class LazyObject{
 	 * @return true if the key exists, false otherwise
 	 */
 	public boolean has(String key){
-		LazyToken child=root.child;
+		LazyNode child=root.child;
 		while(child!=null){
 			if(keyMatch(key,child)){
 				return true;
@@ -389,8 +369,8 @@ public class LazyObject{
 	 * @return the first child of the matching field token if one exists
 	 * @throws LazyException if the field does not exist
 	 */
-	private LazyToken getFieldToken(String key) throws LazyException{
-		LazyToken child=root.child;
+	private LazyNode getFieldToken(String key) throws LazyException{
+		LazyNode child=root.child;
 		while(child!=null){
 			if(keyMatch(key,child)){
 				return child.child;
@@ -409,8 +389,8 @@ public class LazyObject{
 	 * @param key the name of the desired field
 	 * @return the first child of the matching field token if one exists, null otherwise
 	 */
-	private LazyToken getOptionalFieldToken(String key){
-		LazyToken child=root.child;
+	private LazyNode getOptionalFieldToken(String key){
+		LazyNode child=root.child;
 		while(child!=null){
 			if(keyMatch(key,child)){
 				return child.child;
@@ -426,14 +406,5 @@ public class LazyObject{
 		return root.toString(pad);
 	}
 	*/
-
-	/**
-	 * Returns a raw string extracted from the source string that covers the
-	 * start and end index of this object.
-	 *
-	 * @return as string representation of this object as given in the source string
-	 */
-	public String toString(){
-		return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
-	}
+	
 }

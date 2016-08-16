@@ -135,4 +135,79 @@ public class BadJSONDataTest{
         String str="[9:4]";
         LazyArray obj=new LazyArray(str);
     }
+
+    @Test(expected=LazyException.class)
+    public void testBadType() throws LazyException{
+        String str="[9,4]";
+        LazyArray obj=new LazyArray(str);
+        obj.getJSONObject(0);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBadOptType() throws LazyException{
+        String str="[9,4]";
+        LazyArray obj=new LazyArray(str);
+        obj.optJSONObject(0);
+    }
+
+
+
+    @Test(expected=LazyException.class)
+    public void testBadAType() throws LazyException{
+        String str="[9,4]";
+        LazyArray obj=new LazyArray(str);
+        obj.getJSONArray(0);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBadOptAType() throws LazyException{
+        String str="[9,4]";
+        LazyArray obj=new LazyArray(str);
+        obj.optJSONArray(0);
+    }
+
+
+
+    @Test(expected=LazyException.class)
+    public void testBadObjectType() throws LazyException{
+        String str="{\"foo\":4}";
+        LazyObject obj=new LazyObject(str);
+        obj.getJSONObject("foo");
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBadOptObjectType() throws LazyException{
+        String str="{\"foo\":4}";
+        LazyObject obj=new LazyObject(str);
+        obj.optJSONObject("foo");
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBadValueType() throws LazyException{
+        String str="{\"foo\":\"bar\"}";
+        LazyObject obj=new LazyObject(str);
+        obj.getLong("foo");
+    }
+
+    @Test
+    public void testLazyException(){
+        String str="{{\"foo\":4}";
+        try{
+            LazyObject obj=new LazyObject(str);
+            obj.getString("bar");
+        }catch(LazyException e){
+            e.toString();
+        }
+    }
+
+    @Test
+    public void testLazyException2(){
+        String str="{\"foo\":}";
+        try{
+            LazyObject obj=new LazyObject(str);
+            obj.getString("bar");
+        }catch(LazyException e){
+            e.toString();
+        }
+    }
 }

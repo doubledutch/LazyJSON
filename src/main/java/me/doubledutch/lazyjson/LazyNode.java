@@ -1,14 +1,17 @@
 package me.doubledutch.lazyjson;
 
 import java.util.*;
-
+import java.nio.ByteBuffer;
+import java.nio.BufferOverflowException;
+import me.doubledutch.lazyjson.compressor.*;
+import java.nio.charset.StandardCharsets;
 /**
- * The LazyToken is the primary output of the LazyParser.
- * It should probably be named LazyNode instead of LazyToken, but as the
+ * The LazyNode is the primary output of the LazyParser.
+ * It should probably be named LazyNode instead of LazyNode, but as the
  * project evolved, the name stuck and I have ironically been too lazy to
  * change it!
  */
-public final class LazyToken{
+public final class LazyNode{
 	// Token types used for classification during parsing
 	protected static final byte OBJECT=0;
 	protected static final byte ARRAY=1;
@@ -18,8 +21,13 @@ public final class LazyToken{
 	protected static final byte VALUE_FALSE=5;
 	protected static final byte VALUE_NULL=6;
 	protected static final byte VALUE_STRING=7;
-	protected static final byte VALUE_NUMBER=8;
-	protected final byte type;
+	protected static final byte VALUE_ESTRING=8; // A string with escaped characters
+	protected static final byte VALUE_INTEGER=9;
+	protected static final byte VALUE_FLOAT=10;
+
+	protected static final byte END_MARKER=11;
+
+	protected byte type;
 
 	// Start and end index into source string for this token.
 	// For an object or array, the end index will be the end of the entire
@@ -27,26 +35,19 @@ public final class LazyToken{
 	protected final int startIndex;
 	protected int endIndex=-1;
 
-	// When strings are parsed we make a note of any escaped characters.
-	// This lets us do a quick char copy when accessing string values that
-	// do not have any escaped characters
-	// When numbers are parsed, we use the same field to mark floating point
-	// characters.
-	protected boolean modified=false;
-
 	// Children are stored as a linked list by maintaining the first and last
 	// child of this token, as well as a link to the next sibling
-	protected LazyToken child;
-	protected LazyToken lastChild;
-	protected LazyToken next;
+	protected LazyNode child;
+	protected LazyNode lastChild;
+	protected LazyNode next;
 
 	/**
-	 * Construct a new LazyToken with the given type and index into the source string
+	 * Construct a new LazyNode with the given type and index into the source string
 	 *
 	 * @param type the type of this token
 	 * @param startIndex the index into the source string where this token was found
 	 */
-	protected LazyToken(byte type,int startIndex){
+	protected LazyNode(byte type,int startIndex){
 		this.startIndex=startIndex;
 		this.type=type;
 	}
@@ -56,7 +57,7 @@ public final class LazyToken{
 	 *
 	 * @param token the child to add
 	 */
-	protected void addChild(LazyToken token){
+	protected void addChild(LazyNode token){
 		// If no children have been added yet, lastChild will be null
 		if(lastChild==null){
 			child=token;
@@ -78,7 +79,7 @@ public final class LazyToken{
 			return 0;
 		}
 		int num=0;
-		LazyToken token=child;
+		LazyNode token=child;
 		while(token!=null){
 			num++;
 			token=token.next;
@@ -93,8 +94,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cArray(int index){
-		return new LazyToken(ARRAY,index);
+	protected static LazyNode cArray(int index){
+		return new LazyNode(ARRAY,index);
 	}
 
 	/**
@@ -104,8 +105,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cObject(int index){
-		return new LazyToken(OBJECT,index);
+	protected static LazyNode cObject(int index){
+		return new LazyNode(OBJECT,index);
 	}
 
 	/**
@@ -115,8 +116,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cField(int index){
-		return new LazyToken(FIELD,index);
+	protected static LazyNode cField(int index){
+		return new LazyNode(FIELD,index);
 	}
 
 	/**
@@ -126,8 +127,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cStringValue(int index){
-		return new LazyToken(VALUE_STRING,index);
+	protected static LazyNode cStringValue(int index){
+		return new LazyNode(VALUE_STRING,index);
 	}
 
 	/**
@@ -137,8 +138,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cNumberValue(int index){
-		return new LazyToken(VALUE_NUMBER,index);
+	protected static LazyNode cNumberValue(int index){
+		return new LazyNode(VALUE_INTEGER,index);
 	}
 
 	/**
@@ -148,8 +149,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cValueTrue(int index){
-		return new LazyToken(VALUE_TRUE,index);
+	protected static LazyNode cValueTrue(int index){
+		return new LazyNode(VALUE_TRUE,index);
 	}
 
 	/**
@@ -159,8 +160,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cValueFalse(int index){
-		return new LazyToken(VALUE_FALSE,index);
+	protected static LazyNode cValueFalse(int index){
+		return new LazyNode(VALUE_FALSE,index);
 	}
 
 	/**
@@ -170,8 +171,8 @@ public final class LazyToken{
 	 * @param index the starting index for this token
 	 * @return a new token
 	 */
-	protected static LazyToken cValueNull(int index){
-		return new LazyToken(VALUE_NULL,index);
+	protected static LazyNode cValueNull(int index){
+		return new LazyNode(VALUE_NULL,index);
 	}
 
 	/**
@@ -183,7 +184,7 @@ public final class LazyToken{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected int getIntValue(char[] source) throws LazyException{
-		if(type!=VALUE_NUMBER || modified)throw new LazyException("Not an integer",startIndex);
+		if(type!=VALUE_INTEGER)throw new LazyException("Not an integer",startIndex);
 		int i=startIndex;
 		boolean sign=false;
 		if(source[i]=='-'){
@@ -212,7 +213,7 @@ public final class LazyToken{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected long getLongValue(char[] source) throws LazyException{
-		if(type!=VALUE_NUMBER || modified)throw new LazyException("Not a long",startIndex);
+		if(type!=VALUE_INTEGER)throw new LazyException("Not a long",startIndex);
 		int i=startIndex;
 		boolean sign=false;
 		if(source[i]=='-'){
@@ -239,13 +240,15 @@ public final class LazyToken{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected double getDoubleValue(char[] source) throws LazyException{
+		double d=0.0;
 		String str=getStringValue(source);
 		try{
-			double d=Double.parseDouble(str);
-			return d;
+			d=Double.parseDouble(str);
 		}catch(NumberFormatException nfe){
-			throw new LazyException("'"+str+"' is not a valid double",startIndex);
+			// This basically can't happen since we already validate the numeric format when parsing
+			// throw new LazyException("'"+str+"' is not a valid double",startIndex);
 		}
+		return d;
 	}
 
 	/**
@@ -257,7 +260,7 @@ public final class LazyToken{
 	 * @return the string value held by this token
 	 */
 	protected String getStringValue(char[] source){
-		if(!modified){
+		if(type!=VALUE_ESTRING){
 			return new String(source,startIndex,endIndex-startIndex);
 		}else{
 			StringBuilder buf=new StringBuilder(endIndex-startIndex);
@@ -291,6 +294,10 @@ public final class LazyToken{
 		}
 	}
 
+	private String getRawStringValue(char[] source){
+		return new String(source,startIndex,endIndex-startIndex);
+	}
+
 	/**
 	 * Returns a string iterator for this tokens children.
 	 *
@@ -319,7 +326,7 @@ public final class LazyToken{
 		out+=":["+startIndex+","+endIndex+"]";
 		out+="\n";
 		if(child!=null){
-			LazyToken token=child;
+			LazyNode token=child;
 			while(token!=null){
 				out+=token.toString(pad+2);
 				token=token.next;
@@ -334,10 +341,10 @@ public final class LazyToken{
 
 	// Internal class used to iterate over children as strings
 	private final class StringIterator implements Iterator<String>{
-		private LazyToken next;
+		private LazyNode next;
 		private char[] cbuf;
 
-		protected StringIterator(LazyToken token,char[] cbuf){
+		protected StringIterator(LazyNode token,char[] cbuf){
 			next=token.child;
 			this.cbuf=cbuf;
 		}
@@ -359,4 +366,213 @@ public final class LazyToken{
 			throw new NoSuchElementException();
 		}
 	}
+	// Functionality for extracting templates
+	private void addCommaSeparatedChildren(char[] cbuf,Template template){
+		LazyNode next=child;
+		boolean first=true;
+		while(next!=null){
+			if(first){
+				first=false;
+			}else{
+				template.addConstant(",");
+			}
+			next.addSegments(cbuf,template);
+			next=next.next;
+		}
+	}
+
+	private String getFieldString(char[] cbuf){
+		return "\""+getRawStringValue(cbuf)+"\":";
+	}
+
+	private void putString(char[] cbuf,ByteBuffer buf,DictionaryCache dict){
+		String str=getStringValue(cbuf);
+		short pos=dict.put(str);
+		buf.putShort(pos);
+		if(pos>-1){
+			return;
+		}
+		byte[] data=str.getBytes(StandardCharsets.UTF_8);
+		int size=data.length;
+		while(size>255){
+			buf.put((byte)0xFF);
+			size-=255;
+		}
+		buf.put((byte)size);
+		buf.put(data);
+	}
+
+	protected void writeSegmentValues(char cbuf[], ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
+		if(type==OBJECT || type==ARRAY){
+			LazyNode next=child;
+			while(next!=null){
+				next.writeSegmentValues(cbuf,buf,dict);
+				next=next.next;
+			}
+		}else if(type==FIELD){
+			if(child.type==VALUE_TRUE){
+				buf.put((byte)1);
+			}else if(child.type==VALUE_FALSE){
+				buf.put((byte)0);
+			}else if(child.type==VALUE_STRING || type==VALUE_ESTRING){
+				child.putString(cbuf,buf,dict);
+			}else if(child.type==VALUE_INTEGER){
+				long l=child.getLongValue(cbuf);
+				if(l<128 && l>=-128){
+					buf.put((byte)l);
+				}else if(l<32768 && l>=-32768){
+					buf.putShort((short)l);
+				}else if(l<=2147483647 && l>=-2147483648){
+					buf.putInt((int)l);
+				}else{
+					buf.putLong(l);
+				}
+			}else if(child.type==VALUE_FLOAT){
+				buf.putDouble(child.getDoubleValue(cbuf));
+			}else{
+				child.writeSegmentValues(cbuf,buf,dict);
+			}
+		}else if(type==VALUE_TRUE){
+			buf.put((byte)1);
+		}else if(type==VALUE_FALSE){
+			buf.put((byte)0);
+		}else if(type==VALUE_STRING || type==VALUE_ESTRING){
+			putString(cbuf,buf,dict);
+		}else if(type==VALUE_INTEGER){
+			long l=getLongValue(cbuf);
+			if(l<128 && l>=-128){
+				buf.put((byte)l);
+			}else if(l<32768 && l>=-32768){
+				buf.putShort((short)l);
+			}else if(l<=2147483647 && l>=-2147483648){
+				buf.putInt((int)l);
+			}else{
+				buf.putLong(l);
+			}
+		}else if(type==VALUE_FLOAT){
+			buf.putDouble(getDoubleValue(cbuf));
+		}
+	}
+
+	protected void addSegments(char[] cbuf,Template template){
+		if(type==OBJECT){
+			template.addConstant("{");
+			addCommaSeparatedChildren(cbuf,template);
+			template.addConstant("}");
+		}else if(type==ARRAY){
+			template.addConstant("[");
+			addCommaSeparatedChildren(cbuf,template);
+			template.addConstant("]");
+		}else if(type==FIELD){
+			if(child.type==VALUE_TRUE || child.type==VALUE_FALSE){
+				template.addBoolean(getFieldString(cbuf));
+			}else if(child.type==VALUE_STRING){
+				template.addString(getFieldString(cbuf));
+			}else if(child.type==VALUE_NULL){
+				template.addNull(getFieldString(cbuf));
+			}else if(child.type==VALUE_INTEGER){
+				long l=child.getLongValue(cbuf);
+				if(l<128 && l>=-128){
+					template.addByte(getFieldString(cbuf));
+				}else if(l<32768 && l>=-32768){
+					template.addShort(getFieldString(cbuf));
+				}else if(l<=2147483647 && l>=-2147483648){
+					template.addInt(getFieldString(cbuf));
+				}else{
+					template.addLong(getFieldString(cbuf));
+				}
+			}else if(child.type==VALUE_FLOAT){
+				// TODO: could we differentiate for float's vs doubles?
+				template.addDouble(getFieldString(cbuf));
+			}else{
+				template.addConstant(getFieldString(cbuf));
+				child.addSegments(cbuf,template);
+			}
+		}else if(type==VALUE_TRUE || type==VALUE_FALSE){
+			template.addBoolean();
+		}else if(type==VALUE_NULL){
+			template.addNull();
+		}else if(type==VALUE_STRING){
+			template.addString();
+		}else if(type==VALUE_INTEGER){
+			long l=getLongValue(cbuf);
+			if(l<128 && l>=-128){
+				template.addByte();
+			}else if(l<32768 && l>=-32768){
+				template.addShort();
+			}else if(l<=2147483647 && l>=-2147483648){
+				template.addInt();
+			}else{
+				template.addLong();
+			}
+		}else if(type==VALUE_FLOAT){
+			template.addDouble();
+		}
+	}
+
+	// Functionality for reading and writing LazyNode structures
+	protected static LazyNode readFromBuffer(byte[] raw){
+		ByteBuffer buf=ByteBuffer.wrap(raw);
+		return readFromBuffer(buf);
+	}
+
+	protected static LazyNode readFromBuffer(ByteBuffer buf){
+		byte type=buf.get();
+		if(type==END_MARKER)return null;
+		int startIndex=buf.getInt();
+		int endIndex=buf.getInt();
+		// TODO: add constructor for this purpose
+		LazyNode node=new LazyNode(type,startIndex);
+		node.endIndex=endIndex; 
+		if(type==OBJECT || type==ARRAY){
+			LazyNode child=readFromBuffer(buf);
+			node.child=child;
+			node.lastChild=child;
+			child=readFromBuffer(buf);
+			while(child!=null){
+				node.lastChild.next=child;
+				node.lastChild=child;
+				child=readFromBuffer(buf);
+			}
+		}else if(type==FIELD){
+			LazyNode child=readFromBuffer(buf);
+			node.child=child;
+			node.lastChild=child;
+		}
+		return node;
+	}
+
+	protected void writeToBuffer(ByteBuffer buf){
+		// ByteBuffer must be allocated with enough space before calling
+		buf.put(type);
+		buf.putInt(startIndex);
+		buf.putInt(endIndex);
+		if(type==OBJECT || type==ARRAY){
+			LazyNode n=child;
+			while(n!=null){
+				n.writeToBuffer(buf);
+				n=n.next;
+			}
+			buf.put(END_MARKER);
+		}else if(type==FIELD){
+			child.writeToBuffer(buf);
+		}
+	}
+
+	protected int getBufferSize(){
+		int size=1+4+4; // type, start and end index, modifier
+		if(type==OBJECT || type==ARRAY){
+			LazyNode n=child;
+			while(n!=null){
+				size+=n.getBufferSize();
+				n=n.next;
+			}
+			size+=1;
+		}else if(type==FIELD){
+			size+=child.getBufferSize();
+		}
+		return size;
+	}
+
+
 }

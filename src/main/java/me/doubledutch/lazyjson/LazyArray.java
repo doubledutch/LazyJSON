@@ -3,15 +3,9 @@ package me.doubledutch.lazyjson;
 /**
  * An array used to parse and inspect JSON data given in the form of a string.
  */
-public class LazyArray{
-	private LazyToken root;
-	private char[] cbuf;
-
-	// Cache value for length
-	private int length=-1;
-
+public class LazyArray extends LazyElement{
 	// Stored traversal location for fast in order traversals
-	private LazyToken selectToken=null;
+	private LazyNode selectToken=null;
 	private int selectInt=-1;
 
 	/**
@@ -23,32 +17,15 @@ public class LazyArray{
 	public LazyArray(String raw) throws LazyException{
 		LazyParser parser=new LazyParser(raw);
 		parser.tokenize();	
-		if(parser.root.type!=LazyToken.ARRAY){
+		if(parser.root.type!=LazyNode.ARRAY){
 			throw new LazyException("JSON Array must start with [",0);
 		}
 		root=parser.root;
 		cbuf=parser.cbuf;
 	}
 
-	protected LazyArray(LazyToken root,char[] source){
-		this.root=root;
-		this.cbuf=source;
-	}
-
-	/**
-	 * Returns the number of values in this array
-	 *
-	 * @return the number of values
-	 */
-	public int length(){
-		if(root.child==null){
-			return 0;
-		}
-		if(length>-1){
-			return length;
-		}
-		length=root.getChildCount();
-		return length;
+	protected LazyArray(LazyNode root,char[] source){
+		super(root,source);
 	}
 
 	/**
@@ -59,8 +36,8 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public LazyArray getJSONArray(int index) throws LazyException{
-		LazyToken token=getValueToken(index);
-		if(token.type!=LazyToken.ARRAY)throw new LazyException("Requested value is not an array",token);
+		LazyNode token=getValueToken(index);
+		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
 		return new LazyArray(token,cbuf);
 	}
 
@@ -72,10 +49,10 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public LazyArray optJSONArray(int index) throws LazyException{
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return null;
-		if(token.type==LazyToken.VALUE_NULL)return null;
-		if(token.type!=LazyToken.ARRAY)throw new LazyException("Requested value is not an array",token);
+		if(token.type==LazyNode.VALUE_NULL)return null;
+		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
 		return new LazyArray(token,cbuf);
 	}
 
@@ -87,8 +64,8 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public LazyObject getJSONObject(int index) throws LazyException{
-		LazyToken token=getValueToken(index);
-		if(token.type!=LazyToken.OBJECT)throw new LazyException("Requested value is not an object",token);
+		LazyNode token=getValueToken(index);
+		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
 		return new LazyObject(token,cbuf);
 	}
 
@@ -100,10 +77,10 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public LazyObject optJSONObject(int index) throws LazyException{
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return null;
-		if(token.type==LazyToken.VALUE_NULL)return null;
-		if(token.type!=LazyToken.OBJECT)throw new LazyException("Requested value is not an object",token);
+		if(token.type==LazyNode.VALUE_NULL)return null;
+		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
 		return new LazyObject(token,cbuf);
 	}
 
@@ -115,9 +92,9 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public boolean getBoolean(int index){
-		LazyToken token=getValueToken(index);
-		if(token.type==LazyToken.VALUE_TRUE)return true;
-		if(token.type==LazyToken.VALUE_FALSE)return false;
+		LazyNode token=getValueToken(index);
+		if(token.type==LazyNode.VALUE_TRUE)return true;
+		if(token.type==LazyNode.VALUE_FALSE)return false;
 		throw new LazyException("Requested value is not a boolean",token);
 	}
 
@@ -129,11 +106,11 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public boolean optBoolean(int index){
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return false;
-		if(token.type==LazyToken.VALUE_NULL)return false;
-		if(token.type==LazyToken.VALUE_TRUE)return true;
-		if(token.type==LazyToken.VALUE_FALSE)return false;
+		if(token.type==LazyNode.VALUE_NULL)return false;
+		if(token.type==LazyNode.VALUE_TRUE)return true;
+		if(token.type==LazyNode.VALUE_FALSE)return false;
 		throw new LazyException("Requested value is not a boolean",token);
 	}
 
@@ -146,11 +123,11 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public boolean optBoolean(int index,boolean defaultValue){
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
-		if(token.type==LazyToken.VALUE_TRUE)return true;
-		if(token.type==LazyToken.VALUE_FALSE)return false;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_TRUE)return true;
+		if(token.type==LazyNode.VALUE_FALSE)return false;
 		throw new LazyException("Requested value is not a boolean",token);
 	}
 
@@ -162,7 +139,7 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public String getString(int index) throws LazyException{
-		LazyToken token=getValueToken(index);
+		LazyNode token=getValueToken(index);
 		return token.getStringValue(cbuf);
 	}
 
@@ -174,9 +151,9 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public String optString(int index){
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return null;
-		if(token.type==LazyToken.VALUE_NULL)return null;
+		if(token.type==LazyNode.VALUE_NULL)return null;
 		return token.getStringValue(cbuf);
 	}
 
@@ -189,9 +166,9 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public String optString(int index,String defaultValue){
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
 		return token.getStringValue(cbuf);
 	}
 
@@ -203,7 +180,7 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public int getInt(int index) throws LazyException{
-		LazyToken token=getValueToken(index);
+		LazyNode token=getValueToken(index);
 		return token.getIntValue(cbuf);
 	}
 
@@ -215,9 +192,9 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public int optInt(int index){
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return 0;
-		if(token.type==LazyToken.VALUE_NULL)return 0;
+		if(token.type==LazyNode.VALUE_NULL)return 0;
 		return token.getIntValue(cbuf);
 	}
 
@@ -230,9 +207,9 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public int optInt(int index,int defaultValue){
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
 		return token.getIntValue(cbuf);
 	}
 
@@ -244,7 +221,7 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public long getLong(int index) throws LazyException{
-		LazyToken token=getValueToken(index);
+		LazyNode token=getValueToken(index);
 		return token.getLongValue(cbuf);
 	}
 
@@ -256,9 +233,9 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public long optLong(int index){
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return 0l;
-		if(token.type==LazyToken.VALUE_NULL)return 0l;
+		if(token.type==LazyNode.VALUE_NULL)return 0l;
 		return token.getLongValue(cbuf);
 	}
 
@@ -271,9 +248,9 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public long optLong(int index,long defaultValue){
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
 		return token.getLongValue(cbuf);
 	}
 
@@ -285,7 +262,7 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public double getDouble(int index) throws LazyException{
-		LazyToken token=getValueToken(index);
+		LazyNode token=getValueToken(index);
 		return token.getDoubleValue(cbuf);
 	}
 
@@ -297,9 +274,9 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public double optDouble(int index){
-		LazyToken token=getOptionalValueToken(index);
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return 0.0;
-		if(token.type==LazyToken.VALUE_NULL)return 0.0;
+		if(token.type==LazyNode.VALUE_NULL)return 0.0;
 		return token.getDoubleValue(cbuf);
 	}
 
@@ -311,10 +288,10 @@ public class LazyArray{
 	 * @return the value if it could be parsed as a string or the default value if there was no such value
 	 * @throws LazyException if the index is out of bounds
 	 */
-	public double optDouble(int index,long defaultValue){
-		LazyToken token=getOptionalValueToken(index);
+	public double optDouble(int index,double defaultValue){
+		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
-		if(token.type==LazyToken.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
 		return token.getDoubleValue(cbuf);
 	}
 
@@ -326,8 +303,8 @@ public class LazyArray{
 	 * @throws LazyException if the index is out of bounds
 	 */
 	public boolean isNull(int index) throws LazyException{
-		LazyToken token=getValueToken(index);
-		if(token.type==LazyToken.VALUE_NULL)return true;
+		LazyNode token=getValueToken(index);
+		if(token.type==LazyNode.VALUE_NULL)return true;
 		return false;
 	}
 
@@ -346,10 +323,10 @@ public class LazyArray{
 	 * @return the child for the given index
 	 * @throws LazyException if the index is out of bounds
 	 */
-	private LazyToken getValueToken(int index) throws LazyException{
+	private LazyNode getValueToken(int index) throws LazyException{
 		if(index<0)throw new LazyException("Array undex can not be negative");
 		int num=0;
-		LazyToken child=root.child;
+		LazyNode child=root.child;
 		// If the value we are looking for is past our previous traversal point
 		// continue at the previous point
 		if(selectInt>-1 && index>=selectInt){
@@ -384,10 +361,10 @@ public class LazyArray{
 	 * @return the child for the given index or null if the index does not exist
 	 * @throws LazyException if the index is out of bounds
 	 */
-	private LazyToken getOptionalValueToken(int index) throws LazyException{
+	private LazyNode getOptionalValueToken(int index) throws LazyException{
 		if(index<0)throw new LazyException("Array undex can not be negative");
 		int num=0;
-		LazyToken child=root.child;
+		LazyNode child=root.child;
 		// If the value we are looking for is past our previous traversal point
 		// continue at the previous point
 		if(selectInt>-1 && index>=selectInt){
@@ -413,19 +390,9 @@ public class LazyArray{
 	 * @param token the token for which to extract a string
 	 * @return the string value of the given token
 	 */
-	private String getString(LazyToken token){
-		return token.getStringValue(cbuf);
-	}
-
-	/**
-	 * Returns a raw string extracted from the source string that covers the
-	 * start and end index of this object.
-	 *
-	 * @return as string representation of this object as given in the source string
-	 */
-	public String toString(){
-		return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
-	}
+	// private String getString(LazyNode token){
+	//	return token.getStringValue(cbuf);
+	// }
 
 	/*
 	// For debug purposes only
