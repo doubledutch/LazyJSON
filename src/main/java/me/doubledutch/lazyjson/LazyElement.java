@@ -1,6 +1,8 @@
 package me.doubledutch.lazyjson;
 
+import me.doubledutch.lazyjson.compressor.*;
 import java.nio.ByteBuffer;
+import java.nio.BufferOverflowException;
 
 public class LazyElement{
 	protected LazyNode root;
@@ -22,6 +24,17 @@ public class LazyElement{
 		return cbuf;
 	}
 
+	public Template extractTemplate(){
+		Template t=new Template();
+		root.addSegments(cbuf,t);
+		t.compact();
+		return t;
+	}
+
+	public void writeTemplateValues(ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
+		root.writeSegmentValues(cbuf,buf,dict);
+	}
+
 	/**
 	 * Parses a string and returns either a LazyObject or LazyArray
 	 *
@@ -29,12 +42,18 @@ public class LazyElement{
 	 * @return either a LazyObject or LazyArray instance
 	 * @throws LazyException if the string could not be parsed
 	 */
-	public static Object parse(String str) throws LazyException{
+	public static LazyElement parse(String str) throws LazyException{
 		if(str.startsWith("[")){
 			return new LazyArray(str);
 		}else{
 			return new LazyObject(str);
 		}
+	}
+
+	public static LazyElement readFromTemplate(Template t,ByteBuffer buf,DictionaryCache dict) throws LazyException{
+		String str=t.read(buf,dict);
+		// System.out.println(str);
+		return parse(str);
 	}
 
 	/**

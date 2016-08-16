@@ -400,23 +400,6 @@ public class LazyObject extends LazyElement{
 		return null;
 	}
 
-	public Template extractTemplate(){
-		Template t=new Template();
-		root.addSegments(cbuf,t);
-		t.compact();
-		return t;
-	}
-
-	public void writeTemplateValues(ByteBuffer buf,DictionaryCache dict){
-		root.writeSegmentValues(cbuf,buf,dict);
-	}
-
-	public static LazyObject readFromTemplate(Template t,ByteBuffer buf,DictionaryCache dict){
-		String str=t.read(buf,dict);
-		// System.out.println(str);
-		return new LazyObject(str);
-	}
-
 	/*
 	// For debug purposes only
 	public String toString(int pad){

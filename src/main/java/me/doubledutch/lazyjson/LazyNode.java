@@ -2,6 +2,7 @@ package me.doubledutch.lazyjson;
 
 import java.util.*;
 import java.nio.ByteBuffer;
+import java.nio.BufferOverflowException;
 import me.doubledutch.lazyjson.compressor.*;
 import java.nio.charset.StandardCharsets;
 /**
@@ -399,7 +400,7 @@ public final class LazyNode{
 		buf.put(data);
 	}
 
-	protected void writeSegmentValues(char cbuf[], ByteBuffer buf,DictionaryCache dict){
+	protected void writeSegmentValues(char cbuf[], ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
 		if(type==OBJECT || type==ARRAY){
 			LazyNode next=child;
 			while(next!=null){

@@ -23,7 +23,7 @@ public class TemplateTest{
 		// System.out.println(str.length()+" vs "+buf.position());
 		buf.reset();
 		// System.out.println(t.read(buf,dict));
-		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
+		LazyObject obj2=(LazyObject)LazyElement.readFromTemplate(t,buf,dict);
 		assertEquals(obj1.getString("foo"),obj2.getString("foo"));
 	}
 
@@ -40,7 +40,7 @@ public class TemplateTest{
 		buf.reset();
 		System.out.println(t.read(buf,dict));
 
-		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
+		LazyObject obj2=(LazyObject)LazyElement.readFromTemplate(t,buf,dict);
 		assertEquals(obj1.getJSONArray("foo").getInt(1),obj2.getJSONArray("foo").getInt(1));
 	}
 
@@ -56,7 +56,7 @@ public class TemplateTest{
 		// System.out.println(str.length()+" vs "+buf.position());
 		buf.reset();
 		// System.out.println(t.read(buf,dict));
-		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
+		LazyObject obj2=(LazyObject)LazyElement.readFromTemplate(t,buf,dict);
 		assertEquals(obj1.getString("foo"),obj2.getString("foo"));
 	}
 
@@ -70,7 +70,7 @@ public class TemplateTest{
 		DictionaryCache dict=new DictionaryCache(100,2);
 		obj1.writeTemplateValues(buf,dict);
 		buf.reset();
-		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
+		LazyObject obj2=(LazyObject)LazyElement.readFromTemplate(t,buf,dict);
 		assertEquals(obj1.getInt("foo"),obj2.getInt("foo"));
 		assertEquals(obj1.getInt("bar"),obj2.getInt("bar"));
 		assertEquals(obj1.getInt("baz"),obj2.getInt("baz"));
@@ -90,7 +90,7 @@ public class TemplateTest{
 		// System.out.println(str.length()+" vs "+buf.position());
 		buf.reset();
 		// System.out.println(t.read(buf,dict));
-		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
+		LazyObject obj2=(LazyObject)LazyElement.readFromTemplate(t,buf,dict);
 		assertEquals(obj1.getJSONObject("foo").getBoolean("bar"),obj2.getJSONObject("foo").getBoolean("bar"));
 	}
 
@@ -106,7 +106,7 @@ public class TemplateTest{
 		// System.out.println(str.length()+" vs "+buf.position());
 		buf.reset();
 		// System.out.println(t.read(buf,dict));
-		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
+		LazyObject obj2=(LazyObject)LazyElement.readFromTemplate(t,buf,dict);
 		assertTrue(obj2.isNull("foo"));
 	}
 
@@ -122,7 +122,7 @@ public class TemplateTest{
 		// System.out.println(str.length()+" vs "+buf.position());
 		buf.reset();
 		// System.out.println(t.read(buf,dict));
-		LazyObject obj2=LazyObject.readFromTemplate(t,buf,dict);
+		LazyObject obj2=(LazyObject)LazyElement.readFromTemplate(t,buf,dict);
 		assertEquals(obj2.getDouble("foo"),3.1415,0);
 	}
 
@@ -147,7 +147,7 @@ public class TemplateTest{
 		LazyObject obj2=null;
 		for(int i=0;i<100;i++){
 			// System.out.println(i);
-			obj2=LazyObject.readFromTemplate(t,buf,dict);
+			obj2=(LazyObject)LazyElement.readFromTemplate(t,buf,dict);
 		}
 		assertEquals(obj1.getString("foo"),obj2.getString("foo"));
 		assertEquals(obj2.getInt("bar"),99);
