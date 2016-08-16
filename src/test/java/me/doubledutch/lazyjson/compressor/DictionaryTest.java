@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.net.*;
+import java.io.*;
 
 public class DictionaryTest{
 	@Test
@@ -22,6 +23,30 @@ public class DictionaryTest{
     	assertEquals(i1,d.get("foo"));
     	assertEquals(i2,d.get("bar"));
     	assertEquals(i3,d.get("baz"));
+    }
+
+    @Test
+    public void serialize() throws IOException{
+        DictionaryCache d=new DictionaryCache(1000,0);
+        int i1=d.put("foo");
+        int i2=d.put("bar");
+        int i3=d.put("baz");
+        int i4=d.put("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
+        byte[] buf=d.toByteArray();
+        DictionaryCache d2=new DictionaryCache(buf,1000,0);
+        assertEquals(i1,d2.get("foo"));
+        assertEquals(i2,d2.get("bar"));
+        assertEquals(i3,d2.get("baz"));
+    }
+    
+     @Test
+    public void verifyDirtyFlag(){
+        DictionaryCache d=new DictionaryCache(1000,0);
+        assertFalse(d.isDirty());
+        int i1=d.put("foo");
+        assertTrue(d.isDirty());
+        d.clearDirtyFlag();
+        assertFalse(d.isDirty());
     }
 
     @Test

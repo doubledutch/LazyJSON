@@ -1,9 +1,12 @@
 package me.doubledutch.lazyjson.compressor;
 
 import java.util.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class DictionaryCache{
-	private String[] data=new String[32767];
+	private final int MAX_SIZE=32767;
+	private String[] data=new String[MAX_SIZE];
 	private short next=0;
 	private Map<String,Short> dataMap=new HashMap<String,Short>();
 	private LinkedHashMap<String,Integer> slidingWindow;
@@ -21,6 +24,30 @@ public class DictionaryCache{
 	public DictionaryCache(int windowSizeArg,int minRepetitions){
 		this.windowSize=windowSizeArg;
 		this.minRepetitions=minRepetitions;
+		init();
+	}
+
+	/**
+	 * Create a new dictionary with the given window size and given repetition
+	 * requirement before new values are added to the dictionary.
+	 * The dictionary is initialized with the data in the given byte array.
+	 *
+	 * @param dictdata the dictionary contents to initialize with
+	 * @param windowSizeArg the size of the sliding window of values
+	 * @param minRepetitions the number of times a value must be seen within the sliding window before its added to the dictionary
+	 * @throws IOException if the data could not be read
+	 */
+	public DictionaryCache(byte[] dictdata, int windowSizeArg,int minRepetitions) throws IOException{
+		this.windowSize=windowSizeArg;
+		this.minRepetitions=minRepetitions;
+		init();
+		fromByteArray(dictdata);
+	}
+
+	/**
+	 * Initializes the internal sliding window data structure.
+	 */
+	private void init(){
 		// We are going to use a linked hash map to maintain our sliding window
 		slidingWindow=new LinkedHashMap<String,Integer>(windowSize+1, .75F, false){
             protected boolean removeEldestEntry(Map.Entry<String,Integer> eldest){
@@ -38,7 +65,56 @@ public class DictionaryCache{
 		return dirty;
 	}
 
-	
+	/**
+	 * Clears the flag specifying wether or not the dictionary has been modified.
+	 */
+	public void clearDirtyFlag(){
+		dirty=false;
+	}
+
+	private void fromByteArray(byte[] dictdata) throws IOException{
+		DataInputStream din=new DataInputStream(new ByteArrayInputStream(dictdata));
+		next=(short)din.readInt();
+		for(int i=0;i<next;i++){
+			int val=0;
+			int read=din.readUnsignedByte();
+			while(read==255){
+				val+=read;
+				read=din.readUnsignedByte();
+			}
+			val+=read;
+			if(val>0){
+				byte[] raw=new byte[val];
+				din.readFully(raw);
+				String str=new String(raw,StandardCharsets.UTF_8);
+				data[(short)i]=str;
+				dataMap.put(str,(short)i);
+			}
+		}
+	}
+
+	public byte[] toByteArray() throws IOException{
+		ByteArrayOutputStream out=new ByteArrayOutputStream();
+		DataOutputStream dout=new DataOutputStream(out);
+		dout.writeInt(next);
+		for(int i=0;i<next;i++){
+			String raw=data[i];
+			byte[] encoded=raw.getBytes(StandardCharsets.UTF_8);
+			int length=encoded.length;
+			while(length>0){
+				if(length>255){
+					dout.writeByte(255);
+					length=length-255;
+				}else{
+					dout.writeByte(length);
+					length=0;
+				}
+			}
+			dout.write(encoded);
+		}
+		dout.flush();
+		return out.toByteArray();
+	}
 
 	/**
 	 * Returns the value held at a specific location in the dictionary.
@@ -79,7 +155,7 @@ public class DictionaryCache{
 		// Do we already have this value?
 		if(dataMap.containsKey(value))return dataMap.get(value);
 		// Are we filled up?
-		if(next==32767)return -1;
+		if(next==MAX_SIZE)return -1;
 		// Should we add values without actual repetitions?
 		if(minRepetitions==0){
 			data[next]=value;
