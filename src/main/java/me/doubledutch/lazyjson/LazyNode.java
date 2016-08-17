@@ -260,7 +260,9 @@ public final class LazyNode{
 	 * @return the string value held by this token
 	 */
 	protected String getStringValue(char[] source){
-		if(type!=VALUE_ESTRING){
+		if(type==VALUE_NULL){
+			return null;
+		}else if(type!=VALUE_ESTRING){
 			return new String(source,startIndex,endIndex-startIndex);
 		}else{
 			StringBuilder buf=new StringBuilder(endIndex-startIndex);

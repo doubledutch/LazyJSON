@@ -7,6 +7,13 @@ import java.util.*;
 import java.net.*;
 
 public class LazyObjectTest{
+    @Test
+    public void ryanTestSample2() throws LazyException{
+        String str="{\"bundle_id\": null, \"application_id\": \"foo\"}";
+        LazyObject obj=new LazyObject(str);
+        assertNull(obj.getString("bundle_id"));
+    }
+
     @Test(expected=LazyException.class)
     public void testNonObject() throws LazyException{
         String str="[{\"foo\":42}]";
