@@ -23,6 +23,17 @@ public class CompressionTest{
 	}
 
 	@Test
+	public void testDecompress() throws Exception{
+		String str="{\"foo\":42}";
+		Compressor c=new Compressor("./ctest",1000,0);
+		byte[] out=c.compress(str);
+		// System.out.println(out.length+" vs "+str.length());
+		LazyObject obj=c.decompressObject(out);
+		// String str2=c.decompress(out);
+		// assertEquals(str,str2);
+	}
+
+	@Test
 	public void testSet() throws Exception{
 		Compressor c=new Compressor("./ctest",1000,3);
 		List<byte[]> list=new ArrayList<byte[]>();
