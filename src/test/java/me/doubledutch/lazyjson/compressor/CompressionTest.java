@@ -29,6 +29,13 @@ public class CompressionTest{
 		byte[] out=c.compress(str);
 		// System.out.println(out.length+" vs "+str.length());
 		LazyObject obj=c.decompressObject(out);
+		assertEquals(obj.toString(),str);
+		LazyElement elm=c.decompressElement(out);
+		assertEquals(elm.toString(),str);
+		String str2="[1,2,3]";
+		byte[] out2=c.compress(str2);
+		LazyArray arr=c.decompressArray(out2);
+		assertEquals(str2,arr.toString());
 		// String str2=c.decompress(out);
 		// assertEquals(str,str2);
 	}
