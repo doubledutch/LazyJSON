@@ -53,6 +53,7 @@ public class CompressionTest{
 			LazyObject obj=new LazyObject(str);
 			assertEquals(i,obj.getInt("foo"));			
 		}
+		assertTrue(c.getTemplateUtilization()>0.0);
 	}
 
 	@Test

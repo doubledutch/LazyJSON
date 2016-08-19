@@ -18,6 +18,9 @@ public class Compressor{
 	private boolean dirtyFlag=false;
 	private DictionaryCache dictionary;
 
+	private int templateHit=0;
+	private int templateMiss=0;
+
 	public Compressor(String prefix,int windowSizeArg,int minRepetitions) throws IOException{
 		this.windowSize=windowSizeArg;
 		this.minRepetitions=minRepetitions;
@@ -69,11 +72,9 @@ public class Compressor{
 
 
 	public byte[] compress(LazyElement elm){
-		// 1. Parse data
-		// LazyElement elm=LazyElement.parse(str);
-		// 2. Generate template
+		// First, extract the template
 		Template t=elm.extractTemplate();
-		// 3. If template satisfies criterea - compress
+		// If the template satisfies our compression criterea - compress
 		if(shouldCompress(t)){
 			try{
 				ByteBuffer buf=ByteBuffer.allocate(elm.getSourceLength()-2);
@@ -83,17 +84,19 @@ public class Compressor{
 				buf.rewind();
 				byte[] result=new byte[pos];
 				buf.get(result);
+				templateHit++;
 				return result;
 			}catch(BufferOverflowException boe){
-				// Compressed output larger than raw data
+				// Compressed output equal to or larger than raw data
 			}
 		}
-		// 4. return encoded data
+		// Return raw encoded data
 		// TODO: this is incredibly inefficient... fix!
 		byte[] encoded=elm.toString().getBytes(StandardCharsets.UTF_8);
 		ByteBuffer buf=ByteBuffer.allocate(2+encoded.length);
 		buf.putShort((short)-1);
 		buf.put(encoded);
+		templateMiss++;
 		return buf.array();
 	}
 
@@ -167,5 +170,10 @@ public class Compressor{
 			File ftest=new File(prefix+".dictionary-tmp");
 			ftest.renameTo(new File(prefix+".dictionary"));
 		}
+	}
+
+	public double getTemplateUtilization(){
+		if(templateHit+templateMiss==0)return 0.0;
+		return templateHit/((double)templateHit+templateMiss);
 	}
 }
