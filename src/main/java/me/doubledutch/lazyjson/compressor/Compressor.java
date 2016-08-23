@@ -172,8 +172,20 @@ public class Compressor{
 		}
 	}
 
+	public int getTemplateCount(){
+		return templateSet.size();
+	}
+
+	public int getDictionaryCount(){
+		return dictionary.getSize();
+	}
+
 	public double getTemplateUtilization(){
 		if(templateHit+templateMiss==0)return 0.0;
 		return templateHit/((double)templateHit+templateMiss);
+	}
+
+	public double getDictionaryUtilization(){
+		return dictionary.getDictionaryUtilization();
 	}
 }

@@ -14,6 +14,9 @@ public class DictionaryCache{
 	private int minRepetitions;
 	private boolean dirty=false;
 
+	private int dictionaryHit=0;
+	private int dictionaryMiss=0;
+
 	/**
 	 * Create a new dictionary with the given window size and given repetition
 	 * requirement before new values are added to the dictionary.
@@ -37,6 +40,15 @@ public class DictionaryCache{
                 return size()>windowSize;                                  
             }
         };
+	}
+
+	/**
+	 * Returns the number of entries currently commited to this dictionary.
+	 *
+	 * @return the number of entries in the dictionary
+	 */
+	public int getSize(){
+		return next;
 	}
 
 	/**
@@ -132,14 +144,21 @@ public class DictionaryCache{
 	 */
 	public short put(String value){
 		// Do we already have this value?
-		if(dataMap.containsKey(value))return dataMap.get(value);
+		if(dataMap.containsKey(value)){
+			dictionaryHit++;
+			return dataMap.get(value);
+		}
 		// Are we filled up?
-		if(next==MAX_SIZE)return -1;
+		if(next==MAX_SIZE){
+			dictionaryMiss++;
+			return -1;
+		}
 		// Should we add values without actual repetitions?
 		if(minRepetitions==0){
 			data[next]=value;
 			dataMap.put(value,next);
 			dirty=true;
+			dictionaryHit++;
 			return next++;
 		}
 		// Have we seen this value before?
@@ -151,6 +170,7 @@ public class DictionaryCache{
 				data[next]=value;
 				dataMap.put(value,next);
 				dirty=true;
+				dictionaryHit++;
 				return next++;
 			}else{
 				slidingWindow.put(value,count);
@@ -159,6 +179,12 @@ public class DictionaryCache{
 			// Add this new value to the map
 			slidingWindow.put(value,1);
 		}
+		dictionaryMiss++;
 		return -1;
+	}
+
+	public double getDictionaryUtilization(){
+		if(dictionaryHit+dictionaryMiss==0)return 0.0;
+		return dictionaryHit/((double)dictionaryHit+dictionaryMiss);
 	}
 }
