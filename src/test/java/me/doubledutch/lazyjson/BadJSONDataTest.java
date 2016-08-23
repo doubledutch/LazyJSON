@@ -15,6 +15,30 @@ public class BadJSONDataTest{
         LazyObject obj=new LazyObject(str);
     }
 
+     @Test(expected=LazyException.class)
+    public void testBadComma1() throws LazyException{
+        String str="{\"foo\":42,}";
+        LazyObject obj=new LazyObject(str);
+    }
+
+     @Test(expected=LazyException.class)
+    public void testBadComma2() throws LazyException{
+        String str="[\"foo\",42,]";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBadComma3() throws LazyException{
+        String str="[],";
+        LazyObject obj=new LazyObject(str);
+    }
+
+    @Test(expected=LazyException.class)
+    public void testBadComma4() throws LazyException{
+        String str="{},";
+        LazyObject obj=new LazyObject(str);
+    }
+
     @Test(expected=LazyException.class)
     public void testBadNumber2() throws LazyException{
         String str="{\"foo\":-9.f}";
