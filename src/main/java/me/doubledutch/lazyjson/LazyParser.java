@@ -187,12 +187,14 @@ public final class LazyParser{
 		root=stack[1];
 		stackTop=root;
 		n++;
+		boolean expectValue=false;
 		LazyNode token=null;
 		for(;n<length;n++){
 			c=cbuf[n];
 			switch(c){
 				case '{':
 					push(LazyNode.cObject(n));
+					expectValue=false;
 					break;
 				case '}':
 					// The end of an object, pop off the last value and field if any
@@ -223,8 +225,13 @@ public final class LazyParser{
 					if(stackTop!=null && stackTop.type==LazyNode.FIELD){
 						drop();
 					}
+					// Was there a trailing comma?
+					if(expectValue){
+						throw new LazyException("Unexpected comma without another value",n-1);
+					}
 					break;
 			case '"':
+				expectValue=false;
 				if(stackTop.type==LazyNode.ARRAY){
 					token=LazyNode.cStringValue(n+1);
 					stackTop.addChild(token);
@@ -258,12 +265,14 @@ public final class LazyParser{
 				break;
 			case ',':
 				// This must be the end of a value and the start of another
+				expectValue=true;
 				break;
 			case '[':
 				if(stackTop.type==LazyNode.OBJECT){
 					throw new LazyException("Missing field name for array",n);
 				}
 				push(LazyNode.cArray(n));
+				expectValue=false;
 				break;
 			case ']':
 				token=pop();
@@ -283,6 +292,10 @@ public final class LazyParser{
 				if(stackTop!=null && stackTop.type==LazyNode.FIELD){
 					drop();
 				}
+				// Was there a trailing comma?
+				if(expectValue){
+					throw new LazyException("Unexpected comma without another value",n-1);
+				}
 				break;
 			case ' ':
 			case '\t':
@@ -292,6 +305,7 @@ public final class LazyParser{
 				break;
 			default:
 				// This must be a new value
+				expectValue=false;
 				if(c=='n'){
 					// Must be null value
 					if(cbuf[++n]=='u' && cbuf[++n]=='l' && cbuf[++n]=='l'){
@@ -353,6 +367,9 @@ public final class LazyParser{
 		}
 		if(size()!=0){
 			throw new LazyException("Unexpected end of JSON data");
+		}
+		if(expectValue){
+			throw new LazyException("Unexpected trailing comma");
 		}
 	}
 }
