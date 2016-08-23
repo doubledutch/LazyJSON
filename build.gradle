@@ -1,4 +1,4 @@
-version = '1.2.1'
+version = '1.2.2'
 
 group = "me.doubledutch"
 archivesBaseName = "lazyjson"
@@ -64,7 +64,7 @@ check{
 
 
 jar {
-    def versionFile = file('./src/main/resources/version.properties')
+    def versionFile = file('./src/main/resources/lazyjson_version.properties')
  
     if(versionFile.canRead()){
         def Properties props=new Properties()
