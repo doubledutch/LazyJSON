@@ -349,7 +349,7 @@ public class LazyObjectTest{
                 "\"Item\":{"+
                     "\"ID\":2983980,"+
                     "\"Rating\":5,"+
-                    "\"Type\":null,"+
+                    "\"Type\":null"+
                 "},"+
                 "\"User\":{"+
                     "\"ID\":478830012,"+
