@@ -23,6 +23,19 @@ public class CompressionTest{
 	}
 
 	@Test
+	public void testGetRatio() throws Exception{
+		String str="{\"foo\":42,\"bar\":\"baz\"}";
+		Compressor c=new Compressor("./ctest",1000,0);
+		byte[] out=c.compress(str);
+		// System.out.println(out.length+" vs "+str.length());
+		String str2=c.decompress(out);
+		assertEquals(str,str2);
+		assertTrue(c.getDictionaryUtilization()>0.0);
+		assertEquals(c.getTemplateCount(),1);
+		assertEquals(c.getDictionaryCount(),1);
+	}
+
+	@Test
 	public void testDecompress() throws Exception{
 		String str="{\"foo\":42}";
 		Compressor c=new Compressor("./ctest",1000,0);
