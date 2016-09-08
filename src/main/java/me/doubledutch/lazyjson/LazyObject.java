@@ -31,6 +31,29 @@ public class LazyObject extends LazyElement{
 	}
 
 	/**
+	 * Returns the value type of the given field.
+	 *
+	 * @param key the requested field
+	 * @return the type of the value for the given field
+	 * @throws LazyException if the requested field did not exist
+	 */
+	public LazyType getType(String key) throws LazyException{
+		LazyNode token=getFieldToken(key);
+		switch(token.type){
+			case LazyNode.OBJECT: return LazyType.OBJECT;
+			case LazyNode.ARRAY: return LazyType.ARRAY;
+			case LazyNode.VALUE_TRUE: return LazyType.BOOLEAN;
+			case LazyNode.VALUE_FALSE: return LazyType.BOOLEAN;
+			case LazyNode.VALUE_NULL: return LazyType.NULL;
+			case LazyNode.VALUE_STRING: return LazyType.STRING;
+			case LazyNode.VALUE_ESTRING: return LazyType.STRING;
+			case LazyNode.VALUE_INTEGER: return LazyType.INTEGER;
+			case LazyNode.VALUE_FLOAT: return LazyType.FLOAT;
+		}
+		return null;
+	}
+
+	/**
 	 * Returns the string value stored in this object for the given key.
 	 *
 	 * @param key the name of the field on this object

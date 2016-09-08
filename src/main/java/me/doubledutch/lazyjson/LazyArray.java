@@ -29,6 +29,29 @@ public class LazyArray extends LazyElement{
 	}
 
 	/**
+	 * Returns the value type of the given field.
+	 *
+	 * @param index the requested field
+	 * @return the type of the value for the given index
+	 * @throws LazyException if the requested index did not exist
+	 */
+	public LazyType getType(int index) throws LazyException{
+		LazyNode token=getValueToken(index);
+		switch(token.type){
+			case LazyNode.OBJECT: return LazyType.OBJECT;
+			case LazyNode.ARRAY: return LazyType.ARRAY;
+			case LazyNode.VALUE_TRUE: return LazyType.BOOLEAN;
+			case LazyNode.VALUE_FALSE: return LazyType.BOOLEAN;
+			case LazyNode.VALUE_NULL: return LazyType.NULL;
+			case LazyNode.VALUE_STRING: return LazyType.STRING;
+			case LazyNode.VALUE_ESTRING: return LazyType.STRING;
+			case LazyNode.VALUE_INTEGER: return LazyType.INTEGER;
+			case LazyNode.VALUE_FLOAT: return LazyType.FLOAT;
+		}
+		return null;
+	}
+
+	/**
 	 * Returns the JSON array stored at the given index.
 	 *
 	 * @param index the location of the value in this array
