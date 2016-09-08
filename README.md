@@ -26,6 +26,8 @@ cmp.commit(); // Write out templates and dictionary data
 String output=cmp.decompress(data);
 ````
 
+In our own tests on real world data at DoubleDutch LazyJSON compression gets us down to around 20-25%. We are able to further get down to less than 2% by combining this with a general purpose compression tool such as xz. You can read more about the process and [our results here](http://engineering.doubledutch.me/h/i/282745449-lazyjson-and-the-chamber-of-extreme-compression).
+
 ## Performance
 
 The following table shows a speed comparison for parsing around 551kb of JSON data.
