@@ -14,6 +14,13 @@ public class LazyObjectTest{
         assertNull(obj.getString("bundle_id"));
     }
 
+    @Test
+    public void escapeFieldChars() throws LazyException{
+        String str="{\"foo\\n\":\"bar\",\"baz\":42}";
+        LazyObject obj=new LazyObject(str);
+        assertNotNull(obj.getString("foo\n"));
+    }
+
     @Test(expected=LazyException.class)
     public void testNonObject() throws LazyException{
         String str="[{\"foo\":42}]";

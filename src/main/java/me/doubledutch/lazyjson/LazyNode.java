@@ -16,7 +16,8 @@ public final class LazyNode{
 	protected static final byte OBJECT=0;
 	protected static final byte ARRAY=1;
 	protected static final byte FIELD=2;
-	// protected static final byte VALUE=3;
+	protected static final byte EFIELD=3; // A field with escaped characters
+
 	protected static final byte VALUE_TRUE=4;
 	protected static final byte VALUE_FALSE=5;
 	protected static final byte VALUE_NULL=6;
@@ -262,7 +263,7 @@ public final class LazyNode{
 	protected String getStringValue(char[] source){
 		if(type==VALUE_NULL){
 			return null;
-		}else if(type!=VALUE_ESTRING){
+		}else if(!(type==VALUE_ESTRING||type==EFIELD)){
 			return new String(source,startIndex,endIndex-startIndex);
 		}else{
 			StringBuilder buf=new StringBuilder(endIndex-startIndex);

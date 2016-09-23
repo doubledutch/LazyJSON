@@ -202,6 +202,8 @@ public final class LazyParser{
 					if(token==null){
 						throw new LazyException("Unexpected end of object character",n);
 					}else if(token.type!=LazyNode.OBJECT){
+						throw new LazyException("Unexpected end of object character",n);
+						/*
 						// TODO: Do we have any legal cases that should send us in here?
 						if(token.endIndex==-1){
 							token.endIndex=n;
@@ -210,7 +212,7 @@ public final class LazyParser{
 						if(token==null){
 							throw new LazyException("Unexpected end of object character",n);
 						}
-						if(token.type==LazyNode.FIELD){
+						if(token.type==LazyNode.FIELD || token.type==LazyNode.EFIELD){
 							token=pop();
 						}else{
 							throw new LazyException("Value without field",n);
@@ -218,11 +220,11 @@ public final class LazyParser{
 						// We should now be down to the actual object
 						if(token.type!=LazyNode.OBJECT){
 							throw new LazyException("Unexpected end of object",n);
-						}
+						}*/
 					}
 					token.endIndex=n+1;
 					// If this object was the value for a field, pop off that field too
-					if(stackTop!=null && stackTop.type==LazyNode.FIELD){
+					if(stackTop!=null && (stackTop.type==LazyNode.FIELD || stackTop.type==LazyNode.EFIELD)){
 						drop();
 					}
 					// Was there a trailing comma?
@@ -239,7 +241,7 @@ public final class LazyParser{
 						token.type=LazyNode.VALUE_ESTRING;
 					}
 					token.endIndex=n;
-				}else if(stackTop.type==LazyNode.FIELD){
+				}else if(stackTop.type==LazyNode.FIELD || stackTop.type==LazyNode.EFIELD){
 					token=LazyNode.cStringValue(n+1);
 					stackTop.addChild(token);
 					if(consumeString()){
@@ -250,7 +252,7 @@ public final class LazyParser{
 				}else if(stackTop.type==LazyNode.OBJECT){
 					push(LazyNode.cField(n+1));
 					if(consumeString()){
-						stackTop.type=LazyNode.VALUE_ESTRING;
+						stackTop.type=LazyNode.EFIELD;
 					}
 					stackTop.endIndex=n;
 					n++;
@@ -289,7 +291,7 @@ public final class LazyParser{
 				}
 				token.endIndex=n+1;
 				// If this array was the value for a field, pop off that field too
-				if(stackTop!=null && stackTop.type==LazyNode.FIELD){
+				if(stackTop!=null && (stackTop.type==LazyNode.FIELD || stackTop.type==LazyNode.EFIELD)){
 					drop();
 				}
 				// Was there a trailing comma?
@@ -312,7 +314,7 @@ public final class LazyParser{
 						token=LazyNode.cValueNull(n);
 						stackTop.addChild(token);
 						token.endIndex=n;
-						if(stackTop.type==LazyNode.FIELD){
+						if(stackTop.type==LazyNode.FIELD || stackTop.type==LazyNode.EFIELD){
 							// This was the end of the value for a field, pop that too
 							drop();
 						}
@@ -325,7 +327,7 @@ public final class LazyParser{
 						token=LazyNode.cValueTrue(n);
 						stackTop.addChild(token);
 						token.endIndex=n;
-						if(stackTop.type==LazyNode.FIELD){
+						if(stackTop.type==LazyNode.FIELD || stackTop.type==LazyNode.EFIELD){
 							// This was the end of the value for a field, pop that too
 							drop();
 						}
@@ -338,7 +340,7 @@ public final class LazyParser{
 						token=LazyNode.cValueFalse(n);
 						stackTop.addChild(token);
 						token.endIndex=n;
-						if(stackTop.type==LazyNode.FIELD){
+						if(stackTop.type==LazyNode.FIELD || stackTop.type==LazyNode.EFIELD){
 							// This was the end of the value for a field, pop that too
 							drop();
 						}
@@ -354,7 +356,7 @@ public final class LazyParser{
 					}
 					token.endIndex=n;
 					n--;
-					if(stackTop.type==LazyNode.FIELD){
+					if(stackTop.type==LazyNode.FIELD || stackTop.type==LazyNode.EFIELD){
 						// This was the end of the value for a field, pop that too
 						drop();
 					}

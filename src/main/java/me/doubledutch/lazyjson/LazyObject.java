@@ -350,19 +350,24 @@ public class LazyObject extends LazyElement{
 	 * @return true if the key matches, false otherwise
 	 */
 	private boolean keyMatch(String key,LazyNode token){
-		// Quickly check the length first
-		int length=key.length();
-		if(token.endIndex-token.startIndex!=length){
-			return false;
-		}
-		// Now go through the field character for character to compare
-		for(int i=0;i<length;i++){
-			char c=key.charAt(i);
-			if(c!=cbuf[token.startIndex+i]){
+		if(token.type==LazyNode.EFIELD){
+			String field=token.getStringValue(cbuf);
+			return field.equals(key);
+		}else{
+			// Quickly check the length first
+			int length=key.length();
+			if(token.endIndex-token.startIndex!=length){
 				return false;
 			}
+			// Now go through the field character for character to compare
+			for(int i=0;i<length;i++){
+				char c=key.charAt(i);
+				if(c!=cbuf[token.startIndex+i]){
+					return false;
+				}
+			}
+			return true;
 		}
-		return true;
 	}
 
 	/**
