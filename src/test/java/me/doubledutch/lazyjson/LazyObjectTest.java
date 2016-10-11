@@ -8,6 +8,16 @@ import java.net.*;
 
 public class LazyObjectTest{
     @Test
+    public void keysetTest() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":42}";
+        LazyObject obj=new LazyObject(str);
+        Set<String> keys=obj.keySet();
+        assertTrue(keys.contains("foo"));
+        assertTrue(keys.contains("baz"));
+        assertFalse(keys.contains("bar"));
+    }
+
+    @Test
     public void ryanTestSample2() throws LazyException{
         String str="{\"bundle_id\": null, \"application_id\": \"foo\"}";
         LazyObject obj=new LazyObject(str);

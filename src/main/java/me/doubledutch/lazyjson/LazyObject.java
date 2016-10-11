@@ -3,6 +3,8 @@ package me.doubledutch.lazyjson;
 import me.doubledutch.lazyjson.compressor.DictionaryCache;
 import me.doubledutch.lazyjson.compressor.Template;
 import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
 import java.nio.ByteBuffer;
 
 /**
@@ -339,6 +341,20 @@ public class LazyObject extends LazyElement{
 	 */
 	public Iterator<String> keys(){
 		return root.getStringIterator(cbuf);
+	}
+
+	/**
+	 * Returns a set containing all keys on this object. If possible, use the keys iterator instead for improved performance.
+	 *
+	 * @return a set containing all keys in this object
+	 */
+	public Set<String> keySet(){
+		HashSet<String> set=new HashSet<String>();
+		Iterator<String> keys=keys();
+		while(keys.hasNext()){
+			set.add(keys.next());
+		}
+		return set;
 	}
 
 	/**
