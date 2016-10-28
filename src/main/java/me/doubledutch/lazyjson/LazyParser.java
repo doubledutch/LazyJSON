@@ -196,6 +196,7 @@ public final class LazyParser{
 		stackTop=root;
 		n++;
 		boolean expectValue=false;
+		boolean firstValue=true;
 		LazyNode token=null;
 		for(;n<length;n++){
 			c=cbuf[n];
@@ -203,6 +204,7 @@ public final class LazyParser{
 				case '{':
 					push(LazyNode.cObject(n));
 					expectValue=false;
+					firstValue=true;
 					break;
 				case '}':
 					// The end of an object, pop off the last value and field if any
@@ -275,6 +277,10 @@ public final class LazyParser{
 				break;
 			case ',':
 				// This must be the end of a value and the start of another
+				if(expectValue){
+					// Missing value after last comma
+					throw new LazyException("Unexpected comma",n);
+				}
 				expectValue=true;
 				break;
 			case '[':
@@ -283,6 +289,7 @@ public final class LazyParser{
 				}
 				push(LazyNode.cArray(n));
 				expectValue=false;
+				firstValue=true;
 				break;
 			case ']':
 				token=pop();
@@ -315,6 +322,10 @@ public final class LazyParser{
 				break;
 			default:
 				// This must be a new value
+				if(stackTop.type==LazyNode.ARRAY && !firstValue && !expectValue){
+					throw new LazyException("Unexpected value, missing comma?",n);
+				}
+				firstValue=false;
 				expectValue=false;
 				if(c=='n'){
 					// Must be null value
