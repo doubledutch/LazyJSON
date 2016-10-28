@@ -320,6 +320,9 @@ public final class LazyParser{
 				if(stackTop.type==LazyNode.ARRAY && !firstValue && !expectValue){
 					throw new LazyException("Unexpected value, missing comma?",n);
 				}
+				if(stackTop.type==LazyNode.OBJECT){
+					throw new LazyException("Unexpected value without field name",n);
+				}
 				firstValue=false;
 				expectValue=false;
 				if(c=='n'){
