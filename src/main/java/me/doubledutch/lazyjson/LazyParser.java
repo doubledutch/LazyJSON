@@ -215,24 +215,6 @@ public final class LazyParser{
 						throw new LazyException("Unexpected end of object character",n);
 					}else if(token.type!=LazyNode.OBJECT){
 						throw new LazyException("Unexpected end of object character",n);
-						/*
-						// TODO: Do we have any legal cases that should send us in here?
-						if(token.endIndex==-1){
-							token.endIndex=n;
-						}
-						token=pop();
-						if(token==null){
-							throw new LazyException("Unexpected end of object character",n);
-						}
-						if(token.type==LazyNode.FIELD || token.type==LazyNode.EFIELD){
-							token=pop();
-						}else{
-							throw new LazyException("Value without field",n);
-						}
-						// We should now be down to the actual object
-						if(token.type!=LazyNode.OBJECT){
-							throw new LazyException("Unexpected end of object",n);
-						}*/
 					}
 					token.endIndex=n+1;
 					// If this object was the value for a field, pop off that field too
