@@ -275,6 +275,7 @@ public final class LazyParser{
 					}else{
 						throw new LazyException("Unexpected character! Was expecting field separator ':'",n);
 					}
+					expectValue=true;
 				}
 				break;
 			case ',':
@@ -288,6 +289,10 @@ public final class LazyParser{
 			case '[':
 				if(stackTop.type==LazyNode.OBJECT){
 					throw new LazyException("Missing field name for array",n);
+				}else if(stackTop.type==LazyNode.ARRAY){
+					if((!firstValue) && (!expectValue)){
+						throw new LazyException("Nested array without comma",n);
+					}
 				}
 				push(LazyNode.cArray(n));
 				expectValue=false;
