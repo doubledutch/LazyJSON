@@ -43,11 +43,18 @@ public class LazyElement{
 	 * @throws LazyException if the string could not be parsed
 	 */
 	public static LazyElement parse(String str) throws LazyException{
-		if(str.startsWith("[")){
-			return new LazyArray(str);
-		}else{
-			return new LazyObject(str);
+		int index=0;
+		while(index<str.length()){
+			char ch=str.charAt(index);
+			if(ch=='['){
+				return new LazyArray(str);
+			}
+			if(ch=='{'){
+				return new LazyObject(str);
+			}
+			index++;
 		}
+		return null;
 	}
 
 	public static LazyElement readFromTemplate(Template t,ByteBuffer buf,DictionaryCache dict) throws LazyException{
