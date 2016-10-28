@@ -113,7 +113,15 @@ public final class LazyParser{
 			}
 		}
 		n++;
-		c=cbuf[n];
+		if(c=='0'){
+			// First digit was zero - next may not be digit!
+			c=cbuf[n];
+			if(c>='0' && c<='9'){
+				throw new LazyException("Number may not start with leading zero",n);
+			}
+		}else{
+			c=cbuf[n];
+		}
 		while(!(c<'0' || c>'9')){
 			n++;
 			c=cbuf[n];
