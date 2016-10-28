@@ -225,9 +225,11 @@ public final class LazyParser{
 					if(expectValue){
 						throw new LazyException("Unexpected comma without another value",n-1);
 					}
+					firstValue=false;
 					break;
 			case '"':
 				expectValue=false;
+				firstValue=false;
 				if(stackTop.type==LazyNode.ARRAY){
 					token=LazyNode.cStringValue(n+1);
 					stackTop.addChild(token);
@@ -267,6 +269,9 @@ public final class LazyParser{
 					throw new LazyException("Unexpected comma",n);
 				}
 				expectValue=true;
+				if(stackTop!=null && (stackTop.type==LazyNode.ARRAY) && (firstValue)){
+					throw new LazyException("Expected value before comma",n);
+				}
 				break;
 			case '[':
 				if(stackTop.type==LazyNode.OBJECT){
@@ -302,6 +307,7 @@ public final class LazyParser{
 				if(expectValue){
 					throw new LazyException("Unexpected comma without another value",n-1);
 				}
+				firstValue=false;
 				break;
 			case ' ':
 			case '\t':
