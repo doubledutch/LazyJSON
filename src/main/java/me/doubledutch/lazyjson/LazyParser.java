@@ -83,7 +83,7 @@ public final class LazyParser{
 
 	// Consume all characters in a string and correctly mark the stackTop
 	// element if an escape character is found
-	private final boolean consumeString(){
+	private final boolean consumeString() throws LazyException{
 		boolean escaped=false;
 		n++;
 		char c=cbuf[n];
@@ -91,7 +91,9 @@ public final class LazyParser{
 			if(c=='\\'){
 				n++;
 				c=cbuf[n];
-				// TODO: validate escape value
+				if(!(c=='"' || c=='\\' || c=='/' || c=='b' || c=='f' || c=='n' || c=='r' || c=='t' || c=='u')){
+					throw new LazyException("Invalid escape code",n);
+				}
 				escaped=true;
 			}
 			n++;
