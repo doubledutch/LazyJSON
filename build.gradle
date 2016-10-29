@@ -57,10 +57,11 @@ check{
     dependsOn jacocoTestReport
 }
 
-
+/*
 signing {
     sign configurations.archives
 }
+*/
 
 
 jar {
@@ -82,7 +83,7 @@ jar {
         attributes 'Implementation-Title': 'LazyJSON Library', 'Implementation-Version': version
     }
 }
-
+/*
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -128,3 +129,4 @@ uploadArchives {
         }
     }
 }
+*/
