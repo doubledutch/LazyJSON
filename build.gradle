@@ -1,4 +1,4 @@
-version = '1.2.5'
+version = '1.2.6'
 
 group = "me.doubledutch"
 archivesBaseName = "lazyjson"
@@ -57,11 +57,11 @@ check{
     dependsOn jacocoTestReport
 }
 
-/*
+
 signing {
     sign configurations.archives
 }
-*/
+
 
 jar {
     def versionFile = file('./src/main/resources/lazyjson_version.properties')
@@ -82,7 +82,7 @@ jar {
         attributes 'Implementation-Title': 'LazyJSON Library', 'Implementation-Version': version
     }
 }
-/*
+
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -128,4 +128,3 @@ uploadArchives {
         }
     }
 }
-*/
