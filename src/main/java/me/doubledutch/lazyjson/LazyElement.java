@@ -54,7 +54,7 @@ public class LazyElement{
 			}
 			index++;
 		}
-		return null;
+		throw new LazyException("The given string is not a JSON object or array");
 	}
 
 	public static LazyElement readFromTemplate(Template t,ByteBuffer buf,DictionaryCache dict) throws LazyException{
