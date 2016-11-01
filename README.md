@@ -86,5 +86,3 @@ The changes needed to accommodate this functionality had a neglible impact on th
 ## State of the Project
 
 We are using LazyJSON in production at DoubleDutch. So far, it has been very stable and we are highly committed to fixing any issues that might arise in an extremely efficient manner. I repeat: we are using this in production! If you find any issues, please file them right here on the github project page!
-
-If you need strong validation of raw JSON input data at the edge of your stack, we would suggest using another JSON parser for now (we use Jackson). We have plenty of confidence in LazyJSON, but all current unit tests have covered cases where the source JSON is well-formed. We do intend to start adding test cases for malformed JSON to verify the validation abilities of the parser in the near future, and will update this page when that happens! Finally, the current implementation uses a fixed size stack limiting the nested documents it can parse to a depth of 256 elements... that's 128 objects nested inside each other. If you reach this limit, let us know and we will prioritize fixing this ;-)
