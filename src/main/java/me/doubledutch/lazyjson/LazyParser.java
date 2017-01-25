@@ -3,6 +3,36 @@ package me.doubledutch.lazyjson;
 import java.util.*;
 
 public final class LazyParser{
+	private final char CH_SPACE=' ';
+	private final char CH_LINEFEED='\n';
+	private final char CH_TAB='\t';
+	private final char CH_CARRIAGE_RETURN='\r';
+	private final char CH_QUOTE='"';
+	private final char CH_BACKSLASH='\\';
+	private final char CH_SLASH='/';
+	private final char CH_b='b';
+	private final char CH_f='f';
+	private final char CH_n='n';
+	private final char CH_r='r';
+	private final char CH_t='t';
+	private final char CH_u='u';
+	private final char CH_l='l';
+	private final char CH_a='a';
+	private final char CH_s='s';
+	private final char CH_e='e';
+	private final char CH_E='E';
+	private final char CH_DASH='-';
+	private final char CH_PLUS='+';
+	private final char CH_COMMA=',';
+	private final char CH_COLON=':';
+	private final char CH_0='0';
+	private final char CH_9='9';
+	private final char CH_DOT='.';
+	private final char CH_BEGIN_CURLY='{';
+	private final char CH_END_CURLY='}';
+	private final char CH_BEGIN_BRACKET='[';
+	private final char CH_END_BRACKET=']';
+
 	// Read the comments on push before changing these!
 	private final int STACK_INCREASE=31;
 	private int STACK_SIZE=32;
@@ -66,7 +96,7 @@ public final class LazyParser{
 	// Utility method to consume sections of whitespace
 	private final void consumeWhiteSpace(){
 		char c=cbuf[n];
-		while(c==' '|| c=='\n' || c=='\t' || c=='\r'){
+		while(c==CH_SPACE|| c==CH_LINEFEED || c==CH_TAB || c==CH_CARRIAGE_RETURN){
 			n++;
 			c=cbuf[n];
 		}
@@ -87,11 +117,11 @@ public final class LazyParser{
 		boolean escaped=false;
 		n++;
 		char c=cbuf[n];
-		while(c!='"'){
-			if(c=='\\'){
+		while(c!=CH_QUOTE){
+			if(c==CH_BACKSLASH){
 				n++;
 				c=cbuf[n];
-				if(!(c=='"' || c=='\\' || c=='/' || c=='b' || c=='f' || c=='n' || c=='r' || c=='t' || c=='u')){
+				if(!(c==CH_QUOTE || c==CH_BACKSLASH || c==CH_SLASH || c==CH_b || c==CH_f || c==CH_n || c==CH_r || c==CH_t || c==CH_u)){
 					throw new LazyException("Invalid escape code",n);
 				}
 				escaped=true;
@@ -106,60 +136,60 @@ public final class LazyParser{
 	// of the number does not validate correctly
 	private final boolean consumeNumber(char c) throws LazyException{
 		boolean floatChar=false;
-		if(c=='-'){
+		if(c==CH_DASH){
 			// If the number started with a minus sign it must be followed by at least one digit
 			n++;
 			c=cbuf[n];
-			if(c<'0' || c>'9'){
+			if(c<CH_0 || c>CH_9){
 				throw new LazyException("Digit expected",n);
 			}
 		}
 		n++;
-		if(c=='0'){
+		if(c==CH_0){
 			// First digit was zero - next may not be digit!
 			c=cbuf[n];
-			if(c>='0' && c<='9'){
+			if(c>=CH_0 && c<=CH_9){
 				throw new LazyException("Number may not start with leading zero",n);
 			}
 		}else{
 			c=cbuf[n];
 		}
-		while(!(c<'0' || c>'9')){
+		while(!(c<CH_0 || c>CH_9)){
 			n++;
 			c=cbuf[n];
 		}
-		if(c=='.'){
+		if(c==CH_DOT){
 			floatChar=true;
 			// The fractional part must contain one or more digits
 			n++;
 			c=cbuf[n];
-			if(c<'0' || c>'9'){
+			if(c<CH_0 || c>CH_9){
 				throw new LazyException("Digit expected",n);
 			}
 			n++;
 			c=cbuf[n];
-			while(!(c<'0' || c>'9')){
+			while(!(c<CH_0 || c>CH_9)){
 				n++;
 				c=cbuf[n];
 			}
 		}
-		if(c=='e' || c=='E'){
+		if(c==CH_e || c==CH_E){
 			floatChar=true;
 			n++;
 			c=cbuf[n];
-			if(c=='-' || c=='+'){
+			if(c==CH_DASH || c==CH_PLUS){
 				// We must have at least one digit following this
 				n++;
 				c=cbuf[n];
-				if(c<'0' || c>'9'){
+				if(c<CH_0 || c>CH_9){
 					throw new LazyException("Digit expected",n);
 				}
-			}else if(c<'0' || c>'9'){
+			}else if(c<CH_0 || c>CH_9){
 				throw new LazyException("Exponential part expected",n);
 			}
 			n++;
 			c=cbuf[n];
-			while(!(c<'0' || c>'9')){
+			while(!(c<CH_0 || c>CH_9)){
 				n++;
 				c=cbuf[n];
 			}
@@ -187,9 +217,9 @@ public final class LazyParser{
 		// future push operations can avoid doing an if empty check when
 		// setting the parent child relationship
 		char c=cbuf[n];
-		if(c=='{'){
+		if(c==CH_BEGIN_CURLY){
 			stack[stackPointer++]=LazyNode.cObject(n);
-		}else if(c=='['){
+		}else if(c==CH_BEGIN_BRACKET){
 			stack[stackPointer++]=LazyNode.cArray(n);
 		}else{
 			throw new LazyException("Can not parse raw JSON value, must be either object or array",0);
@@ -203,12 +233,12 @@ public final class LazyParser{
 		for(;n<length;n++){
 			c=cbuf[n];
 			switch(c){
-				case '{':
+				case CH_BEGIN_CURLY:
 					push(LazyNode.cObject(n));
 					expectValue=false;
 					firstValue=true;
 					break;
-				case '}':
+				case CH_END_CURLY:
 					// The end of an object, pop off the last value and field if any
 					token=pop();
 					if(token==null){
@@ -227,7 +257,7 @@ public final class LazyParser{
 					}
 					firstValue=false;
 					break;
-			case '"':
+			case CH_QUOTE:
 				expectValue=false;
 				firstValue=false;
 				if(stackTop.type==LazyNode.ARRAY){
@@ -254,7 +284,7 @@ public final class LazyParser{
 					n++;
 					consumeWhiteSpace();
 					c=cbuf[n];
-					if(c==':'){
+					if(c==CH_COLON){
 						tryToConsumeWhiteSpace();
 					}else{
 						throw new LazyException("Unexpected character! Was expecting field separator ':'",n);
@@ -262,7 +292,7 @@ public final class LazyParser{
 					expectValue=true;
 				}
 				break;
-			case ',':
+			case CH_COMMA:
 				// This must be the end of a value and the start of another
 				if(expectValue){
 					// Missing value after last comma
@@ -273,7 +303,7 @@ public final class LazyParser{
 					throw new LazyException("Expected value before comma",n);
 				}
 				break;
-			case '[':
+			case CH_BEGIN_BRACKET:
 				if(stackTop.type==LazyNode.OBJECT){
 					throw new LazyException("Missing field name for array",n);
 				}else if(stackTop.type==LazyNode.ARRAY){
@@ -285,7 +315,7 @@ public final class LazyParser{
 				expectValue=false;
 				firstValue=true;
 				break;
-			case ']':
+			case CH_END_BRACKET:
 				token=pop();
 				if(token==null){
 						throw new LazyException("Unexpected end of array character",n);
@@ -309,10 +339,10 @@ public final class LazyParser{
 				}
 				firstValue=false;
 				break;
-			case ' ':
-			case '\t':
-			case '\n':
-			case '\r':
+			case CH_SPACE:
+			case CH_TAB:
+			case CH_LINEFEED:
+			case CH_CARRIAGE_RETURN:
 				// Ignore white space characters here
 				break;
 			default:
@@ -325,9 +355,9 @@ public final class LazyParser{
 				}
 				firstValue=false;
 				expectValue=false;
-				if(c=='n'){
+				if(c==CH_n){
 					// Must be null value
-					if(cbuf[++n]=='u' && cbuf[++n]=='l' && cbuf[++n]=='l'){
+					if(cbuf[++n]==CH_u && cbuf[++n]==CH_l && cbuf[++n]==CH_l){
 						token=LazyNode.cValueNull(n);
 						stackTop.addChild(token);
 						token.endIndex=n;
@@ -338,9 +368,9 @@ public final class LazyParser{
 					}else{
 						throw new LazyException("Syntax error",n);
 					}
-				}else if(c=='t'){
+				}else if(c==CH_t){
 					// Must be true value
-					if(cbuf[++n]=='r' && cbuf[++n]=='u' && cbuf[++n]=='e'){
+					if(cbuf[++n]==CH_r && cbuf[++n]==CH_u && cbuf[++n]==CH_e){
 						token=LazyNode.cValueTrue(n);
 						stackTop.addChild(token);
 						token.endIndex=n;
@@ -351,9 +381,9 @@ public final class LazyParser{
 					}else{
 						throw new LazyException("Syntax error",n);
 					}
-				}else if(c=='f'){
+				}else if(c==CH_f){
 					// Must be false value
-					if(cbuf[++n]=='a' && cbuf[++n]=='l' && cbuf[++n]=='s' && cbuf[++n]=='e'){
+					if(cbuf[++n]==CH_a && cbuf[++n]==CH_l && cbuf[++n]==CH_s && cbuf[++n]==CH_e){
 						token=LazyNode.cValueFalse(n);
 						stackTop.addChild(token);
 						token.endIndex=n;
@@ -364,7 +394,7 @@ public final class LazyParser{
 					}else{
 						throw new LazyException("Syntax error",n);
 					}
-				}else if(c=='-' || !(c<'0' || c>'9')){
+				}else if(c==CH_DASH || !(c<CH_0 || c>CH_9)){
 					// Must be a number
 					token=LazyNode.cNumberValue(n);
 					stackTop.addChild(token);
