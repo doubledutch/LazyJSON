@@ -4,7 +4,7 @@ import me.doubledutch.lazyjson.compressor.*;
 import java.nio.ByteBuffer;
 import java.nio.BufferOverflowException;
 
-public class LazyElement{
+public abstract class LazyElement{
 	protected LazyNode root;
 	protected char[] cbuf;
 
@@ -30,6 +30,8 @@ public class LazyElement{
 		t.compact();
 		return t;
 	}
+
+	public abstract LazyType getType();
 
 	public void writeTemplateValues(ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
 		root.writeSegmentValues(cbuf,buf,dict);

@@ -32,6 +32,16 @@ public class LazyObject extends LazyElement{
 		super(root,source);
 	}
 
+
+	/**
+	 * Returns the type of this element.
+	 *
+	 * @return LazyType.OBJECT
+	 */
+	public LazyType getType(){
+		return LazyType.OBJECT;
+	}
+
 	/**
 	 * Returns the value type of the given field.
 	 *

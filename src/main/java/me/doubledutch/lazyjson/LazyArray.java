@@ -29,6 +29,15 @@ public class LazyArray extends LazyElement{
 	}
 
 	/**
+	 * Returns the type of this element.
+	 *
+	 * @return LazyType.ARRAY
+	 */
+	public LazyType getType(){
+		return LazyType.ARRAY;
+	}
+
+	/**
 	 * Returns the value type of the given field.
 	 *
 	 * @param index the requested field

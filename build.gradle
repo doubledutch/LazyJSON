@@ -1,4 +1,4 @@
-version = '1.2.6'
+version = '1.2.7'
 
 group = "me.doubledutch"
 archivesBaseName = "lazyjson"
@@ -83,7 +83,7 @@ jar {
         attributes 'Implementation-Title': 'LazyJSON Library', 'Implementation-Version': version
     }
 }
-/*
+
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -129,4 +129,3 @@ uploadArchives {
         }
     }
 }
-*/
