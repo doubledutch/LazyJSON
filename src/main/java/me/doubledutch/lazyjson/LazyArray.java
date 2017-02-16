@@ -37,6 +37,36 @@ public class LazyArray extends LazyElement{
 		return LazyType.ARRAY;
 	}
 
+	public int hashCode(){
+		int code=2;
+		for(int i=0;i<length();i++){
+			LazyType t1=getType(i);
+			switch(t1){
+				case STRING:code+=getString(i).hashCode();
+					break;
+				case INTEGER:
+						long l=getLong(i);
+						code+=(int)(l ^ (l >>> 32));
+					break;
+				case FLOAT:
+						double d=getDouble(i);
+						l=Double.doubleToLongBits(d);
+						code+=(int)(l ^ (l >>> 32));
+					break;
+				case BOOLEAN:
+						if(getBoolean(i)){
+							code+=1;
+						}
+					break;
+				case OBJECT:code+=37*getJSONObject(i).hashCode();
+					break;
+				case ARRAY:code+=37*getJSONArray(i).hashCode();
+					break;
+			}
+		}
+		return code;
+	}
+
 	/**
 	 * Returns the value type of the given field.
 	 *
