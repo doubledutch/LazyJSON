@@ -367,6 +367,37 @@ public class LazyObject extends LazyElement{
 		return set;
 	}
 
+	public int hashCode(){
+		int code=1;
+		for(String key:keySet()){
+			LazyType t1=getType(key);
+			switch(t1){
+				case STRING:code+=getString(key).hashCode();
+					break;
+				case INTEGER:
+						long l=getLong(key);
+						code+=(int)(l ^ (l >>> 32));
+					break;
+				case FLOAT:
+						double d=getDouble(key);
+						l=Double.doubleToLongBits(d);
+						code+=(int)(l ^ (l >>> 32));
+					break;
+				case BOOLEAN:
+						if(getBoolean(key)){
+							code+=1;
+						}
+					break;
+				case OBJECT:code+=37*getJSONObject(key).hashCode();
+					break;
+				case ARRAY:code+=37*getJSONArray(key).hashCode();
+					break;
+			}
+		}
+		return code;
+	}
+
+
 	/**
 	 * Utility method to evaluate wether a given string matches the value
 	 * of a field.
