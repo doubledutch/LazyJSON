@@ -52,6 +52,21 @@ public final class LazyNode{
 		this.type=type;
 	}
 
+	protected boolean isDirty(){
+		if(dirty){
+			return true;
+		}
+		if(child==null){
+			return false;
+		}
+		LazyNode pointer=child;
+		while(pointer!=null){
+			if(pointer.isDirty())return true;
+			pointer=child.next;
+		}
+		return false;
+	}
+
 	/**
 	 * Add a new child to the current linked list of child tokens
 	 *
