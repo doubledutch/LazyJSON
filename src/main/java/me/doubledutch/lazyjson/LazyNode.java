@@ -27,6 +27,8 @@ public final class LazyNode{
 
 	protected byte type;
 
+	protected boolean dirty=false;
+
 	// Start and end index into source string for this token.
 	// For an object or array, the end index will be the end of the entire
 	// object or array.
