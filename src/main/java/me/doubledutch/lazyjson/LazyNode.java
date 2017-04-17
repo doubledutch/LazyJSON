@@ -7,9 +7,6 @@ import me.doubledutch.lazyjson.compressor.*;
 import java.nio.charset.StandardCharsets;
 /**
  * The LazyNode is the primary output of the LazyParser.
- * It should probably be named LazyNode instead of LazyNode, but as the
- * project evolved, the name stuck and I have ironically been too lazy to
- * change it!
  */
 public final class LazyNode{
 	// Token types used for classification during parsing
