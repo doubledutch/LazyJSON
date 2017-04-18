@@ -65,6 +65,40 @@ public class LazyObject extends LazyElement{
 		return null;
 	}
 
+	public LazyObject put(String key,String value) throws LazyException{
+		if(dirtyBuf==null){
+			dirtyBuf=new StringBuilder();
+		}
+		LazyNode token=getOptionalFieldToken(key);
+		if(token==null){
+			// new field
+			token=LazyNode.cField(dirtyBuf.length());
+			// TODO: we should be encoding the value
+			dirtyBuf.append(key);
+			token.endIndex=dirtyBuf.length();
+			token.dirty=true;
+			LazyNode tokenChild=LazyNode.cStringValue(dirtyBuf.length());
+			// TODO: we should be encoding the value
+			dirtyBuf.append(value);
+			tokenChild.endIndex=dirtyBuf.length();
+			tokenChild.dirty=true;
+			token.child=tokenChild;
+			token.lastChild=tokenChild;
+			root.lastChild.next=token;
+			root.lastChild=token;
+		}else{
+			// replace existing field
+			token.dirty=true;
+			token.type=LazyNode.VALUE_STRING; // TODO: use ESTRING when needed
+
+			token.startIndex=dirtyBuf.length();
+			// TODO: we should be encoding the value
+			dirtyBuf.append(value);
+			token.endIndex=dirtyBuf.length();
+		}
+		return this;
+	}
+
 	/**
 	 * Returns the string value stored in this object for the given key.
 	 *
@@ -74,7 +108,7 @@ public class LazyObject extends LazyElement{
 	 */
 	public String getString(String key) throws LazyException{
 		LazyNode token=getFieldToken(key);
-		return token.getStringValue(cbuf);
+		return token.getStringValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -88,7 +122,7 @@ public class LazyObject extends LazyElement{
 		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
-		return token.getStringValue(cbuf);
+		return token.getStringValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -103,7 +137,7 @@ public class LazyObject extends LazyElement{
 		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
-		return token.getStringValue(cbuf);
+		return token.getStringValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -408,7 +442,7 @@ public class LazyObject extends LazyElement{
 	 */
 	private boolean keyMatch(String key,LazyNode token){
 		if(token.type==LazyNode.EFIELD){
-			String field=token.getStringValue(cbuf);
+			String field=token.getStringValue(cbuf,dirtyBuf);
 			return field.equals(key);
 		}else{
 			// Quickly check the length first
@@ -417,10 +451,19 @@ public class LazyObject extends LazyElement{
 				return false;
 			}
 			// Now go through the field character for character to compare
-			for(int i=0;i<length;i++){
-				char c=key.charAt(i);
-				if(c!=cbuf[token.startIndex+i]){
-					return false;
+			if(token.dirty){
+				for(int i=0;i<length;i++){
+					char c=key.charAt(i);
+					if(c!=dirtyBuf.charAt(token.startIndex+i)){
+						return false;
+					}
+				}
+			}else{
+				for(int i=0;i<length;i++){
+					char c=key.charAt(i);
+					if(c!=cbuf[token.startIndex+i]){
+						return false;
+					}
 				}
 			}
 			return true;

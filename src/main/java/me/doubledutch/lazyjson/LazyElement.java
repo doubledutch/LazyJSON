@@ -7,6 +7,7 @@ import java.nio.BufferOverflowException;
 public abstract class LazyElement{
 	protected LazyNode root;
 	protected char[] cbuf;
+	protected StringBuilder dirtyBuf=null;
 
 	// Cache value for length
 	private int length=-1;
@@ -88,7 +89,11 @@ public abstract class LazyElement{
 	 * @return as string representation of this object as given in the source string
 	 */
 	public String toString(){
-		return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
+		if(root.isDirty()){
+			return "crap";
+		}else{
+			return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
+		}
 	}
 
 	/**

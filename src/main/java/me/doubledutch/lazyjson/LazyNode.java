@@ -32,7 +32,7 @@ public final class LazyNode{
 	// Start and end index into source string for this token.
 	// For an object or array, the end index will be the end of the entire
 	// object or array.
-	protected final int startIndex;
+	protected int startIndex;
 	protected int endIndex=-1;
 
 	// Children are stored as a linked list by maintaining the first and last
@@ -62,7 +62,7 @@ public final class LazyNode{
 		LazyNode pointer=child;
 		while(pointer!=null){
 			if(pointer.isDirty())return true;
-			pointer=child.next;
+			pointer=pointer.next;
 		}
 		return false;
 	}
@@ -266,6 +266,10 @@ public final class LazyNode{
 		return d;
 	}
 
+	protected String getStringValue(char[] source){
+		return getStringValue(source,null);
+	}
+
 	/**
 	 * Extracts a string containing the characters given by this token. If the
 	 * token was marked as having escaped characters, they will be unescaped
@@ -274,10 +278,13 @@ public final class LazyNode{
 	 * @param source the source character array for this token
 	 * @return the string value held by this token
 	 */
-	protected String getStringValue(char[] source){
+	protected String getStringValue(char[] source,StringBuilder dirtyBuf){
 		if(type==VALUE_NULL){
 			return null;
 		}else if(!(type==VALUE_ESTRING||type==EFIELD)){
+			if(dirty){
+				return dirtyBuf.substring(startIndex,endIndex);
+			}
 			return new String(source,startIndex,endIndex-startIndex);
 		}else{
 			StringBuilder buf=new StringBuilder(endIndex-startIndex);
