@@ -190,6 +190,10 @@ public final class LazyNode{
 		return new LazyNode(VALUE_NULL,index);
 	}
 
+	protected int getIntValue(char[] source) throws LazyException{
+		return getIntValue(source,null);
+	}
+
 	/**
 	 * Parses the characters of this token and attempts to construct an integer
 	 * value from them.
@@ -198,25 +202,45 @@ public final class LazyNode{
 	 * @return the integer value if it could be parsed
 	 * @throws LazyException if the value could not be parsed
 	 */
-	protected int getIntValue(char[] source) throws LazyException{
+	protected int getIntValue(char[] source,StringBuilder dirtyBuf) throws LazyException{
 		if(type!=VALUE_INTEGER)throw new LazyException("Not an integer",startIndex);
 		int i=startIndex;
 		boolean sign=false;
-		if(source[i]=='-'){
-			sign=true;
-			i++;
-		}
 		int value=0;
-		for(;i<endIndex;i++){
-			char c=source[i];
-			// If we only allow this to be called on integer values, the parsing is pre done!
-			// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
-			value+='0'-c;
-			if(i+1<endIndex){
-				value*=10;
+		if(dirty){
+			if(dirtyBuf.charAt(i)=='-'){
+				sign=true;
+				i++;
+			}
+			for(;i<endIndex;i++){
+				char c=dirtyBuf.charAt(i);
+				// If we only allow this to be called on integer values, the parsing is pre done!
+				// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
+				value+='0'-c;
+				if(i+1<endIndex){
+					value*=10;
+				}
+			}
+		}else{	
+			if(source[i]=='-'){
+				sign=true;
+				i++;
+			}
+			for(;i<endIndex;i++){
+				char c=source[i];
+				// If we only allow this to be called on integer values, the parsing is pre done!
+				// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
+				value+='0'-c;
+				if(i+1<endIndex){
+					value*=10;
+				}
 			}
 		}
 		return sign?value:-value;
+	}
+
+	protected long getLongValue(char[] source) throws LazyException{
+		return getLongValue(source,null);
 	}
 
 	/**
@@ -227,23 +251,45 @@ public final class LazyNode{
 	 * @return the long value if it could be parsed
 	 * @throws LazyException if the value could not be parsed
 	 */
-	protected long getLongValue(char[] source) throws LazyException{
+	protected long getLongValue(char[] source,StringBuilder dirtyBuf) throws LazyException{
 		if(type!=VALUE_INTEGER)throw new LazyException("Not a long",startIndex);
 		int i=startIndex;
 		boolean sign=false;
-		if(source[i]=='-'){
-			sign=true;
-			i++;
-		}
 		long value=0;
-		for(;i<endIndex;i++){
-			char c=source[i];
-			value+='0'-c;
-			if(i+1<endIndex){
-				value*=10;
+		if(dirty){
+			if(dirtyBuf.charAt(i)=='-'){
+				sign=true;
+				i++;
+			}
+			for(;i<endIndex;i++){
+				char c=dirtyBuf.charAt(i);
+				// If we only allow this to be called on integer values, the parsing is pre done!
+				// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
+				value+='0'-c;
+				if(i+1<endIndex){
+					value*=10;
+				}
+			}
+		}else{	
+			if(source[i]=='-'){
+				sign=true;
+				i++;
+			}
+			for(;i<endIndex;i++){
+				char c=source[i];
+				// If we only allow this to be called on integer values, the parsing is pre done!
+				// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
+				value+='0'-c;
+				if(i+1<endIndex){
+					value*=10;
+				}
 			}
 		}
 		return sign?value:-value;
+	}
+
+	protected double getDoubleValue(char[] source) throws LazyException{
+		return getDoubleValue(source,null);
 	}
 
 	/**
@@ -254,9 +300,9 @@ public final class LazyNode{
 	 * @return the double value if it could be parsed
 	 * @throws LazyException if the value could not be parsed
 	 */
-	protected double getDoubleValue(char[] source) throws LazyException{
+	protected double getDoubleValue(char[] source,StringBuilder dirtyBuf) throws LazyException{
 		double d=0.0;
-		String str=getStringValue(source);
+		String str=getStringValue(source,dirtyBuf);
 		try{
 			d=Double.parseDouble(str);
 		}catch(NumberFormatException nfe){
