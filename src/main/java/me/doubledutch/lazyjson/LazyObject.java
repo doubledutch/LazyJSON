@@ -28,8 +28,19 @@ public class LazyObject extends LazyElement{
 		// source=raw;
 	}
 
+	public LazyObject() throws LazyException{
+		LazyParser parser=new LazyParser("{}");
+		parser.tokenize();	
+		root=parser.root;
+		cbuf=parser.cbuf;
+	}
+
 	protected LazyObject(LazyNode root,char[] source){
-		super(root,source);
+		super(root,source,null);
+	}
+
+	protected LazyObject(LazyNode root,char[] source,StringBuilder dirtySource){
+		super(root,source,dirtySource);
 	}
 
 
@@ -65,37 +76,73 @@ public class LazyObject extends LazyElement{
 		return null;
 	}
 
-	public LazyObject put(String key,String value) throws LazyException{
-		if(dirtyBuf==null){
-			dirtyBuf=new StringBuilder();
+	protected String serializeElementToString(){
+		StringBuilder buf=new StringBuilder();
+		buf.append("{");
+		LazyNode pointer=root.child;
+		boolean first=true;
+		while(pointer!=null){
+			if(first){
+				first=false;
+			}else{
+				buf.append(",");
+			}
+			buf.append("\"");
+			buf.append(pointer.getStringValue(cbuf,dirtyBuf));
+			buf.append("\":");
+			if(pointer.child.type==LazyNode.OBJECT){
+				buf.append(new LazyObject(pointer.child,cbuf,dirtyBuf).toString());
+			}else if(pointer.child.type==LazyNode.ARRAY){
+				buf.append(new LazyArray(pointer.child,cbuf,dirtyBuf).toString());
+			}else if(pointer.child.type==LazyNode.VALUE_STRING || pointer.child.type==LazyNode.VALUE_ESTRING){
+				buf.append("\"");
+				buf.append(pointer.child.getStringValue(cbuf,dirtyBuf));
+				buf.append("\"");
+			}else{
+				buf.append(pointer.child.getStringValue(cbuf,dirtyBuf));
+			}
+			pointer=pointer.next;
 		}
-		LazyNode token=getOptionalFieldToken(key);
+		buf.append("}");
+		return buf.toString();
+	}
+
+	private void attachField(String key,LazyNode child) throws LazyException{
+		LazyNode token=getOptionalField(key);
 		if(token==null){
 			// new field
 			token=LazyNode.cField(dirtyBuf.length());
+			token.dirty=true;
 			// TODO: we should be encoding the value
 			dirtyBuf.append(key);
 			token.endIndex=dirtyBuf.length();
-			token.dirty=true;
-			LazyNode tokenChild=LazyNode.cStringValue(dirtyBuf.length());
-			// TODO: we should be encoding the value
-			dirtyBuf.append(value);
-			tokenChild.endIndex=dirtyBuf.length();
-			tokenChild.dirty=true;
-			token.child=tokenChild;
-			token.lastChild=tokenChild;
-			root.lastChild.next=token;
-			root.lastChild=token;
-		}else{
-			// replace existing field
-			token.dirty=true;
-			token.type=LazyNode.VALUE_STRING; // TODO: use ESTRING when needed
-
-			token.startIndex=dirtyBuf.length();
-			// TODO: we should be encoding the value
-			dirtyBuf.append(value);
-			token.endIndex=dirtyBuf.length();
+			if(root.child==null){
+				root.child=token;
+				root.lastChild=token;
+			}else{
+				root.lastChild.next=token;
+				root.lastChild=token;
+			}
 		}
+		token.child=child;
+		token.lastChild=child;
+	}
+
+	private LazyNode appendAndSetDirtyString(byte type,String value) throws LazyException{
+		if(dirtyBuf==null){
+			dirtyBuf=new StringBuilder();
+		}
+		LazyNode child=new LazyNode(type,dirtyBuf.length());
+		dirtyBuf.append(value);
+		child.endIndex=dirtyBuf.length();
+		child.dirty=true;
+		return child;
+	}
+
+	public LazyObject put(String key,String value) throws LazyException{
+		// TODO: correctly detect and encode string values
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		attachField(key,child);
 		return this;
 	}
 
@@ -522,6 +569,25 @@ public class LazyObject extends LazyElement{
 		while(child!=null){
 			if(keyMatch(key,child)){
 				return child.child;
+			}
+			child=child.next;
+		}
+		return null;
+	}
+
+	/**
+	 * Fields for an object are attached as children on the token representing
+	 * the object itself. This method finds the correct field for a given key.
+	 * This is a utility method used internally to extract field values.
+	 *
+	 * @param key the name of the desired field
+	 * @return the first child of the matching field token if one exists, null otherwise
+	 */
+	private LazyNode getOptionalField(String key){
+		LazyNode child=root.child;
+		while(child!=null){
+			if(keyMatch(key,child)){
+				return child;
 			}
 			child=child.next;
 		}

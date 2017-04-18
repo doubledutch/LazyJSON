@@ -24,8 +24,16 @@ public class LazyArray extends LazyElement{
 		cbuf=parser.cbuf;
 	}
 
+	protected LazyArray(LazyNode root,char[] source,StringBuilder dirtySource){
+		super(root,source,dirtySource);
+	}
+
 	protected LazyArray(LazyNode root,char[] source){
-		super(root,source);
+		super(root,source,null);
+	}
+
+	protected String serializeElementToString(){
+		return "Crap, not yet!";
 	}
 
 	/**

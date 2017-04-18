@@ -12,9 +12,10 @@ public abstract class LazyElement{
 	// Cache value for length
 	private int length=-1;
 
-	protected LazyElement(LazyNode root,char[] source){
+	protected LazyElement(LazyNode root,char[] source,StringBuilder dirtySource){
 		this.root=root;
 		this.cbuf=source;
+		this.dirtyBuf=dirtySource;
 	}
 
 	protected LazyElement() throws LazyException{
@@ -82,15 +83,17 @@ public abstract class LazyElement{
 		return length;
 	}
 
+	protected abstract String serializeElementToString();
+
 	/**
 	 * Returns a raw string extracted from the source string that covers the
-	 * start and end index of this object.
+	 * start and end index of this element.
 	 *
 	 * @return as string representation of this object as given in the source string
 	 */
 	public String toString(){
 		if(root.isDirty()){
-			return "crap";
+			return serializeElementToString();
 		}else{
 			return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
 		}
