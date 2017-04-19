@@ -77,6 +77,43 @@ public class LazyObject extends LazyElement{
 		return null;
 	}
 
+	public Object opt(String key) throws LazyException{
+		LazyNode token=getOptionalFieldToken(key);
+		if(token!=null){
+			switch(token.type){
+				case LazyNode.OBJECT: return new LazyObject(token,cbuf,dirtyBuf);
+				case LazyNode.ARRAY: return new LazyArray(token,cbuf,dirtyBuf);
+				case LazyNode.VALUE_TRUE: return (Boolean)true;
+				case LazyNode.VALUE_FALSE: return (Boolean)false;
+				case LazyNode.VALUE_NULL: return null;
+				case LazyNode.VALUE_STRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_ESTRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_INTEGER: return (Integer)token.getIntValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_FLOAT: return (Double)token.getDoubleValue(cbuf,dirtyBuf);
+			}
+		}
+		return null;
+	}
+
+	public Object get(String key) throws LazyException{
+		LazyNode token=getFieldToken(key);
+		if(token!=null){
+			switch(token.type){
+				case LazyNode.OBJECT: return new LazyObject(token,cbuf,dirtyBuf);
+				case LazyNode.ARRAY: return new LazyArray(token,cbuf,dirtyBuf);
+				case LazyNode.VALUE_TRUE: return (Boolean)true;
+				case LazyNode.VALUE_FALSE: return (Boolean)false;
+				case LazyNode.VALUE_NULL: return null;
+				case LazyNode.VALUE_STRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_ESTRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_INTEGER: return (Integer)token.getIntValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_FLOAT: return (Double)token.getDoubleValue(cbuf,dirtyBuf);
+			}
+		}
+		// Should never happen
+		return null;
+	}
+
 	protected String serializeElementToString(){
 		StringBuilder buf=new StringBuilder();
 		buf.append("{");
@@ -190,8 +227,6 @@ public class LazyObject extends LazyElement{
 	}
 
 	public LazyObject put(String key,LazyObject value) throws LazyException{
-		// StringBuilder db1=getDirtyBuf();
-		// StringBuilder db2=getDirtyBuf();
 		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
 			value.root.dirty=true;
 			attachField(key,value.root);
@@ -205,12 +240,13 @@ public class LazyObject extends LazyElement{
 			value.root.dirty=true;
 			attachField(key,value.root);
 		}else if(value.cbuf!=cbuf){
+			// Differen't sources
 			StringBuilder buf=getDirtyBuf();
 			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
 			value.root.dirty=true;
 			attachField(key,value.root);
 			// System.out.println("not matching put conditions");
-		}
+		}else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		// LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
 		// attachField(key,child);
 		return this;
