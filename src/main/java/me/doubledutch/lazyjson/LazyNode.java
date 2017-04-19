@@ -52,6 +52,21 @@ public final class LazyNode{
 		this.type=type;
 	}
 
+	protected void moveInto(StringBuilder buf,char[] source,StringBuilder dirtyBuf){
+		if(endIndex>-1){
+			int newIndex=buf.length();
+			buf.append( getStringValue(source,dirtyBuf));
+			startIndex=newIndex;
+			endIndex=buf.length();
+		}
+		dirty=true;
+		LazyNode pointer=child;
+		while(pointer!=null){
+			pointer.moveInto(buf,source,dirtyBuf);
+			pointer=pointer.next;
+		}
+	}
+
 	protected boolean isDirty(){
 		if(dirty){
 			return true;

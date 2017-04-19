@@ -60,9 +60,18 @@ public class ModifyTest{
         String str="{\"foo\":\"bar\",\"baz\":{\"foo\":9}}";
         LazyObject obj=new LazyObject(str);
         obj.getJSONObject("baz").put("foo",10);
-        System.out.println(obj.toString());
         obj.put("test",obj.getJSONObject("baz"));
-        System.out.println(obj.toString());
         assertEquals(obj.getJSONObject("test").getInt("foo"),10);
+    }
+
+    @Test
+    public void separateBufObjectToObject() throws LazyException{
+        String str1="{\"foo\":\"bar\"}";
+        String str2="{\"baz\":{\"foo\":9}}";
+        LazyObject obj1=new LazyObject(str1);
+        LazyObject obj2=new LazyObject(str2);
+
+        obj1.put("test",obj2.getJSONObject("baz"));
+        assertEquals(obj1.getJSONObject("test").getInt("foo"),9);
     }
 }

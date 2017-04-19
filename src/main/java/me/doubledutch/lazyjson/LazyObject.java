@@ -195,7 +195,6 @@ public class LazyObject extends LazyElement{
 		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
 			value.root.dirty=true;
 			attachField(key,value.root);
-			System.out.println("all is the same");
 		}else if(value.cbuf==cbuf && dirtyBuf==null && value.dirtyBuf!=null){
 			// Same source, dirty value
 			dirtyBuf=value.dirtyBuf;
@@ -205,8 +204,12 @@ public class LazyObject extends LazyElement{
 			// Same source, dirty self
 			value.root.dirty=true;
 			attachField(key,value.root);
-		}else{
-			System.out.println("not matching put conditions");
+		}else if(value.cbuf!=cbuf){
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
+			value.root.dirty=true;
+			attachField(key,value.root);
+			// System.out.println("not matching put conditions");
 		}
 		// LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
 		// attachField(key,child);
