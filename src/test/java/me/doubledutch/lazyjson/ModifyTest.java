@@ -36,6 +36,7 @@ public class ModifyTest{
         obj.put("fval",false);
         obj.put("tval",true);
 		obj.put("test","Hello World");
+		obj.put("nval",LazyObject.NULL);
 		assertEquals(obj.getString("test"),"Hello World");
 		assertEquals(obj.getInt("baz"),42);
 		assertEquals(obj.getLong("baz"),42l);
@@ -43,6 +44,25 @@ public class ModifyTest{
 		assertEquals(obj.getBoolean("fval"),false);
 		assertEquals(obj.getBoolean("tval"),true);
 		assertEquals(obj.getString("foo"),"bar");
-		assertEquals(obj.toString(),"{\"foo\":\"bar\",\"baz\":42,\"dval\":3.1415,\"fval\":false,\"tval\":true,\"test\":\"Hello World\"}");
+		assertEquals(obj.toString(),"{\"foo\":\"bar\",\"baz\":42,\"dval\":3.1415,\"fval\":false,\"tval\":true,\"test\":\"Hello World\",\"nval\":null}");
+    }
+
+    @Test
+    public void cleanObjectToObject() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":{\"foo\":9}}";
+        LazyObject obj=new LazyObject(str);
+        obj.put("test",obj.getJSONObject("baz"));
+        assertEquals(obj.getJSONObject("test").getInt("foo"),9);
+    }
+
+    @Test
+    public void dirtyObjectToObjectSameBuf() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":{\"foo\":9}}";
+        LazyObject obj=new LazyObject(str);
+        obj.getJSONObject("baz").put("foo",10);
+        System.out.println(obj.toString());
+        obj.put("test",obj.getJSONObject("baz"));
+        System.out.println(obj.toString());
+        assertEquals(obj.getJSONObject("test").getInt("foo"),10);
     }
 }

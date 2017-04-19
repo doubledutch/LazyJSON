@@ -8,6 +8,7 @@ public abstract class LazyElement{
 	protected LazyNode root;
 	protected char[] cbuf;
 	protected StringBuilder dirtyBuf=null;
+	protected LazyElement parent;
 
 	// Cache value for length
 	private int length=-1;
@@ -20,6 +21,18 @@ public abstract class LazyElement{
 
 	protected LazyElement() throws LazyException{
 
+	}
+
+	protected StringBuilder getDirtyBuf(){
+		if(dirtyBuf!=null){
+			return dirtyBuf;
+		}
+		if(parent!=null){
+			dirtyBuf=parent.getDirtyBuf();
+			return dirtyBuf;
+		}
+		dirtyBuf=new StringBuilder();
+		return dirtyBuf;
 	}
 
 	protected char[] getCharBuffer(){

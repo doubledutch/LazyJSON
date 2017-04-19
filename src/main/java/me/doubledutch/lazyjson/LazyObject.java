@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
  * An object used to parse and inspect JSON data given in the form of a string.
  */
 public class LazyObject extends LazyElement{
+	public static final Object NULL=new Object();
 	/**
 	 * Create a new Lazy JSON object based on the JSON representation in the given string.
 	 *
@@ -102,6 +103,8 @@ public class LazyObject extends LazyElement{
 				buf.append("true");
 			}else if(pointer.child.type==LazyNode.VALUE_FALSE){
 				buf.append("false");
+			}else if(pointer.child.type==LazyNode.VALUE_NULL){
+				buf.append("null");
 			}else{
 				buf.append(pointer.child.getStringValue(cbuf,dirtyBuf));
 			}
@@ -112,6 +115,8 @@ public class LazyObject extends LazyElement{
 	}
 
 	private void attachField(String key,LazyNode child) throws LazyException{
+		// TODO: change to avoid this constant check
+		dirtyBuf=getDirtyBuf();
 		LazyNode token=getOptionalField(key);
 		if(token==null){
 			// new field
@@ -133,9 +138,7 @@ public class LazyObject extends LazyElement{
 	}
 
 	private LazyNode appendAndSetDirtyString(byte type,String value) throws LazyException{
-		if(dirtyBuf==null){
-			dirtyBuf=new StringBuilder();
-		}
+		dirtyBuf=getDirtyBuf();
 		LazyNode child=new LazyNode(type,dirtyBuf.length());
 		dirtyBuf.append(value);
 		child.endIndex=dirtyBuf.length();
@@ -184,6 +187,65 @@ public class LazyObject extends LazyElement{
 		child.dirty=true;
 		attachField(key,child);
 		return this;
+	}
+
+	public LazyObject put(String key,LazyObject value) throws LazyException{
+		// StringBuilder db1=getDirtyBuf();
+		// StringBuilder db2=getDirtyBuf();
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
+			value.root.dirty=true;
+			attachField(key,value.root);
+			System.out.println("all is the same");
+		}else if(value.cbuf==cbuf && dirtyBuf==null && value.dirtyBuf!=null){
+			// Same source, dirty value
+			dirtyBuf=value.dirtyBuf;
+			value.root.dirty=true;
+			attachField(key,value.root);
+		}else if(value.cbuf==cbuf && dirtyBuf!=null && value.dirtyBuf==null){
+			// Same source, dirty self
+			value.root.dirty=true;
+			attachField(key,value.root);
+		}else{
+			System.out.println("not matching put conditions");
+		}
+		// LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
+		// attachField(key,child);
+		return this;
+	}
+
+	public LazyObject put(String key,LazyArray value) throws LazyException{
+		// LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
+		// attachField(key,child);
+		return this;
+	}
+
+	public LazyObject put(String key,Object value) throws LazyException{
+		if(value==NULL){
+			LazyNode child=LazyNode.cValueNull(-1);
+			child.dirty=true;
+			attachField(key,child);
+			return this;
+		}
+		// TODO: look into faster ways of branching by type
+		if(value instanceof java.lang.Integer){
+			return put(key,((Integer)value).intValue());
+		}
+		if(value instanceof java.lang.Long){
+			return put(key,((Long)value).longValue());
+		}
+		if(value instanceof java.lang.Float){
+			return put(key,((Float)value).floatValue());
+		}
+		if(value instanceof java.lang.Double){
+			return put(key,((Double)value).doubleValue());
+		}
+		if(value instanceof java.lang.Boolean){
+			return put(key,((Boolean)value).booleanValue());
+		}
+		if(value instanceof java.lang.String){
+			return put(key,(String)value);
+		}
+		throw new LazyException("Unsupported object type");
 	}
 
 	/**
@@ -419,7 +481,9 @@ public class LazyObject extends LazyElement{
 	public LazyObject getJSONObject(String key) throws LazyException{
 		LazyNode token=getFieldToken(key);
 		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
-		return new LazyObject(token,cbuf);
+		LazyObject obj=new LazyObject(token,cbuf,dirtyBuf);
+		obj.parent=this;
+		return obj;
 	}
 
 	/**
@@ -434,7 +498,9 @@ public class LazyObject extends LazyElement{
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
 		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
-		return new LazyObject(token,cbuf);
+		LazyObject obj=new LazyObject(token,cbuf,dirtyBuf);
+		obj.parent=this;
+		return obj;
 	}
 
 	/**
@@ -447,7 +513,9 @@ public class LazyObject extends LazyElement{
 	public LazyArray getJSONArray(String key) throws LazyException{
 		LazyNode token=getFieldToken(key);
 		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
-		return new LazyArray(token,cbuf);
+		LazyArray arr=new LazyArray(token,cbuf,dirtyBuf);
+		arr.parent=this;
+		return arr;
 	}
 
 	/**
@@ -462,7 +530,9 @@ public class LazyObject extends LazyElement{
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
 		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
-		return new LazyArray(token,cbuf);
+		LazyArray arr=new LazyArray(token,cbuf,dirtyBuf);
+		arr.parent=this;
+		return arr;
 	}
 
 	/**
