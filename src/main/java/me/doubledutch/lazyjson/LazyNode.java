@@ -53,9 +53,9 @@ public final class LazyNode{
 	}
 
 	protected void moveInto(StringBuilder buf,char[] source,StringBuilder dirtyBuf){
-		if(endIndex>-1){
+		if(endIndex>-1 && type!=OBJECT && type!=ARRAY){
 			int newIndex=buf.length();
-			buf.append( getStringValue(source,dirtyBuf));
+			buf.append(getStringValue(source,dirtyBuf));
 			startIndex=newIndex;
 			endIndex=buf.length();
 		}
@@ -201,10 +201,10 @@ public final class LazyNode{
 	protected static LazyNode cValueNull(int index){
 		return new LazyNode(VALUE_NULL,index);
 	}
-
+	/*
 	protected int getIntValue(char[] source) throws LazyException{
 		return getIntValue(source,null);
-	}
+	}*/
 
 	/**
 	 * Parses the characters of this token and attempts to construct an integer

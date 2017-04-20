@@ -118,7 +118,7 @@ public class LazyObject extends LazyElement{
 		Object obj=opt(key); // TODO: should this be get instead of opt?
 		LazyNode token=getOptionalField(key);
 		if(token!=null){
-			System.out.println("found the token!");
+			// System.out.println("found the token!");
 			LazyNode pointer=this.root.child;
 			if(pointer==token){
 				root.child=token.next;
@@ -242,13 +242,19 @@ public class LazyObject extends LazyElement{
 		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
 			value.root.dirty=true;
 			attachField(key,value.root);
-		}else if(value.cbuf==cbuf && dirtyBuf==null && value.dirtyBuf!=null){
-			// Same source, dirty value
-			dirtyBuf=value.dirtyBuf;
+		}else if(value.cbuf!=cbuf){
+			// Differen't sources
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
 			value.root.dirty=true;
 			attachField(key,value.root);
-		}else if(value.cbuf==cbuf && dirtyBuf!=null && value.dirtyBuf==null){
-			// Same source, dirty self
+			// System.out.println("not matching put conditions");
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
+		return this;
+	}
+
+	public LazyObject put(String key,LazyArray value) throws LazyException{
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
 			value.root.dirty=true;
 			attachField(key,value.root);
 		}else if(value.cbuf!=cbuf){
@@ -258,15 +264,7 @@ public class LazyObject extends LazyElement{
 			value.root.dirty=true;
 			attachField(key,value.root);
 			// System.out.println("not matching put conditions");
-		}else throw new LazyException("Unknown data merge condition :-( :-( :-(");
-		// LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
-		// attachField(key,child);
-		return this;
-	}
-
-	public LazyObject put(String key,LazyArray value) throws LazyException{
-		// LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
-		// attachField(key,child);
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		return this;
 	}
 

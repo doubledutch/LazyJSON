@@ -40,7 +40,37 @@ public class LazyArray extends LazyElement{
 	}*/
 
 	protected String serializeElementToString(){
-		return "Crap, not yet!";
+		StringBuilder buf=new StringBuilder();
+		buf.append("[");
+		LazyNode pointer=root.child;
+		boolean first=true;
+		while(pointer!=null){
+			if(first){
+				first=false;
+			}else{
+				buf.append(",");
+			}
+			if(pointer.type==LazyNode.OBJECT){
+				buf.append(new LazyObject(pointer,cbuf,dirtyBuf).toString());
+			}else if(pointer.type==LazyNode.ARRAY){
+				buf.append(new LazyArray(pointer,cbuf,dirtyBuf).toString());
+			}else if(pointer.type==LazyNode.VALUE_STRING || pointer.type==LazyNode.VALUE_ESTRING){
+				buf.append("\"");
+				buf.append(pointer.getStringValue(cbuf,dirtyBuf));
+				buf.append("\"");
+			}else if(pointer.type==LazyNode.VALUE_TRUE){
+				buf.append("true");
+			}else if(pointer.type==LazyNode.VALUE_FALSE){
+				buf.append("false");
+			}else if(pointer.type==LazyNode.VALUE_NULL){
+				buf.append("null");
+			}else{
+				buf.append(pointer.getStringValue(cbuf,dirtyBuf));
+			}
+			pointer=pointer.next;
+		}
+		buf.append("]");
+		return buf.toString();
 	}
 
 	/**
@@ -151,6 +181,8 @@ public class LazyArray extends LazyElement{
 			root.lastChild=token;
 		}
 		root.dirty=true;
+		selectToken=null;
+		selectInt=-1;
 	}
 
 	private void insertChild(int index,LazyNode token) throws LazyException{
@@ -170,6 +202,8 @@ public class LazyArray extends LazyElement{
 		}
 		token.next=pointer.next;
 		pointer.next=token;
+		selectToken=null;
+		selectInt=-1;
 	}
 
 	public LazyArray put(String value) throws LazyException{
@@ -215,10 +249,32 @@ public class LazyArray extends LazyElement{
 	}
 
 	public LazyArray put(LazyArray value) throws LazyException{
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
+			value.root.dirty=true;
+			appendChild(value.root);
+		}else if(value.cbuf!=cbuf){
+			// Differen't sources
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
+			value.root.dirty=true;
+			appendChild(value.root);
+			// System.out.println("not matching put conditions");
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		return this;
 	}
 
 	public LazyArray put(LazyObject value) throws LazyException{
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
+			value.root.dirty=true;
+			appendChild(value.root);
+		}else if(value.cbuf!=cbuf){
+			// Differen't sources
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
+			value.root.dirty=true;
+			appendChild(value.root);
+			// System.out.println("not matching put conditions");
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		return this;
 	}
 
@@ -265,11 +321,57 @@ public class LazyArray extends LazyElement{
 	}
 
 	public LazyArray put(int index,LazyArray value) throws LazyException{
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
+			value.root.dirty=true;
+			insertChild(index,value.root);
+		}else if(value.cbuf!=cbuf){
+			// Differen't sources
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
+			value.root.dirty=true;
+			insertChild(index,value.root);
+			// System.out.println("not matching put conditions");
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		return this;
 	}
 
 	public LazyArray put(int index,LazyObject value) throws LazyException{
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
+			value.root.dirty=true;
+			insertChild(index,value.root);
+		}else if(value.cbuf!=cbuf){
+			// Differen't sources
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
+			value.root.dirty=true;
+			insertChild(index,value.root);
+			// System.out.println("not matching put conditions");
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		return this;
+	}
+
+	public Object remove(int index) throws LazyException{
+		Object obj=opt(index); // TODO: should this be get instead of opt?
+		LazyNode token=getOptionalValueToken(index);
+		if(token!=null){
+			// System.out.println("found the token!");
+			LazyNode pointer=this.root.child;
+			if(pointer==token){
+				System.out.println("yes, it was the first");
+				root.child=token.next;
+			}else{
+				while(pointer!=null){
+					if(pointer.next==token){
+						pointer.next=token.next;
+					}
+					pointer=pointer.next;
+				}
+			}
+			root.dirty=true;
+		}
+		selectToken=null;
+		selectInt=-1;
+		return obj;
 	}
 
 	/**

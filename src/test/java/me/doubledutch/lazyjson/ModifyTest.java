@@ -9,12 +9,12 @@ import java.net.*;
 public class ModifyTest{
     @Test
     public void changeStringTest() throws LazyException{
-        String str="{\"foo\":\"bar\",\"baz\":42}";
+        String str="{\"foo\":\"bar\",\"baz\":42,\"aval\":[2,2,4],\"oval\":{\"foo\":9}}";
         LazyObject obj=new LazyObject(str);
 		assertEquals(obj.getString("foo"),"bar");
 		obj.put("foo","Hello World");
 		assertEquals(obj.getString("foo"),"Hello World");
-		assertEquals(obj.toString(),"{\"foo\":\"Hello World\",\"baz\":42}");
+		assertEquals(obj.toString(),"{\"foo\":\"Hello World\",\"baz\":42,\"aval\":[2,2,4],\"oval\":{\"foo\":9}}");
     }
 
     @Test
@@ -81,6 +81,8 @@ public class ModifyTest{
     	arr.put(2.9);
     	arr.put(true);
     	arr.put(false);
+    	arr.put(new LazyArray("[2,2,4]"));
+    	arr.put(new LazyObject("{\"foo\":42}"));
     	// arr.put(LazyObject.NULL);
     	assertEquals(arr.getString(0),"foo");
     	assertEquals(arr.getInt(1),42);
@@ -89,6 +91,14 @@ public class ModifyTest{
     	assertEquals(arr.getDouble(4),2.9,0.0001);
     	assertEquals(arr.getBoolean(5),true);
     	assertEquals(arr.getBoolean(6),false);
+    	assertEquals(arr.toString(),"[\"foo\",42,99,3.1415,2.9,true,false,[2,2,4],{\"foo\":42}]");
+    }
+
+    @Test
+    public void serializeArrayTest() throws LazyException{
+    	LazyArray arr=new LazyArray("[null,{\"foo\":3},[2,2,4]]");
+    	arr.put(42);
+    	assertEquals(arr.toString(),"[null,{\"foo\":3},[2,2,4],42]");
     }
 
      @Test
@@ -101,6 +111,8 @@ public class ModifyTest{
     	arr.put(4,2.9);
     	arr.put(5,true);
     	arr.put(6,false);
+    	arr.put(7,new LazyArray("[2,2,4]"));
+    	arr.put(8,new LazyObject("{\"foo\":42}"));
     	// arr.put(LazyObject.NULL);
     	assertEquals(arr.getString(0),"foo");
     	assertEquals(arr.getInt(1),42);
@@ -123,6 +135,12 @@ public class ModifyTest{
     	arr.put(19,"foo");
     }
 
+    @Test(expected=LazyException.class)
+    public void badObjectInsert() throws LazyException{
+    	LazyObject obj=new LazyObject("{}");
+    	obj.put("foo",new File("./"));
+    }
+
 
     @Test
     public void removeKeyTest() throws LazyException{
@@ -140,6 +158,75 @@ public class ModifyTest{
         obj.remove("foo");
         assertFalse(obj.has("foo"));
         assertTrue(obj.has("baz"));
+    }
+
+    @Test
+    public void cleanArrayToObject() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":[9,2,4]}";
+        LazyObject obj=new LazyObject(str);
+        obj.put("test",obj.getJSONArray("baz"));
+        assertEquals(obj.getJSONArray("test").getInt(0),9);
+    }
+
+    @Test
+    public void cleanArrayToArray() throws LazyException{
+        String str="[\"bar\",[9,2,4]]";
+        LazyArray arr=new LazyArray(str);
+        arr.put(arr.getJSONArray(1));
+        assertEquals(arr.getJSONArray(2).getInt(0),9);
+    }
+
+    @Test
+    public void cleanObjectToArray() throws LazyException{
+        String str="[\"bar\",[9,2,4],{\"foo\":42}]";
+        LazyArray arr=new LazyArray(str);
+        arr.put(arr.getJSONObject(2));
+        assertEquals(arr.getJSONObject(3).getInt("foo"),42);
+    }
+
+    @Test
+    public void cleanArrayToArrayIndex() throws LazyException{
+        String str="[\"bar\",[9,2,4]]";
+        LazyArray arr=new LazyArray(str);
+        arr.put(0,arr.getJSONArray(1));
+        assertEquals(arr.getJSONArray(0).getInt(0),9);
+    }
+
+    @Test
+    public void cleanObjectToArrayIndex() throws LazyException{
+        String str="[\"bar\",[9,2,4],{\"foo\":42}]";
+        LazyArray arr=new LazyArray(str);
+        arr.put(0,arr.getJSONObject(2));
+        assertEquals(arr.getJSONObject(0).getInt("foo"),42);
+    }
+
+    @Test
+    public void dirtyArrayToObject() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":[9,2,4]}";
+        LazyObject obj=new LazyObject(str);
+        obj.getJSONArray("baz").put(42);
+        obj.put("test",obj.getJSONArray("baz"));
+        assertEquals(obj.getJSONArray("test").getInt(3),42);
+    }
+
+    @Test
+    public void differentBufArrayToObject() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":[9,2,4]}";
+        LazyObject obj=new LazyObject(str);
+        String str2="[3,3,6,42]";
+        obj.put("test",new LazyArray(str2));
+        assertEquals(obj.getJSONArray("test").getInt(3),42);
+    }
+
+    @Test
+    public void differentBufDirtyArrayToObject() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":[9,2,4]}";
+        LazyObject obj=new LazyObject(str);
+        String str2="[3,3,6,42]";
+      	LazyArray arr=new LazyArray(str2);
+      	arr.put(0);
+        obj.put("test",arr);
+        assertEquals(obj.getJSONArray("test").getInt(3),42);
     }
 
     @Test

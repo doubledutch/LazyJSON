@@ -24,6 +24,26 @@ public class LazyArrayTest{
     }
 
     @Test
+    public void testHashCode() throws LazyException{
+        String str1="[false,null,true]";
+        String str2="[2,[2,2,4],\"foo\"]";
+        LazyArray arr1=new LazyArray(str1);
+        LazyArray arr2=new LazyArray(str2);
+        assertNotEquals(arr1.hashCode(),arr2.hashCode());
+    }
+
+    @Test
+    public void testRemove() throws LazyException{
+        String str="[2,false,null,true,9]";
+        LazyArray array=new LazyArray(str);
+        array.remove(0);
+        assertEquals(4,array.length());
+        assertEquals(9,array.getInt(3));
+        array.remove(2);
+        assertEquals(9,array.getInt(2));
+    }
+
+    @Test
     public void testInnerEquals() throws LazyException{
         String str1="[9,false,[3,4,5]]";
         String str2="[9,false,[3,4,5]]";
