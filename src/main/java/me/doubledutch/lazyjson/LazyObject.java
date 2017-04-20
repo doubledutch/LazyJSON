@@ -155,7 +155,7 @@ public class LazyObject extends LazyElement{
 				buf.append(new LazyArray(pointer.child,cbuf,dirtyBuf).toString());
 			}else if(pointer.child.type==LazyNode.VALUE_STRING || pointer.child.type==LazyNode.VALUE_ESTRING){
 				buf.append("\"");
-				buf.append(pointer.child.getStringValue(cbuf,dirtyBuf));
+				buf.append(pointer.child.getRawStringValue(cbuf,dirtyBuf));
 				buf.append("\"");
 			}else if(pointer.child.type==LazyNode.VALUE_TRUE){
 				buf.append("true");
@@ -196,8 +196,12 @@ public class LazyObject extends LazyElement{
 	}
 
 	public LazyObject put(String key,String value) throws LazyException{
-		// TODO: correctly detect and encode string values
-		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		LazyNode child=null;
+		if(shouldQuoteString(value)){
+			child=appendAndSetDirtyString(LazyNode.VALUE_ESTRING,quoteString(value));
+		}else{
+			child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		}
 		attachField(key,child);
 		return this;
 	}

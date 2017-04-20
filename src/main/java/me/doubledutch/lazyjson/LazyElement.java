@@ -83,6 +83,65 @@ public abstract class LazyElement{
 		throw new LazyException("The given string is not a JSON object or array");
 	}
 
+	protected static boolean shouldQuoteString(String str){
+		boolean found=false;
+		int length=str.length();
+		char[] cbuf=new char[length];
+		str.getChars(0,length,cbuf,0);
+		for(int i=0;i<length;i++){
+			char c=cbuf[i];
+			if(c=='\\' || c=='"' || c=='\b' || c=='\t' || c=='\n' || c=='\f' || c=='\r'){// || c<' ' || (c>= '\u0080' && c<'\u00a0') || (c>='\u2000' && c<'\u2100')){
+				found=true;
+			}
+		}
+		return found;
+	}
+
+	protected static String quoteString(String str){
+		StringBuffer buf=new StringBuffer();
+		int length=str.length();
+		char[] cbuf=new char[length];
+		str.getChars(0,length,cbuf,0);
+		
+        for(int i=0; i<length; i++){
+        	char c=cbuf[i];
+            switch(c){
+            	case '\\':
+            		buf.append("\\\\");
+            		break;
+            	case '"':
+                	buf.append('\\');
+                	buf.append(c);
+                	break;
+	            case '\b':
+	                buf.append("\\b");
+	                break;
+	            case '\t':
+	                buf.append("\\t");
+	                break;
+	            case '\n':
+	                buf.append("\\n");
+	                break;
+	            case '\f':
+	                buf.append("\\f");
+	                break;
+	            case '\r':
+	                buf.append("\\r");
+	                break;
+	            default:
+	                /*
+					We shouldn't need to encode special characters other than the above, all others should be handled by utf-8 encoding
+	                if(c<' ' || (c>= '\u0080' && c<'\u00a0') || (c>='\u2000' && c<'\u2100')){
+	                    String tmp="000"+Integer.toHexString(c);
+	                    buf.append("\\u"+tmp.substring(tmp.length()-4));
+	                }else{*/
+	                   buf.append(c);
+	                //}
+	        }
+	    }
+        return buf.toString();
+	}
+
 	public static LazyElement readFromTemplate(Template t,ByteBuffer buf,DictionaryCache dict) throws LazyException{
 		String str=t.read(buf,dict);
 		// System.out.println(str);

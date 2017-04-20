@@ -28,6 +28,16 @@ public class ModifyTest{
     }
 
     @Test
+    public void addComplexStringTest() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":42}";
+        LazyObject obj=new LazyObject(str);
+		obj.put("test","Hello \n\t\r\b\"\\\f World");
+		assertEquals(obj.getString("test"),"Hello \n\t\r\b\"\\\f World");
+		assertEquals(obj.getString("foo"),"bar");
+		assertEquals(obj.toString(),"{\"foo\":\"bar\",\"baz\":42,\"test\":\"Hello \\n\\t\\r\\b\\\"\\\\\\f World\"}");
+    }
+
+    @Test
     public void buildObjectTest() throws LazyException{
         LazyObject obj=new LazyObject();
         obj.put("foo","bar");

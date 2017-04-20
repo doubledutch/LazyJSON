@@ -346,38 +346,71 @@ public final class LazyNode{
 			return new String(source,startIndex,endIndex-startIndex);
 		}else{
 			StringBuilder buf=new StringBuilder(endIndex-startIndex);
-			for(int i=startIndex;i<endIndex;i++){
-				char c=source[i];
-				if(c=='\\'){
-					i++;
-					c=source[i];
-					if(c=='"' || c=='\\' || c=='/'){
+			if(dirty){
+				for(int i=startIndex;i<endIndex;i++){
+					char c=dirtyBuf.charAt(i);
+					if(c=='\\'){
+						i++;
+						c=dirtyBuf.charAt(i);
+						if(c=='"' || c=='\\' || c=='/'){
+							buf.append(c);
+						}else if(c=='b'){
+							buf.append('\b');
+						}else if(c=='f'){
+							buf.append('\f');
+						}else if(c=='n'){
+							buf.append('\n');
+						}else if(c=='r'){
+							buf.append('\r');
+						}else if(c=='t'){
+							buf.append('\t');
+						}else if(c=='u'){
+							String code=dirtyBuf.substring(i+1,i+5);
+							buf.append((char)Integer.parseInt(code, 16));
+							i+=4;
+						}
+					}else{
 						buf.append(c);
-					}else if(c=='b'){
-						buf.append('\b');
-					}else if(c=='f'){
-						buf.append('\f');
-					}else if(c=='n'){
-						buf.append('\n');
-					}else if(c=='r'){
-						buf.append('\r');
-					}else if(c=='t'){
-						buf.append('\t');
-					}else if(c=='u'){
-						String code=new String(source,i+1,4);
-						buf.append((char)Integer.parseInt(code, 16));
-						i+=4;
 					}
-				}else{
-					buf.append(c);
+				}
+			}else{
+				for(int i=startIndex;i<endIndex;i++){
+					char c=source[i];
+					if(c=='\\'){
+						i++;
+						c=source[i];
+						if(c=='"' || c=='\\' || c=='/'){
+							buf.append(c);
+						}else if(c=='b'){
+							buf.append('\b');
+						}else if(c=='f'){
+							buf.append('\f');
+						}else if(c=='n'){
+							buf.append('\n');
+						}else if(c=='r'){
+							buf.append('\r');
+						}else if(c=='t'){
+							buf.append('\t');
+						}else if(c=='u'){
+							String code=new String(source,i+1,4);
+							buf.append((char)Integer.parseInt(code, 16));
+							i+=4;
+						}
+					}else{
+						buf.append(c);
+					}
 				}
 			}
 			return buf.toString();
 		}
 	}
 
-	private String getRawStringValue(char[] source){
-		return new String(source,startIndex,endIndex-startIndex);
+	protected String getRawStringValue(char[] source,StringBuilder dirtyBuf){
+		if(dirty){
+			return dirtyBuf.substring(startIndex,endIndex);
+		}else{
+			return new String(source,startIndex,endIndex-startIndex);
+		}
 	}
 
 	/**
@@ -464,7 +497,11 @@ public final class LazyNode{
 	}
 
 	private String getFieldString(char[] cbuf){
-		return "\""+getRawStringValue(cbuf)+"\":";
+		return "\""+getRawStringValue(cbuf,null)+"\":";
+	}
+
+	private String getFieldString(char[] cbuf,StringBuilder dirtyBuf){
+		return "\""+getRawStringValue(cbuf,dirtyBuf)+"\":";
 	}
 
 	private void putString(char[] cbuf,ByteBuffer buf,DictionaryCache dict){

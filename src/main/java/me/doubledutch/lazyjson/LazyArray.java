@@ -207,7 +207,12 @@ public class LazyArray extends LazyElement{
 	}
 
 	public LazyArray put(String value) throws LazyException{
-		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		LazyNode child=null;
+		if(shouldQuoteString(value)){
+			child=appendAndSetDirtyString(LazyNode.VALUE_ESTRING,quoteString(value));
+		}else{
+			child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		}
 		appendChild(child);
 		return this;
 	}
@@ -279,7 +284,12 @@ public class LazyArray extends LazyElement{
 	}
 
 	public LazyArray put(int index,String value) throws LazyException{
-		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		LazyNode child=null;
+		if(shouldQuoteString(value)){
+			child=appendAndSetDirtyString(LazyNode.VALUE_ESTRING,quoteString(value));
+		}else{
+			child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		}
 		insertChild(index,child);
 		return this;
 	}
