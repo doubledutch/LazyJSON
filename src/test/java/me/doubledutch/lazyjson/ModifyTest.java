@@ -111,6 +111,19 @@ public class ModifyTest{
     	assertEquals(arr.getBoolean(6),false);
     }
 
+    @Test(expected=LazyException.class)
+    public void badInsertArrayTestA() throws LazyException{
+    	LazyArray arr=new LazyArray("[]");
+    	arr.put(1,"foo");
+    }
+
+    @Test(expected=LazyException.class)
+    public void badInsertArrayTestB() throws LazyException{
+    	LazyArray arr=new LazyArray("[2,4]");
+    	arr.put(19,"foo");
+    }
+
+
     @Test
     public void removeKeyTest() throws LazyException{
         String str="{\"foo\":\"bar\",\"baz\":{\"foo\":9}}";

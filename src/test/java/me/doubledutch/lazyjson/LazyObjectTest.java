@@ -82,7 +82,7 @@ public class LazyObjectTest{
 
     @Test
     public void objectGet() throws LazyException{
-        String str="{\"foo\":9,\"bar\":true,\"baz\":3.1415,\"sval\":\"hello world\",\"fval\":false,\"nval\":null}";
+        String str="{\"foo\":9,\"bar\":true,\"baz\":3.1415,\"sval\":\"hello world\",\"fval\":false,\"nval\":null,\"aval\":[2,2,4],\"oval\":{\"foo\":42},\"eval\":\"\\n\"}";
         LazyObject obj=new LazyObject(str);
         assertTrue(obj.get("foo") instanceof Integer);
         assertTrue(obj.get("bar") instanceof Boolean);
@@ -90,11 +90,14 @@ public class LazyObjectTest{
         assertTrue(obj.get("sval") instanceof String);
         assertTrue(obj.get("fval") instanceof Boolean);
         assertNull(obj.get("nval"));
+        assertTrue(obj.get("aval") instanceof LazyArray);
+        assertTrue(obj.get("oval") instanceof LazyObject);
+        assertTrue(obj.get("eval") instanceof String);
     }
 
      @Test
     public void objectOpt() throws LazyException{
-        String str="{\"foo\":9,\"bar\":true,\"baz\":3.1415,\"sval\":\"hello world\",\"fval\":false,\"nval\":null}";
+        String str="{\"foo\":9,\"bar\":true,\"baz\":3.1415,\"sval\":\"hello world\",\"fval\":false,\"nval\":null,\"aval\":[2,2,4],\"oval\":{\"foo\":42},\"eval\":\"\\n\"}";
         LazyObject obj=new LazyObject(str);
         assertTrue(obj.opt("foo") instanceof Integer);
         assertTrue(obj.opt("bar") instanceof Boolean);
@@ -102,6 +105,10 @@ public class LazyObjectTest{
         assertTrue(obj.opt("sval") instanceof String);
         assertTrue(obj.opt("fval") instanceof Boolean);
         assertNull(obj.opt("nval"));
+        assertTrue(obj.opt("aval") instanceof LazyArray);
+        assertTrue(obj.opt("oval") instanceof LazyObject);
+        assertTrue(obj.opt("eval") instanceof String);
+        assertNull(obj.opt("does-not-exist"));
     }
 
 

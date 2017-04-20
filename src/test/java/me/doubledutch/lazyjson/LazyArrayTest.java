@@ -40,7 +40,7 @@ public class LazyArrayTest{
 
      @Test
     public void arrayGet() throws LazyException{
-        String str="[\"foo\",9,true,false,3.1415,null]";
+        String str="[\"foo\",9,true,false,3.1415,null,{\"foo\":42},[2,2,2],\"\\n\"]";
         LazyArray arr=new LazyArray(str);
         assertTrue(arr.get(0) instanceof String);
         assertTrue(arr.get(1) instanceof Integer);
@@ -48,11 +48,14 @@ public class LazyArrayTest{
         assertTrue(arr.get(3) instanceof Boolean);
         assertTrue(arr.get(4) instanceof Double);
         assertNull(arr.get(5));
+        assertTrue(arr.get(6) instanceof LazyObject);
+        assertTrue(arr.get(7) instanceof LazyArray);
+        assertTrue(arr.get(8) instanceof String);
     }
 
      @Test
     public void arrayOpt() throws LazyException{
-        String str="[\"foo\",9,true,false,3.1415,null]";
+        String str="[\"foo\",9,true,false,3.1415,null,{\"foo\":42},[2,2,2],\"\\n\"]";
         LazyArray arr=new LazyArray(str);
         assertTrue(arr.opt(0) instanceof String);
         assertTrue(arr.opt(1) instanceof Integer);
@@ -60,6 +63,10 @@ public class LazyArrayTest{
         assertTrue(arr.opt(3) instanceof Boolean);
         assertTrue(arr.opt(4) instanceof Double);
         assertNull(arr.opt(5));
+        assertTrue(arr.opt(6) instanceof LazyObject);
+        assertTrue(arr.opt(7) instanceof LazyArray);
+        assertTrue(arr.opt(8) instanceof String);
+        assertNull(arr.opt(9));
     }
 
     @Test(expected=LazyException.class)
