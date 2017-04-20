@@ -24,8 +24,53 @@ public class LazyArray extends LazyElement{
 		cbuf=parser.cbuf;
 	}
 
+	public LazyArray() throws LazyException{
+		LazyParser parser=new LazyParser("[]");
+		parser.tokenize();	
+		root=parser.root;
+		cbuf=parser.cbuf;
+	}
+
+	protected LazyArray(LazyNode root,char[] source,StringBuilder dirtySource){
+		super(root,source,dirtySource);
+	}
+	/*
 	protected LazyArray(LazyNode root,char[] source){
-		super(root,source);
+		super(root,source,null);
+	}*/
+
+	protected String serializeElementToString(){
+		StringBuilder buf=new StringBuilder();
+		buf.append("[");
+		LazyNode pointer=root.child;
+		boolean first=true;
+		while(pointer!=null){
+			if(first){
+				first=false;
+			}else{
+				buf.append(",");
+			}
+			if(pointer.type==LazyNode.OBJECT){
+				buf.append(new LazyObject(pointer,cbuf,dirtyBuf).toString());
+			}else if(pointer.type==LazyNode.ARRAY){
+				buf.append(new LazyArray(pointer,cbuf,dirtyBuf).toString());
+			}else if(pointer.type==LazyNode.VALUE_STRING || pointer.type==LazyNode.VALUE_ESTRING){
+				buf.append("\"");
+				buf.append(pointer.getStringValue(cbuf,dirtyBuf));
+				buf.append("\"");
+			}else if(pointer.type==LazyNode.VALUE_TRUE){
+				buf.append("true");
+			}else if(pointer.type==LazyNode.VALUE_FALSE){
+				buf.append("false");
+			}else if(pointer.type==LazyNode.VALUE_NULL){
+				buf.append("null");
+			}else{
+				buf.append(pointer.getStringValue(cbuf,dirtyBuf));
+			}
+			pointer=pointer.next;
+		}
+		buf.append("]");
+		return buf.toString();
 	}
 
 	/**
@@ -90,6 +135,255 @@ public class LazyArray extends LazyElement{
 		return null;
 	}
 
+	public Object get(int index) throws LazyException{
+		LazyNode token=getValueToken(index);
+		if(token!=null){
+			switch(token.type){
+				case LazyNode.OBJECT: return new LazyObject(token,cbuf,dirtyBuf);
+				case LazyNode.ARRAY: return new LazyArray(token,cbuf,dirtyBuf);
+				case LazyNode.VALUE_TRUE: return (Boolean)true;
+				case LazyNode.VALUE_FALSE: return (Boolean)false;
+				case LazyNode.VALUE_NULL: return null;
+				case LazyNode.VALUE_STRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_ESTRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_INTEGER: return (Integer)token.getIntValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_FLOAT: return (Double)token.getDoubleValue(cbuf,dirtyBuf);
+			}
+		}
+		// Should never happen
+		return null;
+	}
+
+	public Object opt(int index) throws LazyException{
+		LazyNode token=getOptionalValueToken(index);
+		if(token!=null){
+			switch(token.type){
+				case LazyNode.OBJECT: return new LazyObject(token,cbuf,dirtyBuf);
+				case LazyNode.ARRAY: return new LazyArray(token,cbuf,dirtyBuf);
+				case LazyNode.VALUE_TRUE: return (Boolean)true;
+				case LazyNode.VALUE_FALSE: return (Boolean)false;
+				case LazyNode.VALUE_NULL: return null;
+				case LazyNode.VALUE_STRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_ESTRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_INTEGER: return (Integer)token.getIntValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_FLOAT: return (Double)token.getDoubleValue(cbuf,dirtyBuf);
+			}
+		}
+		return null;
+	}
+
+	private void appendChild(LazyNode token) throws LazyException{
+		if(root.child==null){
+			root.child=token;
+			root.lastChild=token;
+		}else{
+			root.lastChild.next=token;
+			root.lastChild=token;
+		}
+		root.dirty=true;
+		selectToken=null;
+		selectInt=-1;
+	}
+
+	private void insertChild(int index,LazyNode token) throws LazyException{
+		root.dirty=true;
+		if(index==0){
+			token.next=root.child;
+			root.child=token;
+			return;
+		}
+		int current=1;
+		LazyNode pointer=root.child;
+		if(pointer==null)throw new LazyException("Trying to put at index "+index+" on an empty LazyArray");
+		while(current<index){
+			current++;
+			pointer=pointer.next;
+			if(pointer==null)throw new LazyException("Index out of bounds "+index);
+		}
+		token.next=pointer.next;
+		pointer.next=token;
+		selectToken=null;
+		selectInt=-1;
+	}
+
+	public LazyArray put(String value) throws LazyException{
+		LazyNode child=null;
+		if(shouldQuoteString(value)){
+			child=appendAndSetDirtyString(LazyNode.VALUE_ESTRING,quoteString(value));
+		}else{
+			child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		}
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(int value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_INTEGER,Integer.toString(value));
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(long value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_INTEGER,Long.toString(value));
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(float value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Float.toString(value));
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(double value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(boolean value) throws LazyException{
+		LazyNode child=null;
+		if(value){
+			child=LazyNode.cValueTrue(-1);
+		}else{
+			child=LazyNode.cValueFalse(-1);
+		}
+		child.dirty=true;
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(LazyArray value) throws LazyException{
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
+			value.root.dirty=true;
+			appendChild(value.root);
+		}else if(value.cbuf!=cbuf){
+			// Differen't sources
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
+			value.root.dirty=true;
+			appendChild(value.root);
+			// System.out.println("not matching put conditions");
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
+		return this;
+	}
+
+	public LazyArray put(LazyObject value) throws LazyException{
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
+			value.root.dirty=true;
+			appendChild(value.root);
+		}else if(value.cbuf!=cbuf){
+			// Differen't sources
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
+			value.root.dirty=true;
+			appendChild(value.root);
+			// System.out.println("not matching put conditions");
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
+		return this;
+	}
+
+	public LazyArray put(int index,String value) throws LazyException{
+		LazyNode child=null;
+		if(shouldQuoteString(value)){
+			child=appendAndSetDirtyString(LazyNode.VALUE_ESTRING,quoteString(value));
+		}else{
+			child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		}
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,int value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_INTEGER,Integer.toString(value));
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,long value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_INTEGER,Long.toString(value));
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,float value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Float.toString(value));
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,double value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,boolean value) throws LazyException{
+		LazyNode child=null;
+		if(value){
+			child=LazyNode.cValueTrue(-1);
+		}else{
+			child=LazyNode.cValueFalse(-1);
+		}
+		child.dirty=true;
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,LazyArray value) throws LazyException{
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
+			value.root.dirty=true;
+			insertChild(index,value.root);
+		}else if(value.cbuf!=cbuf){
+			// Differen't sources
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
+			value.root.dirty=true;
+			insertChild(index,value.root);
+			// System.out.println("not matching put conditions");
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
+		return this;
+	}
+
+	public LazyArray put(int index,LazyObject value) throws LazyException{
+		if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
+			value.root.dirty=true;
+			insertChild(index,value.root);
+		}else if(value.cbuf!=cbuf){
+			// Differen't sources
+			StringBuilder buf=getDirtyBuf();
+			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
+			value.root.dirty=true;
+			insertChild(index,value.root);
+			// System.out.println("not matching put conditions");
+		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
+		return this;
+	}
+
+	public Object remove(int index) throws LazyException{
+		Object obj=opt(index); // TODO: should this be get instead of opt?
+		LazyNode token=getOptionalValueToken(index);
+		if(token!=null){
+			// System.out.println("found the token!");
+			LazyNode pointer=this.root.child;
+			if(pointer==token){
+				System.out.println("yes, it was the first");
+				root.child=token.next;
+			}else{
+				while(pointer!=null){
+					if(pointer.next==token){
+						pointer.next=token.next;
+					}
+					pointer=pointer.next;
+				}
+			}
+			root.dirty=true;
+		}
+		selectToken=null;
+		selectInt=-1;
+		return obj;
+	}
+
 	/**
 	 * Returns the JSON array stored at the given index.
 	 *
@@ -100,7 +394,7 @@ public class LazyArray extends LazyElement{
 	public LazyArray getJSONArray(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
 		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
-		return new LazyArray(token,cbuf);
+		return new LazyArray(token,cbuf,dirtyBuf);
 	}
 
 	/**
@@ -115,7 +409,7 @@ public class LazyArray extends LazyElement{
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
 		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
-		return new LazyArray(token,cbuf);
+		return new LazyArray(token,cbuf,dirtyBuf);
 	}
 
 	/**
@@ -128,7 +422,7 @@ public class LazyArray extends LazyElement{
 	public LazyObject getJSONObject(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
 		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
-		return new LazyObject(token,cbuf);
+		return new LazyObject(token,cbuf,dirtyBuf);
 	}
 
 	/**
@@ -143,7 +437,7 @@ public class LazyArray extends LazyElement{
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
 		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
-		return new LazyObject(token,cbuf);
+		return new LazyObject(token,cbuf,dirtyBuf);
 	}
 
 	/**
@@ -202,7 +496,7 @@ public class LazyArray extends LazyElement{
 	 */
 	public String getString(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
-		return token.getStringValue(cbuf);
+		return token.getStringValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -216,7 +510,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
-		return token.getStringValue(cbuf);
+		return token.getStringValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -231,7 +525,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
-		return token.getStringValue(cbuf);
+		return token.getStringValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -243,7 +537,7 @@ public class LazyArray extends LazyElement{
 	 */
 	public int getInt(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
-		return token.getIntValue(cbuf);
+		return token.getIntValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -257,7 +551,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return 0;
 		if(token.type==LazyNode.VALUE_NULL)return 0;
-		return token.getIntValue(cbuf);
+		return token.getIntValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -272,7 +566,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
-		return token.getIntValue(cbuf);
+		return token.getIntValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -284,7 +578,7 @@ public class LazyArray extends LazyElement{
 	 */
 	public long getLong(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
-		return token.getLongValue(cbuf);
+		return token.getLongValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -298,7 +592,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return 0l;
 		if(token.type==LazyNode.VALUE_NULL)return 0l;
-		return token.getLongValue(cbuf);
+		return token.getLongValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -313,7 +607,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
-		return token.getLongValue(cbuf);
+		return token.getLongValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -325,7 +619,7 @@ public class LazyArray extends LazyElement{
 	 */
 	public double getDouble(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
-		return token.getDoubleValue(cbuf);
+		return token.getDoubleValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -339,7 +633,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return 0.0;
 		if(token.type==LazyNode.VALUE_NULL)return 0.0;
-		return token.getDoubleValue(cbuf);
+		return token.getDoubleValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -354,7 +648,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
-		return token.getDoubleValue(cbuf);
+		return token.getDoubleValue(cbuf,dirtyBuf);
 	}
 
 	/**

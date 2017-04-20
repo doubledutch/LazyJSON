@@ -23,6 +23,72 @@ public class LazyArrayTest{
         assertEquals(3,array.length());
     }
 
+    @Test
+    public void testHashCode() throws LazyException{
+        String str1="[false,null,true]";
+        String str2="[2,[2,2,4],\"foo\"]";
+        LazyArray arr1=new LazyArray(str1);
+        LazyArray arr2=new LazyArray(str2);
+        assertNotEquals(arr1.hashCode(),arr2.hashCode());
+    }
+
+    @Test
+    public void testRemove() throws LazyException{
+        String str="[2,false,null,true,9]";
+        LazyArray array=new LazyArray(str);
+        array.remove(0);
+        assertEquals(4,array.length());
+        assertEquals(9,array.getInt(3));
+        array.remove(2);
+        assertEquals(9,array.getInt(2));
+    }
+
+    @Test
+    public void testInnerEquals() throws LazyException{
+        String str1="[9,false,[3,4,5]]";
+        String str2="[9,false,[3,4,5]]";
+        String str3="[9,false,[3,4,7]]";
+        String str4="[9,false,[3,4]]";
+        LazyArray array1=new LazyArray(str1);
+        LazyArray array2=new LazyArray(str2);
+        LazyArray array3=new LazyArray(str3);
+        LazyArray array4=new LazyArray(str4);
+        assertTrue(array1.equals(array2));
+        assertFalse(array1.equals(array3));
+        assertFalse(array1.equals(array4));
+    }
+
+     @Test
+    public void arrayGet() throws LazyException{
+        String str="[\"foo\",9,true,false,3.1415,null,{\"foo\":42},[2,2,2],\"\\n\"]";
+        LazyArray arr=new LazyArray(str);
+        assertTrue(arr.get(0) instanceof String);
+        assertTrue(arr.get(1) instanceof Integer);
+        assertTrue(arr.get(2) instanceof Boolean);
+        assertTrue(arr.get(3) instanceof Boolean);
+        assertTrue(arr.get(4) instanceof Double);
+        assertNull(arr.get(5));
+        assertTrue(arr.get(6) instanceof LazyObject);
+        assertTrue(arr.get(7) instanceof LazyArray);
+        assertTrue(arr.get(8) instanceof String);
+    }
+
+     @Test
+    public void arrayOpt() throws LazyException{
+        String str="[\"foo\",9,true,false,3.1415,null,{\"foo\":42},[2,2,2],\"\\n\"]";
+        LazyArray arr=new LazyArray(str);
+        assertTrue(arr.opt(0) instanceof String);
+        assertTrue(arr.opt(1) instanceof Integer);
+        assertTrue(arr.opt(2) instanceof Boolean);
+        assertTrue(arr.opt(3) instanceof Boolean);
+        assertTrue(arr.opt(4) instanceof Double);
+        assertNull(arr.opt(5));
+        assertTrue(arr.opt(6) instanceof LazyObject);
+        assertTrue(arr.opt(7) instanceof LazyArray);
+        assertTrue(arr.opt(8) instanceof String);
+        assertNull(arr.opt(9));
+    }
+
     @Test(expected=LazyException.class)
     public void testOutOfBoundOp() throws LazyException{
         String str="[\"foo\",-1]";
