@@ -44,6 +44,14 @@ public class LazyObjectTest{
         obj.getString("bar");
     }
 
+    @Test
+    public void objectGet() throws LazyException{
+        String str="{\"foo\":9,\"bar\":true}";
+        LazyObject obj=new LazyObject(str);
+        assertTrue(obj.get("foo") instanceof Integer);
+        assertTrue(obj.get("bar") instanceof Boolean);
+    }
+
    @Test
     public void optionalArrayTest() throws LazyException{
         String str="{\"foo\":[],\"bar\":null}";

@@ -114,6 +114,27 @@ public class LazyObject extends LazyElement{
 		return null;
 	}
 
+	public Object remove(String key) throws LazyException{
+		Object obj=opt(key); // TODO: should this be get instead of opt?
+		LazyNode token=getOptionalField(key);
+		if(token!=null){
+			System.out.println("found the token!");
+			LazyNode pointer=this.root.child;
+			if(pointer==token){
+				root.child=token.next;
+			}else{
+				while(pointer!=null){
+					if(pointer.next==token){
+						pointer.next=token.next;
+					}
+					pointer=pointer.next;
+				}
+			}
+			root.dirty=true;
+		}
+		return obj;
+	}
+
 	protected String serializeElementToString(){
 		StringBuilder buf=new StringBuilder();
 		buf.append("{");

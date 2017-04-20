@@ -48,6 +48,15 @@ public class ModifyTest{
     }
 
     @Test
+    public void removeKeyTest() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":{\"foo\":9}}";
+        LazyObject obj=new LazyObject(str);
+        obj.remove("baz");
+        assertFalse(obj.has("baz"));
+        assertEquals(obj.getString("foo"),"bar");
+    }
+
+    @Test
     public void cleanObjectToObject() throws LazyException{
         String str="{\"foo\":\"bar\",\"baz\":{\"foo\":9}}";
         LazyObject obj=new LazyObject(str);
