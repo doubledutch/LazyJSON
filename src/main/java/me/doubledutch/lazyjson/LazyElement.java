@@ -23,6 +23,15 @@ public abstract class LazyElement{
 
 	}
 
+	protected LazyNode appendAndSetDirtyString(byte type,String value) throws LazyException{
+		dirtyBuf=getDirtyBuf();
+		LazyNode child=new LazyNode(type,dirtyBuf.length());
+		dirtyBuf.append(value);
+		child.endIndex=dirtyBuf.length();
+		child.dirty=true;
+		return child;
+	}
+
 	protected StringBuilder getDirtyBuf(){
 		if(dirtyBuf!=null){
 			return dirtyBuf;

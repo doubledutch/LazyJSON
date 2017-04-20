@@ -23,6 +23,14 @@ public class LazyArrayTest{
         assertEquals(3,array.length());
     }
 
+     @Test
+    public void objectGet() throws LazyException{
+        String str="[\"foo\",9,true]";
+        LazyArray arr=new LazyArray(str);
+        assertTrue(arr.get(1) instanceof Integer);
+        assertTrue(arr.get(2) instanceof Boolean);
+    }
+
     @Test(expected=LazyException.class)
     public void testOutOfBoundOp() throws LazyException{
         String str="[\"foo\",-1]";

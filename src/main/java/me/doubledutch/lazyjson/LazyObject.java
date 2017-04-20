@@ -195,15 +195,6 @@ public class LazyObject extends LazyElement{
 		token.lastChild=child;
 	}
 
-	private LazyNode appendAndSetDirtyString(byte type,String value) throws LazyException{
-		dirtyBuf=getDirtyBuf();
-		LazyNode child=new LazyNode(type,dirtyBuf.length());
-		dirtyBuf.append(value);
-		child.endIndex=dirtyBuf.length();
-		child.dirty=true;
-		return child;
-	}
-
 	public LazyObject put(String key,String value) throws LazyException{
 		// TODO: correctly detect and encode string values
 		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);

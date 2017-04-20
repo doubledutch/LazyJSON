@@ -98,6 +98,123 @@ public class LazyArray extends LazyElement{
 		return null;
 	}
 
+	public Object get(int index) throws LazyException{
+		LazyNode token=getValueToken(index);
+		if(token!=null){
+			switch(token.type){
+				case LazyNode.OBJECT: return new LazyObject(token,cbuf,dirtyBuf);
+				case LazyNode.ARRAY: return new LazyArray(token,cbuf,dirtyBuf);
+				case LazyNode.VALUE_TRUE: return (Boolean)true;
+				case LazyNode.VALUE_FALSE: return (Boolean)false;
+				case LazyNode.VALUE_NULL: return null;
+				case LazyNode.VALUE_STRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_ESTRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_INTEGER: return (Integer)token.getIntValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_FLOAT: return (Double)token.getDoubleValue(cbuf,dirtyBuf);
+			}
+		}
+		// Should never happen
+		return null;
+	}
+
+	public Object opt(int index) throws LazyException{
+		LazyNode token=getOptionalValueToken(index);
+		if(token!=null){
+			switch(token.type){
+				case LazyNode.OBJECT: return new LazyObject(token,cbuf,dirtyBuf);
+				case LazyNode.ARRAY: return new LazyArray(token,cbuf,dirtyBuf);
+				case LazyNode.VALUE_TRUE: return (Boolean)true;
+				case LazyNode.VALUE_FALSE: return (Boolean)false;
+				case LazyNode.VALUE_NULL: return null;
+				case LazyNode.VALUE_STRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_ESTRING: return token.getStringValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_INTEGER: return (Integer)token.getIntValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_FLOAT: return (Double)token.getDoubleValue(cbuf,dirtyBuf);
+			}
+		}
+		return null;
+	}
+
+	private void appendChild(LazyNode token) throws LazyException{
+		if(root.child==null){
+			root.child=token;
+			root.lastChild=token;
+		}else{
+			root.lastChild.next=token;
+			root.lastChild=token;
+		}
+		root.dirty=true;
+	}
+
+	private void insertChild(int index,LazyNode token) throws LazyException{
+		root.dirty=true;
+		if(index==0){
+			token.next=root.child;
+			root.child=token;
+			return;
+		}
+		int current=0;
+		LazyNode pointer=root.child;
+		if(pointer==null)throw new LazyException("Trying to put at index "+index+" on an empty LazyArray");
+		while(current<index){
+			current++;
+			pointer=pointer.next;
+			if(pointer==null)throw new LazyException("Index out of bounds "+index);
+		}
+		token.next=pointer.next;
+		pointer.next=token;
+	}
+
+	public LazyArray put(String value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(int value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_INTEGER,Integer.toString(value));
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(long value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_INTEGER,Long.toString(value));
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(float value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Float.toString(value));
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(double value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(boolean value) throws LazyException{
+		LazyNode child=null;
+		if(value){
+			child=LazyNode.cValueTrue(-1);
+		}else{
+			child=LazyNode.cValueFalse(-1);
+		}
+		child.dirty=true;
+		appendChild(child);
+		return this;
+	}
+
+	public LazyArray put(LazyArray value) throws LazyException{
+		return this;
+	}
+
+	public LazyArray put(LazyObject value) throws LazyException{
+		return this;
+	}
+
 	/**
 	 * Returns the JSON array stored at the given index.
 	 *
