@@ -8,6 +8,19 @@ import java.net.*;
 
 public class LazyObjectTest{
     @Test
+    public void lazyElementTest() throws LazyException{
+        String str="  [9]";
+        LazyElement e=LazyElement.parse(str);
+        assertNotNull(e);
+    }
+
+    @Test(expected=LazyException.class)
+    public void badLazyElementTest() throws LazyException{
+        String str="  9";
+        LazyElement e=LazyElement.parse(str);
+    }
+
+    @Test
     public void keysetTest() throws LazyException{
         String str="{\"foo\":\"bar\",\"baz\":42}";
         LazyObject obj=new LazyObject(str);
@@ -15,6 +28,29 @@ public class LazyObjectTest{
         assertTrue(keys.contains("foo"));
         assertTrue(keys.contains("baz"));
         assertFalse(keys.contains("bar"));
+    }
+
+    @Test
+    public void innerEqualsTest() throws LazyException{
+        String str1="{\"foo\":\"bar\",\"baz\":42}";
+        String str2="{\"foo\":\"bar\",\"baz\":42}";
+        String str3="{\"foo\":9,\"baz\":42}";
+        String str4="{\"baz\":42}";
+        String str5="{\"foo2\":\"bar\",\"baz\":42}";
+        String str6="{\"foo\":null,\"baz\":42}";
+        LazyObject obj1=new LazyObject(str1);
+        LazyObject obj2=new LazyObject(str2);
+        LazyObject obj3=new LazyObject(str3);
+        LazyObject obj4=new LazyObject(str4);
+        LazyObject obj5=new LazyObject(str5);
+        LazyObject obj6=new LazyObject(str6);
+        assertTrue(obj1.equals(obj2));
+        assertFalse(obj1.equals(obj3));
+        assertFalse(obj1.equals(obj4));
+        assertFalse(obj1.equals(obj5));
+        assertFalse(obj1.equals(obj6));
+        assertFalse(obj1.equals("foo"));
+        assertFalse(obj1.equals(new LazyArray()));
     }
 
     @Test
@@ -46,11 +82,28 @@ public class LazyObjectTest{
 
     @Test
     public void objectGet() throws LazyException{
-        String str="{\"foo\":9,\"bar\":true}";
+        String str="{\"foo\":9,\"bar\":true,\"baz\":3.1415,\"sval\":\"hello world\",\"fval\":false,\"nval\":null}";
         LazyObject obj=new LazyObject(str);
         assertTrue(obj.get("foo") instanceof Integer);
         assertTrue(obj.get("bar") instanceof Boolean);
+        assertTrue(obj.get("baz") instanceof Double);
+        assertTrue(obj.get("sval") instanceof String);
+        assertTrue(obj.get("fval") instanceof Boolean);
+        assertNull(obj.get("nval"));
     }
+
+     @Test
+    public void objectOpt() throws LazyException{
+        String str="{\"foo\":9,\"bar\":true,\"baz\":3.1415,\"sval\":\"hello world\",\"fval\":false,\"nval\":null}";
+        LazyObject obj=new LazyObject(str);
+        assertTrue(obj.opt("foo") instanceof Integer);
+        assertTrue(obj.opt("bar") instanceof Boolean);
+        assertTrue(obj.opt("baz") instanceof Double);
+        assertTrue(obj.opt("sval") instanceof String);
+        assertTrue(obj.opt("fval") instanceof Boolean);
+        assertNull(obj.opt("nval"));
+    }
+
 
    @Test
     public void optionalArrayTest() throws LazyException{

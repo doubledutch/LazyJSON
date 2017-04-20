@@ -29,7 +29,7 @@ public class TemplateTest{
 
 	@Test
 	public void testArrayValues() throws Exception{
-		String str="{\"foo\":[\"Hello World!\",0,300,65000,3.1415,true,null,112147483650]}";
+		String str="{\"foo\":[\"Hello World!\",0,300,65000,3.1415,true,false,null,112147483650]}";
 		LazyObject obj1=new LazyObject(str);
 		Template t=obj1.extractTemplate();
 		ByteBuffer buf=ByteBuffer.allocate(4096);
@@ -80,7 +80,7 @@ public class TemplateTest{
 
 	@Test
 	public void testBooleanValues() throws Exception{
-		String str="{\"foo\":{\"bar\":false}}";
+		String str="{\"foo\":{\"bar\":false,\"baz\":true}}";
 		LazyObject obj1=new LazyObject(str);
 		Template t=obj1.extractTemplate();
 		ByteBuffer buf=ByteBuffer.allocate(4096);

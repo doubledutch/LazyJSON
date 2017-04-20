@@ -105,9 +105,6 @@ public final class LazyNode{
 	 * @return the number of child tokens attached to this token
 	 */
 	protected int getChildCount(){
-		if(child==null){
-			return 0;
-		}
 		int num=0;
 		LazyNode token=child;
 		while(token!=null){

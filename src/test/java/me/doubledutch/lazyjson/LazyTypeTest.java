@@ -31,5 +31,11 @@ public class LazyTypeTest{
 		assertEquals(arr.getType(4),LazyType.NULL);
 		assertEquals(arr.getType(5),LazyType.OBJECT);
 		assertEquals(arr.getType(6),LazyType.ARRAY);
+		
+	}
+
+	@Test
+	public void testValueNaming() throws LazyException{
+		assertEquals(LazyType.valueOf("INTEGER"),LazyType.INTEGER);
 	}
 }

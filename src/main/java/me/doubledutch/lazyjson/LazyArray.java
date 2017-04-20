@@ -24,6 +24,13 @@ public class LazyArray extends LazyElement{
 		cbuf=parser.cbuf;
 	}
 
+	public LazyArray() throws LazyException{
+		LazyParser parser=new LazyParser("[]");
+		parser.tokenize();	
+		root=parser.root;
+		cbuf=parser.cbuf;
+	}
+
 	protected LazyArray(LazyNode root,char[] source,StringBuilder dirtySource){
 		super(root,source,dirtySource);
 	}
@@ -153,7 +160,7 @@ public class LazyArray extends LazyElement{
 			root.child=token;
 			return;
 		}
-		int current=0;
+		int current=1;
 		LazyNode pointer=root.child;
 		if(pointer==null)throw new LazyException("Trying to put at index "+index+" on an empty LazyArray");
 		while(current<index){
@@ -215,6 +222,56 @@ public class LazyArray extends LazyElement{
 		return this;
 	}
 
+	public LazyArray put(int index,String value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_STRING,value);
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,int value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_INTEGER,Integer.toString(value));
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,long value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_INTEGER,Long.toString(value));
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,float value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Float.toString(value));
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,double value) throws LazyException{
+		LazyNode child=appendAndSetDirtyString(LazyNode.VALUE_FLOAT,Double.toString(value));
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,boolean value) throws LazyException{
+		LazyNode child=null;
+		if(value){
+			child=LazyNode.cValueTrue(-1);
+		}else{
+			child=LazyNode.cValueFalse(-1);
+		}
+		child.dirty=true;
+		insertChild(index,child);
+		return this;
+	}
+
+	public LazyArray put(int index,LazyArray value) throws LazyException{
+		return this;
+	}
+
+	public LazyArray put(int index,LazyObject value) throws LazyException{
+		return this;
+	}
+
 	/**
 	 * Returns the JSON array stored at the given index.
 	 *
@@ -225,7 +282,7 @@ public class LazyArray extends LazyElement{
 	public LazyArray getJSONArray(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
 		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
-		return new LazyArray(token,cbuf);
+		return new LazyArray(token,cbuf,dirtyBuf);
 	}
 
 	/**
@@ -240,7 +297,7 @@ public class LazyArray extends LazyElement{
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
 		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
-		return new LazyArray(token,cbuf);
+		return new LazyArray(token,cbuf,dirtyBuf);
 	}
 
 	/**
@@ -253,7 +310,7 @@ public class LazyArray extends LazyElement{
 	public LazyObject getJSONObject(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
 		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
-		return new LazyObject(token,cbuf);
+		return new LazyObject(token,cbuf,dirtyBuf);
 	}
 
 	/**
@@ -268,7 +325,7 @@ public class LazyArray extends LazyElement{
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
 		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
-		return new LazyObject(token,cbuf);
+		return new LazyObject(token,cbuf,dirtyBuf);
 	}
 
 	/**
@@ -327,7 +384,7 @@ public class LazyArray extends LazyElement{
 	 */
 	public String getString(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
-		return token.getStringValue(cbuf);
+		return token.getStringValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -341,7 +398,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
-		return token.getStringValue(cbuf);
+		return token.getStringValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -356,7 +413,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
-		return token.getStringValue(cbuf);
+		return token.getStringValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -368,7 +425,7 @@ public class LazyArray extends LazyElement{
 	 */
 	public int getInt(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
-		return token.getIntValue(cbuf);
+		return token.getIntValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -382,7 +439,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return 0;
 		if(token.type==LazyNode.VALUE_NULL)return 0;
-		return token.getIntValue(cbuf);
+		return token.getIntValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -397,7 +454,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
-		return token.getIntValue(cbuf);
+		return token.getIntValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -409,7 +466,7 @@ public class LazyArray extends LazyElement{
 	 */
 	public long getLong(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
-		return token.getLongValue(cbuf);
+		return token.getLongValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -423,7 +480,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return 0l;
 		if(token.type==LazyNode.VALUE_NULL)return 0l;
-		return token.getLongValue(cbuf);
+		return token.getLongValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -438,7 +495,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
-		return token.getLongValue(cbuf);
+		return token.getLongValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -450,7 +507,7 @@ public class LazyArray extends LazyElement{
 	 */
 	public double getDouble(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
-		return token.getDoubleValue(cbuf);
+		return token.getDoubleValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -464,7 +521,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return 0.0;
 		if(token.type==LazyNode.VALUE_NULL)return 0.0;
-		return token.getDoubleValue(cbuf);
+		return token.getDoubleValue(cbuf,dirtyBuf);
 	}
 
 	/**
@@ -479,7 +536,7 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
-		return token.getDoubleValue(cbuf);
+		return token.getDoubleValue(cbuf,dirtyBuf);
 	}
 
 	/**

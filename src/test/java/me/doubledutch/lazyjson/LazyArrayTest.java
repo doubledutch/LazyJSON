@@ -23,12 +23,43 @@ public class LazyArrayTest{
         assertEquals(3,array.length());
     }
 
+    @Test
+    public void testInnerEquals() throws LazyException{
+        String str1="[9,false,[3,4,5]]";
+        String str2="[9,false,[3,4,5]]";
+        String str3="[9,false,[3,4,7]]";
+        String str4="[9,false,[3,4]]";
+        LazyArray array1=new LazyArray(str1);
+        LazyArray array2=new LazyArray(str2);
+        LazyArray array3=new LazyArray(str3);
+        LazyArray array4=new LazyArray(str4);
+        assertTrue(array1.equals(array2));
+        assertFalse(array1.equals(array3));
+        assertFalse(array1.equals(array4));
+    }
+
      @Test
-    public void objectGet() throws LazyException{
-        String str="[\"foo\",9,true]";
+    public void arrayGet() throws LazyException{
+        String str="[\"foo\",9,true,false,3.1415,null]";
         LazyArray arr=new LazyArray(str);
+        assertTrue(arr.get(0) instanceof String);
         assertTrue(arr.get(1) instanceof Integer);
         assertTrue(arr.get(2) instanceof Boolean);
+        assertTrue(arr.get(3) instanceof Boolean);
+        assertTrue(arr.get(4) instanceof Double);
+        assertNull(arr.get(5));
+    }
+
+     @Test
+    public void arrayOpt() throws LazyException{
+        String str="[\"foo\",9,true,false,3.1415,null]";
+        LazyArray arr=new LazyArray(str);
+        assertTrue(arr.opt(0) instanceof String);
+        assertTrue(arr.opt(1) instanceof Integer);
+        assertTrue(arr.opt(2) instanceof Boolean);
+        assertTrue(arr.opt(3) instanceof Boolean);
+        assertTrue(arr.opt(4) instanceof Double);
+        assertNull(arr.opt(5));
     }
 
     @Test(expected=LazyException.class)
