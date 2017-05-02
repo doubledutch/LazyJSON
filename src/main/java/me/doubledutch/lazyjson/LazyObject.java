@@ -611,6 +611,11 @@ public class LazyObject extends LazyElement{
 		return set;
 	}
 
+	public static java.lang.String[] getNames(LazyObject obj){
+		Set<String> keys=obj.keySet();
+		return keys.toArray(new String[keys.size()]);
+	}
+
 	public int hashCode(){
 		int code=1;
 		for(String key:keySet()){
