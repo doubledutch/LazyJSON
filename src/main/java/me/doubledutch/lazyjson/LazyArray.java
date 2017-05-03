@@ -263,6 +263,7 @@ public class LazyArray extends LazyElement{
 			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
 			value.root.dirty=true;
 			appendChild(value.root);
+			value.dirtyBuf=buf;
 			// System.out.println("not matching put conditions");
 		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		return this;
@@ -278,6 +279,7 @@ public class LazyArray extends LazyElement{
 			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
 			value.root.dirty=true;
 			appendChild(value.root);
+			value.dirtyBuf=buf;
 			// System.out.println("not matching put conditions");
 		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		return this;

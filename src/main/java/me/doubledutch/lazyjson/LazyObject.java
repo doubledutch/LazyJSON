@@ -255,7 +255,7 @@ public class LazyObject extends LazyElement{
 			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
 			value.root.dirty=true;
 			attachField(key,value.root);
-			// System.out.println("not matching put conditions");
+			value.dirtyBuf=buf;
 		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		return this;
 	}
@@ -270,6 +270,7 @@ public class LazyObject extends LazyElement{
 			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
 			value.root.dirty=true;
 			attachField(key,value.root);
+			value.dirtyBuf=buf;
 			// System.out.println("not matching put conditions");
 		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");
 		return this;
@@ -281,6 +282,8 @@ public class LazyObject extends LazyElement{
 			child.dirty=true;
 			attachField(key,child);
 			return this;
+		}else if(value==null){
+			// TODO: remove key instead
 		}
 		// TODO: look into faster ways of branching by type
 		if(value instanceof java.lang.Integer){
