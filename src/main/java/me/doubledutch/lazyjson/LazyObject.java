@@ -36,9 +36,9 @@ public class LazyObject extends LazyElement{
 		cbuf=parser.cbuf;
 	}
 
-	protected LazyObject(LazyNode root,char[] source){
-		super(root,source,null);
-	}
+	// protected LazyObject(LazyNode root,char[] source){
+	//	super(root,source,null);
+	// }
 
 	protected LazyObject(LazyNode root,char[] source,StringBuilder dirtySource){
 		super(root,source,dirtySource);
@@ -473,7 +473,8 @@ public class LazyObject extends LazyElement{
 	 * @throws LazyException if no value was set for the given key.
 	 */
 	public boolean isNull(String key){
-		LazyNode token=getFieldToken(key);
+		LazyNode token=getOptionalFieldToken(key);
+		if(token==null)return true;
 		if(token.type==LazyNode.VALUE_NULL)return true;
 		return false;
 	}

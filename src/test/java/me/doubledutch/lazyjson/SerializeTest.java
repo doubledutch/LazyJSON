@@ -18,7 +18,7 @@ public class SerializeTest{
         // Now try to re-assemble
         LazyNode node=LazyNode.readFromBuffer(raw);
         assertNotNull(node);
-        LazyObject obj2=new LazyObject(node,obj.getCharBuffer());
+        LazyObject obj2=new LazyObject(node,obj.getCharBuffer(),new StringBuilder());
         // If serialization in and out worked, this should be a working object
         assertEquals(obj.getInt("foo"),obj2.getInt("foo"));
         assertEquals(obj.getJSONObject("bar").getString("baz"),obj2.getJSONObject("bar").getString("baz"));
