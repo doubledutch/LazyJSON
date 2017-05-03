@@ -58,7 +58,7 @@ public abstract class LazyElement{
 	public abstract LazyType getType();
 
 	public void writeTemplateValues(ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
-		root.writeSegmentValues(cbuf,buf,dict);
+		root.writeSegmentValues(cbuf,dirtyBuf,buf,dict);
 	}
 
 	/**

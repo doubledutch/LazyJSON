@@ -215,40 +215,72 @@ public final class LazyNode{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected int getIntValue(char[] source,StringBuilder dirtyBuf) throws LazyException{
-		if(type!=VALUE_INTEGER)throw new LazyException("Not an integer",startIndex);
 		int i=startIndex;
 		boolean sign=false;
 		int value=0;
-		if(dirty){
-			if(dirtyBuf.charAt(i)=='-'){
-				sign=true;
-				i++;
-			}
-			for(;i<endIndex;i++){
-				char c=dirtyBuf.charAt(i);
-				// If we only allow this to be called on integer values, the parsing is pre done!
-				// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
-				value+='0'-c;
-				if(i+1<endIndex){
-					value*=10;
+		if(type==VALUE_STRING || type==VALUE_ESTRING){
+			// Attempt to parse as an int, throw if impossible
+			if(dirty){
+				if(dirtyBuf.charAt(i)=='-'){
+					sign=true;
+					i++;
+				}
+				for(;i<endIndex;i++){
+					char c=dirtyBuf.charAt(i);
+					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source,dirtyBuf)+"' is not a valid integer",startIndex);
+					value+='0'-c;
+					if(i+1<endIndex){
+						value*=10;
+					}
+				}
+			}else{	
+				if(source[i]=='-'){
+					sign=true;
+					i++;
+				}
+				for(;i<endIndex;i++){
+					char c=source[i];
+					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source,dirtyBuf)+"' is not a valid integer",startIndex);
+					value+='0'-c;
+					if(i+1<endIndex){
+						value*=10;
+					}
 				}
 			}
-		}else{	
-			if(source[i]=='-'){
-				sign=true;
-				i++;
-			}
-			for(;i<endIndex;i++){
-				char c=source[i];
-				// If we only allow this to be called on integer values, the parsing is pre done!
-				// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
-				value+='0'-c;
-				if(i+1<endIndex){
-					value*=10;
+			return sign?value:-value;
+		}else if(type==VALUE_INTEGER){
+			if(dirty){
+				if(dirtyBuf.charAt(i)=='-'){
+					sign=true;
+					i++;
+				}
+				for(;i<endIndex;i++){
+					char c=dirtyBuf.charAt(i);
+					// If we only allow this to be called on integer values, the parsing is pre done!
+					// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
+					value+='0'-c;
+					if(i+1<endIndex){
+						value*=10;
+					}
+				}
+			}else{	
+				if(source[i]=='-'){
+					sign=true;
+					i++;
+				}
+				for(;i<endIndex;i++){
+					char c=source[i];
+					// If we only allow this to be called on integer values, the parsing is pre done!
+					// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
+					value+='0'-c;
+					if(i+1<endIndex){
+						value*=10;
+					}
 				}
 			}
+			return sign?value:-value;
 		}
-		return sign?value:-value;
+		throw new LazyException("Not an integer",startIndex);
 	}
 
 	protected long getLongValue(char[] source) throws LazyException{
@@ -264,40 +296,72 @@ public final class LazyNode{
 	 * @throws LazyException if the value could not be parsed
 	 */
 	protected long getLongValue(char[] source,StringBuilder dirtyBuf) throws LazyException{
-		if(type!=VALUE_INTEGER)throw new LazyException("Not a long",startIndex);
 		int i=startIndex;
 		boolean sign=false;
 		long value=0;
-		if(dirty){
-			if(dirtyBuf.charAt(i)=='-'){
-				sign=true;
-				i++;
-			}
-			for(;i<endIndex;i++){
-				char c=dirtyBuf.charAt(i);
-				// If we only allow this to be called on integer values, the parsing is pre done!
-				// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
-				value+='0'-c;
-				if(i+1<endIndex){
-					value*=10;
+		if(type==VALUE_STRING || type==VALUE_ESTRING){
+			// Attempt to parse as an int, throw if impossible
+			if(dirty){
+				if(dirtyBuf.charAt(i)=='-'){
+					sign=true;
+					i++;
+				}
+				for(;i<endIndex;i++){
+					char c=dirtyBuf.charAt(i);
+					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source,dirtyBuf)+"' is not a valid long",startIndex);
+					value+='0'-c;
+					if(i+1<endIndex){
+						value*=10;
+					}
+				}
+			}else{	
+				if(source[i]=='-'){
+					sign=true;
+					i++;
+				}
+				for(;i<endIndex;i++){
+					char c=source[i];
+					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source,dirtyBuf)+"' is not a valid long",startIndex);
+					value+='0'-c;
+					if(i+1<endIndex){
+						value*=10;
+					}
 				}
 			}
-		}else{	
-			if(source[i]=='-'){
-				sign=true;
-				i++;
-			}
-			for(;i<endIndex;i++){
-				char c=source[i];
-				// If we only allow this to be called on integer values, the parsing is pre done!
-				// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
-				value+='0'-c;
-				if(i+1<endIndex){
-					value*=10;
+			return sign?value:-value;
+		}else if(type==VALUE_INTEGER){
+			if(dirty){
+				if(dirtyBuf.charAt(i)=='-'){
+					sign=true;
+					i++;
+				}
+				for(;i<endIndex;i++){
+					char c=dirtyBuf.charAt(i);
+					// If we only allow this to be called on integer values, the parsing is pre done!
+					// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
+					value+='0'-c;
+					if(i+1<endIndex){
+						value*=10;
+					}
+				}
+			}else{	
+				if(source[i]=='-'){
+					sign=true;
+					i++;
+				}
+				for(;i<endIndex;i++){
+					char c=source[i];
+					// If we only allow this to be called on integer values, the parsing is pre done!
+					// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
+					value+='0'-c;
+					if(i+1<endIndex){
+						value*=10;
+					}
 				}
 			}
+			return sign?value:-value;
 		}
-		return sign?value:-value;
+		throw new LazyException("Not a long",startIndex);
 	}
 
 	protected double getDoubleValue(char[] source) throws LazyException{
@@ -324,9 +388,9 @@ public final class LazyNode{
 		return d;
 	}
 
-	protected String getStringValue(char[] source){
+	/*protected String getStringValue(char[] source){
 		return getStringValue(source,null);
-	}
+	}*/
 
 	/**
 	 * Extracts a string containing the characters given by this token. If the
@@ -419,8 +483,8 @@ public final class LazyNode{
 	 * @param cbuf the source character array for this token
 	 * @return an iterator for the children of this token as strings
 	 */
-	protected Iterator<String> getStringIterator(char[] cbuf){
-		return new StringIterator(this,cbuf);
+	protected Iterator<String> getStringIterator(char[] cbuf,StringBuilder dirtyBuf){
+		return new StringIterator(this,cbuf,dirtyBuf);
 	}
 
 	/*
@@ -458,10 +522,12 @@ public final class LazyNode{
 	private final class StringIterator implements Iterator<String>{
 		private LazyNode next;
 		private char[] cbuf;
+		private StringBuilder dirtyBuf;
 
-		protected StringIterator(LazyNode token,char[] cbuf){
+		protected StringIterator(LazyNode token,char[] cbuf,StringBuilder dirtyBuf){
 			next=token.child;
 			this.cbuf=cbuf;
+			this.dirtyBuf=dirtyBuf;
 		}
 
 		public boolean hasNext(){
@@ -474,7 +540,7 @@ public final class LazyNode{
 
 		public String next() throws NoSuchElementException{
 			if(hasNext()){
-				String value=next.getStringValue(cbuf);
+				String value=next.getStringValue(cbuf,dirtyBuf);
 				next=next.next; // If only I could squeeze one more "next" into this statement
 				return value;
 			}
@@ -504,8 +570,8 @@ public final class LazyNode{
 		return "\""+getRawStringValue(cbuf,dirtyBuf)+"\":";
 	}
 
-	private void putString(char[] cbuf,ByteBuffer buf,DictionaryCache dict){
-		String str=getStringValue(cbuf);
+	private void putString(char[] cbuf,StringBuilder dirtyBuf,ByteBuffer buf,DictionaryCache dict){
+		String str=getStringValue(cbuf,dirtyBuf); 
 		short pos=dict.put(str);
 		buf.putShort(pos);
 		if(pos>-1){
@@ -521,11 +587,11 @@ public final class LazyNode{
 		buf.put(data);
 	}
 
-	protected void writeSegmentValues(char cbuf[], ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
+	protected void writeSegmentValues(char cbuf[], StringBuilder dirtyBuf,ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
 		if(type==OBJECT || type==ARRAY){
 			LazyNode next=child;
 			while(next!=null){
-				next.writeSegmentValues(cbuf,buf,dict);
+				next.writeSegmentValues(cbuf,dirtyBuf,buf,dict);
 				next=next.next;
 			}
 		}else if(type==FIELD){
@@ -534,7 +600,7 @@ public final class LazyNode{
 			}else if(child.type==VALUE_FALSE){
 				buf.put((byte)0);
 			}else if(child.type==VALUE_STRING || type==VALUE_ESTRING){
-				child.putString(cbuf,buf,dict);
+				child.putString(cbuf,dirtyBuf,buf,dict);
 			}else if(child.type==VALUE_INTEGER){
 				long l=child.getLongValue(cbuf);
 				if(l<128 && l>=-128){
@@ -549,14 +615,14 @@ public final class LazyNode{
 			}else if(child.type==VALUE_FLOAT){
 				buf.putDouble(child.getDoubleValue(cbuf));
 			}else{
-				child.writeSegmentValues(cbuf,buf,dict);
+				child.writeSegmentValues(cbuf,dirtyBuf,buf,dict);
 			}
 		}else if(type==VALUE_TRUE){
 			buf.put((byte)1);
 		}else if(type==VALUE_FALSE){
 			buf.put((byte)0);
 		}else if(type==VALUE_STRING || type==VALUE_ESTRING){
-			putString(cbuf,buf,dict);
+			putString(cbuf,dirtyBuf,buf,dict);
 		}else if(type==VALUE_INTEGER){
 			long l=getLongValue(cbuf);
 			if(l<128 && l>=-128){

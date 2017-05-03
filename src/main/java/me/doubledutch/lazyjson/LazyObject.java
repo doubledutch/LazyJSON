@@ -487,6 +487,12 @@ public class LazyObject extends LazyElement{
 	 */
 	public boolean getBoolean(String key){
 		LazyNode token=getFieldToken(key);
+		if(token.type==LazyNode.VALUE_STRING || token.type==LazyNode.VALUE_ESTRING){
+			String str=token.getStringValue(cbuf,dirtyBuf).toLowerCase().trim();
+			if(str.equals("true"))return true;
+			if(str.equals("false"))return false;
+			throw new LazyException("Requested value is not a boolean",token);
+		}
 		if(token.type==LazyNode.VALUE_TRUE)return true;
 		if(token.type==LazyNode.VALUE_FALSE)return false;
 		throw new LazyException("Requested value is not a boolean",token);
@@ -502,6 +508,12 @@ public class LazyObject extends LazyElement{
 	public boolean optBoolean(String key){
 		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return false;
+		if(token.type==LazyNode.VALUE_STRING || token.type==LazyNode.VALUE_ESTRING){
+			String str=token.getStringValue(cbuf,dirtyBuf).toLowerCase().trim();
+			if(str.equals("true"))return true;
+			if(str.equals("false"))return false;
+			throw new LazyException("Requested value is not a boolean",token);
+		}
 		// if(token.type==LazyNode.VALUE_NULL)return false;
 		if(token.type==LazyNode.VALUE_TRUE)return true;
 		// if(token.type==LazyNode.VALUE_FALSE)return false;
@@ -520,6 +532,12 @@ public class LazyObject extends LazyElement{
 		LazyNode token=getOptionalFieldToken(key);
 		if(token==null)return defaultValue;
 		if(token.type==LazyNode.VALUE_NULL)return defaultValue;
+		if(token.type==LazyNode.VALUE_STRING || token.type==LazyNode.VALUE_ESTRING){
+			String str=token.getStringValue(cbuf,dirtyBuf).toLowerCase().trim();
+			if(str.equals("true"))return true;
+			if(str.equals("false"))return false;
+			throw new LazyException("Requested value is not a boolean",token);
+		}
 		if(token.type==LazyNode.VALUE_TRUE)return true;
 		return false;
 	}
@@ -594,7 +612,7 @@ public class LazyObject extends LazyElement{
 	 * @return an iterator of object field names
 	 */
 	public Iterator<String> keys(){
-		return root.getStringIterator(cbuf);
+		return root.getStringIterator(cbuf,dirtyBuf);
 	}
 
 	/**

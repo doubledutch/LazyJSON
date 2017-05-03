@@ -262,6 +262,14 @@ public class LazyObjectTest{
         assertFalse(it.hasNext());
     }
 
+     @Test
+    public void testEmptyKeys() throws LazyException{
+        String str="{}";
+        LazyObject obj=new LazyObject(str);
+        Iterator<String> it=obj.keys();
+        assertFalse(it.hasNext());
+    }
+
     @Test(expected=UnsupportedOperationException.class)
     public void testKeysRemove() throws LazyException{
         String str="{\"foo\":\"bar\",\"baz\":{\"key\":42}}";
