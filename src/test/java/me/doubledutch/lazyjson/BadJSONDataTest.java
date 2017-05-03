@@ -167,11 +167,11 @@ public class BadJSONDataTest{
         obj.getJSONObject(0);
     }
 
-    @Test(expected=LazyException.class)
+    @Test
     public void testBadOptType() throws LazyException{
         String str="[9,4]";
         LazyArray obj=new LazyArray(str);
-        obj.optJSONObject(0);
+        assertNull(obj.optJSONObject(0));
     }
 
 
@@ -183,11 +183,11 @@ public class BadJSONDataTest{
         obj.getJSONArray(0);
     }
 
-    @Test(expected=LazyException.class)
+    @Test
     public void testBadOptAType() throws LazyException{
         String str="[9,4]";
         LazyArray obj=new LazyArray(str);
-        obj.optJSONArray(0);
+        assertNull(obj.optJSONArray(0));
     }
 
 
@@ -199,11 +199,11 @@ public class BadJSONDataTest{
         obj.getJSONObject("foo");
     }
 
-    @Test(expected=LazyException.class)
+    @Test
     public void testBadOptObjectType() throws LazyException{
         String str="{\"foo\":4}";
         LazyObject obj=new LazyObject(str);
-        obj.optJSONObject("foo");
+        assertNull(obj.optJSONObject("foo"));
     }
 
     @Test(expected=LazyException.class)

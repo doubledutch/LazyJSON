@@ -37,6 +37,15 @@ public class ModifyTest{
     }
 
     @Test
+    public void addObjectArray() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":42}";
+        LazyArray root=new LazyArray();
+        LazyObject obj=new LazyObject(str);
+        root.put(obj);
+        assertEquals(root.toString(),"[{\"foo\":\"bar\",\"baz\":42}]");
+    }
+
+    @Test
     public void addComplexStringTest() throws LazyException{
         String str="{\"foo\":\"bar\",\"baz\":42}";
         LazyObject obj=new LazyObject(str);

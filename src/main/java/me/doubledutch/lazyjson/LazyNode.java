@@ -364,9 +364,9 @@ public final class LazyNode{
 		throw new LazyException("Not a long",startIndex);
 	}
 
-	protected double getDoubleValue(char[] source) throws LazyException{
-		return getDoubleValue(source,null);
-	}
+	// protected double getDoubleValue(char[] source) throws LazyException{
+	//	return getDoubleValue(source,null);
+	// }
 
 	/**
 	 * Parses the characters of this token and attempts to construct a double
@@ -613,7 +613,7 @@ public final class LazyNode{
 					buf.putLong(l);
 				}
 			}else if(child.type==VALUE_FLOAT){
-				buf.putDouble(child.getDoubleValue(cbuf));
+				buf.putDouble(child.getDoubleValue(cbuf,dirtyBuf));
 			}else{
 				child.writeSegmentValues(cbuf,dirtyBuf,buf,dict);
 			}
@@ -635,7 +635,7 @@ public final class LazyNode{
 				buf.putLong(l);
 			}
 		}else if(type==VALUE_FLOAT){
-			buf.putDouble(getDoubleValue(cbuf));
+			buf.putDouble(getDoubleValue(cbuf,dirtyBuf));
 		}
 	}
 

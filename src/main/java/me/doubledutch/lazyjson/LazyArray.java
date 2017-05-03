@@ -139,14 +139,18 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getValueToken(index);
 		if(token!=null){
 			switch(token.type){
-				case LazyNode.OBJECT: return new LazyObject(token,cbuf,dirtyBuf);
-				case LazyNode.ARRAY: return new LazyArray(token,cbuf,dirtyBuf);
+				case LazyNode.OBJECT: LazyObject obj=new LazyObject(token,cbuf,dirtyBuf);
+									  obj.parent=this;
+									  return obj;
+				case LazyNode.ARRAY: LazyArray arr= new LazyArray(token,cbuf,dirtyBuf);
+									 arr.parent=this;
+									 return arr;
 				case LazyNode.VALUE_TRUE: return (Boolean)true;
 				case LazyNode.VALUE_FALSE: return (Boolean)false;
-				case LazyNode.VALUE_NULL: return null;
+				case LazyNode.VALUE_NULL: return LazyObject.NULL;
 				case LazyNode.VALUE_STRING: return token.getStringValue(cbuf,dirtyBuf);
 				case LazyNode.VALUE_ESTRING: return token.getStringValue(cbuf,dirtyBuf);
-				case LazyNode.VALUE_INTEGER: return (Integer)token.getIntValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_INTEGER: return (Long)token.getLongValue(cbuf,dirtyBuf);
 				case LazyNode.VALUE_FLOAT: return (Double)token.getDoubleValue(cbuf,dirtyBuf);
 			}
 		}
@@ -158,14 +162,18 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token!=null){
 			switch(token.type){
-				case LazyNode.OBJECT: return new LazyObject(token,cbuf,dirtyBuf);
-				case LazyNode.ARRAY: return new LazyArray(token,cbuf,dirtyBuf);
+				case LazyNode.OBJECT: LazyObject obj=new LazyObject(token,cbuf,dirtyBuf);
+									  obj.parent=this;
+									  return obj;
+				case LazyNode.ARRAY: LazyArray arr= new LazyArray(token,cbuf,dirtyBuf);
+									 arr.parent=this;
+									 return arr;
 				case LazyNode.VALUE_TRUE: return (Boolean)true;
 				case LazyNode.VALUE_FALSE: return (Boolean)false;
-				case LazyNode.VALUE_NULL: return null;
+				case LazyNode.VALUE_NULL: return LazyObject.NULL;
 				case LazyNode.VALUE_STRING: return token.getStringValue(cbuf,dirtyBuf);
 				case LazyNode.VALUE_ESTRING: return token.getStringValue(cbuf,dirtyBuf);
-				case LazyNode.VALUE_INTEGER: return (Integer)token.getIntValue(cbuf,dirtyBuf);
+				case LazyNode.VALUE_INTEGER: return (Long)token.getLongValue(cbuf,dirtyBuf);
 				case LazyNode.VALUE_FLOAT: return (Double)token.getDoubleValue(cbuf,dirtyBuf);
 			}
 		}
@@ -396,7 +404,9 @@ public class LazyArray extends LazyElement{
 	public LazyArray getJSONArray(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
 		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
-		return new LazyArray(token,cbuf,dirtyBuf);
+		LazyArray arr= new LazyArray(token,cbuf,dirtyBuf);
+		arr.parent=this;
+		return arr;
 	}
 
 	/**
@@ -410,8 +420,10 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
-		if(token.type!=LazyNode.ARRAY)throw new LazyException("Requested value is not an array",token);
-		return new LazyArray(token,cbuf,dirtyBuf);
+		if(token.type!=LazyNode.ARRAY)return null;
+		LazyArray arr= new LazyArray(token,cbuf,dirtyBuf);
+		arr.parent=this;
+		return arr;
 	}
 
 	/**
@@ -424,7 +436,9 @@ public class LazyArray extends LazyElement{
 	public LazyObject getJSONObject(int index) throws LazyException{
 		LazyNode token=getValueToken(index);
 		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
-		return new LazyObject(token,cbuf,dirtyBuf);
+		LazyObject obj= new LazyObject(token,cbuf,dirtyBuf);
+		obj.parent=this;
+		return obj;
 	}
 
 	/**
@@ -438,8 +452,10 @@ public class LazyArray extends LazyElement{
 		LazyNode token=getOptionalValueToken(index);
 		if(token==null)return null;
 		if(token.type==LazyNode.VALUE_NULL)return null;
-		if(token.type!=LazyNode.OBJECT)throw new LazyException("Requested value is not an object",token);
-		return new LazyObject(token,cbuf,dirtyBuf);
+		if(token.type!=LazyNode.OBJECT)return null;
+		LazyObject obj= new LazyObject(token,cbuf,dirtyBuf);
+		obj.parent=this;
+		return obj;
 	}
 
 	/**

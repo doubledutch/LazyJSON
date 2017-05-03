@@ -94,12 +94,12 @@ public class LazyObjectTest{
     public void objectGet() throws LazyException{
         String str="{\"foo\":9,\"bar\":true,\"baz\":3.1415,\"sval\":\"hello world\",\"fval\":false,\"nval\":null,\"aval\":[2,2,4],\"oval\":{\"foo\":42},\"eval\":\"\\n\"}";
         LazyObject obj=new LazyObject(str);
-        assertTrue(obj.get("foo") instanceof Integer);
+        assertTrue(obj.get("foo") instanceof Long);
         assertTrue(obj.get("bar") instanceof Boolean);
         assertTrue(obj.get("baz") instanceof Double);
         assertTrue(obj.get("sval") instanceof String);
         assertTrue(obj.get("fval") instanceof Boolean);
-        assertNull(obj.get("nval"));
+        assertEquals(obj.get("nval"),LazyObject.NULL);
         assertTrue(obj.get("aval") instanceof LazyArray);
         assertTrue(obj.get("oval") instanceof LazyObject);
         assertTrue(obj.get("eval") instanceof String);
@@ -109,12 +109,12 @@ public class LazyObjectTest{
     public void objectOpt() throws LazyException{
         String str="{\"foo\":9,\"bar\":true,\"baz\":3.1415,\"sval\":\"hello world\",\"fval\":false,\"nval\":null,\"aval\":[2,2,4],\"oval\":{\"foo\":42},\"eval\":\"\\n\"}";
         LazyObject obj=new LazyObject(str);
-        assertTrue(obj.opt("foo") instanceof Integer);
+        assertTrue(obj.opt("foo") instanceof Long);
         assertTrue(obj.opt("bar") instanceof Boolean);
         assertTrue(obj.opt("baz") instanceof Double);
         assertTrue(obj.opt("sval") instanceof String);
         assertTrue(obj.opt("fval") instanceof Boolean);
-        assertNull(obj.opt("nval"));
+        assertEquals(obj.opt("nval"),LazyObject.NULL);
         assertTrue(obj.opt("aval") instanceof LazyArray);
         assertTrue(obj.opt("oval") instanceof LazyObject);
         assertTrue(obj.opt("eval") instanceof String);
@@ -201,11 +201,11 @@ public class LazyObjectTest{
         assertNotNull(obj.optJSONObject("foo"));
     }
 
-     @Test(expected=LazyException.class)
+     @Test
     public void optionalNonObjectTest() throws LazyException{
         String str="{\"foo\":22,\"bar\":null}";
         LazyObject obj=new LazyObject(str);
-        obj.optJSONObject("foo");
+        assertNull(obj.optJSONObject("foo"));
     }
 
     @Test(expected=LazyException.class)
@@ -215,11 +215,11 @@ public class LazyObjectTest{
         obj.getJSONObject("foo");
     }
 
-     @Test(expected=LazyException.class)
+     @Test
     public void optionalNonArrayTest() throws LazyException{
         String str="{\"foo\":22,\"bar\":null}";
         LazyObject obj=new LazyObject(str);
-        obj.optJSONArray("foo");
+        assertNull(obj.optJSONArray("foo"));
     }
 
     @Test(expected=LazyException.class)
