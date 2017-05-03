@@ -122,6 +122,9 @@ public class LazyObject extends LazyElement{
 			LazyNode pointer=this.root.child;
 			if(pointer==token){
 				root.child=token.next;
+				if(root.lastChild==pointer){
+					root.lastChild=null;
+				}
 			}else{
 				while(pointer!=null){
 					if(pointer.next==token){
