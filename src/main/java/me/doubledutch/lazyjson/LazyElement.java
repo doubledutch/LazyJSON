@@ -6,17 +6,13 @@ import java.nio.BufferOverflowException;
 
 public abstract class LazyElement{
 	protected LazyNode root;
-	protected char[] cbuf;
-	protected StringBuilder dirtyBuf=null;
 	protected LazyElement parent;
 
 	// Cache value for length
 	private int length=-1;
 
-	protected LazyElement(LazyNode root,char[] source,StringBuilder dirtySource){
+	protected LazyElement(LazyNode root){
 		this.root=root;
-		this.cbuf=source;
-		this.dirtyBuf=dirtySource;
 	}
 
 	protected LazyElement() throws LazyException{
@@ -24,33 +20,18 @@ public abstract class LazyElement{
 	}
 
 	protected LazyNode appendAndSetDirtyString(byte type,String value) throws LazyException{
-		dirtyBuf=getDirtyBuf();
+		StringBuilder dirtyBuf=root.getDirtyBuf();
 		LazyNode child=new LazyNode(type,dirtyBuf.length());
 		dirtyBuf.append(value);
 		child.endIndex=dirtyBuf.length();
 		child.dirty=true;
+		child.dirtyBuf=dirtyBuf;
 		return child;
-	}
-
-	protected StringBuilder getDirtyBuf(){
-		if(dirtyBuf!=null){
-			return dirtyBuf;
-		}
-		if(parent!=null){
-			dirtyBuf=parent.getDirtyBuf();
-			return dirtyBuf;
-		}
-		dirtyBuf=new StringBuilder();
-		return dirtyBuf;
-	}
-
-	protected char[] getCharBuffer(){
-		return cbuf;
 	}
 
 	public Template extractTemplate(){
 		Template t=new Template();
-		root.addSegments(cbuf,t);
+		root.addSegments(t);
 		t.compact();
 		return t;
 	}
@@ -58,7 +39,7 @@ public abstract class LazyElement{
 	public abstract LazyType getType();
 
 	public void writeTemplateValues(ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
-		root.writeSegmentValues(cbuf,dirtyBuf,buf,dict);
+		root.writeSegmentValues(buf,dict);
 	}
 
 	/**
@@ -176,7 +157,7 @@ public abstract class LazyElement{
 		if(root.isDirty()){
 			return serializeElementToString();
 		}else{
-			return new String(cbuf,root.startIndex,root.endIndex-root.startIndex);
+			return new String(root.cbuf,root.startIndex,root.endIndex-root.startIndex);
 		}
 	}
 

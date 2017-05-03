@@ -420,5 +420,19 @@ public final class LazyParser{
 		if(expectValue){
 			throw new LazyException("Unexpected trailing comma");
 		}
+		setBuffer(root);
+	}
+
+	private void setBuffer(LazyNode node){
+		node.cbuf=cbuf;
+		LazyNode pointer=node.child;
+		while(pointer!=null){
+			if(pointer.child!=null){
+				setBuffer(pointer);
+			}else{
+				pointer.cbuf=cbuf;
+			}
+			pointer=pointer.next;
+		}
 	}
 }

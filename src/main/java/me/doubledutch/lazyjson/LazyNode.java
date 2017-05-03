@@ -28,6 +28,8 @@ public final class LazyNode{
 	protected byte type;
 
 	protected boolean dirty=false;
+	protected char[] cbuf=null;
+	protected StringBuilder dirtyBuf=null;
 
 	// Start and end index into source string for this token.
 	// For an object or array, the end index will be the end of the entire
@@ -52,6 +54,14 @@ public final class LazyNode{
 		this.type=type;
 	}
 
+	protected StringBuilder getDirtyBuf(){
+		if(dirtyBuf==null){
+			dirtyBuf=new StringBuilder();
+		}
+		return dirtyBuf;
+	}
+
+	/*
 	protected void moveInto(StringBuilder buf,char[] source,StringBuilder dirtyBuf){
 		if(endIndex>-1 && type!=OBJECT && type!=ARRAY){
 			int newIndex=buf.length();
@@ -65,7 +75,7 @@ public final class LazyNode{
 			pointer.moveInto(buf,source,dirtyBuf);
 			pointer=pointer.next;
 		}
-	}
+	}*/
 
 	protected boolean isDirty(){
 		if(dirty){
@@ -210,11 +220,10 @@ public final class LazyNode{
 	 * Parses the characters of this token and attempts to construct an integer
 	 * value from them.
 	 *
-	 * @param source the source character array for this token
 	 * @return the integer value if it could be parsed
 	 * @throws LazyException if the value could not be parsed
 	 */
-	protected int getIntValue(char[] source,StringBuilder dirtyBuf) throws LazyException{
+	protected int getIntValue() throws LazyException{
 		int i=startIndex;
 		boolean sign=false;
 		int value=0;
@@ -227,20 +236,20 @@ public final class LazyNode{
 				}
 				for(;i<endIndex;i++){
 					char c=dirtyBuf.charAt(i);
-					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source,dirtyBuf)+"' is not a valid integer",startIndex);
+					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue()+"' is not a valid integer",startIndex);
 					value+='0'-c;
 					if(i+1<endIndex){
 						value*=10;
 					}
 				}
 			}else{	
-				if(source[i]=='-'){
+				if(cbuf[i]=='-'){
 					sign=true;
 					i++;
 				}
 				for(;i<endIndex;i++){
-					char c=source[i];
-					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source,dirtyBuf)+"' is not a valid integer",startIndex);
+					char c=cbuf[i];
+					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue()+"' is not a valid integer",startIndex);
 					value+='0'-c;
 					if(i+1<endIndex){
 						value*=10;
@@ -264,12 +273,12 @@ public final class LazyNode{
 					}
 				}
 			}else{	
-				if(source[i]=='-'){
+				if(cbuf[i]=='-'){
 					sign=true;
 					i++;
 				}
 				for(;i<endIndex;i++){
-					char c=source[i];
+					char c=cbuf[i];
 					// If we only allow this to be called on integer values, the parsing is pre done!
 					// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
 					value+='0'-c;
@@ -283,19 +292,14 @@ public final class LazyNode{
 		throw new LazyException("Not an integer",startIndex);
 	}
 
-	protected long getLongValue(char[] source) throws LazyException{
-		return getLongValue(source,null);
-	}
-
 	/**
 	 * Parses the characters of this token and attempts to construct a long
 	 * value from them.
 	 *
-	 * @param source the source character array for this token
 	 * @return the long value if it could be parsed
 	 * @throws LazyException if the value could not be parsed
 	 */
-	protected long getLongValue(char[] source,StringBuilder dirtyBuf) throws LazyException{
+	protected long getLongValue() throws LazyException{
 		int i=startIndex;
 		boolean sign=false;
 		long value=0;
@@ -308,20 +312,20 @@ public final class LazyNode{
 				}
 				for(;i<endIndex;i++){
 					char c=dirtyBuf.charAt(i);
-					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source,dirtyBuf)+"' is not a valid long",startIndex);
+					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue()+"' is not a valid long",startIndex);
 					value+='0'-c;
 					if(i+1<endIndex){
 						value*=10;
 					}
 				}
 			}else{	
-				if(source[i]=='-'){
+				if(cbuf[i]=='-'){
 					sign=true;
 					i++;
 				}
 				for(;i<endIndex;i++){
-					char c=source[i];
-					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source,dirtyBuf)+"' is not a valid long",startIndex);
+					char c=cbuf[i];
+					if(c<'0'||c>'9')throw new LazyException("'"+getStringValue()+"' is not a valid long",startIndex);
 					value+='0'-c;
 					if(i+1<endIndex){
 						value*=10;
@@ -345,12 +349,12 @@ public final class LazyNode{
 					}
 				}
 			}else{	
-				if(source[i]=='-'){
+				if(cbuf[i]=='-'){
 					sign=true;
 					i++;
 				}
 				for(;i<endIndex;i++){
-					char c=source[i];
+					char c=cbuf[i];
 					// If we only allow this to be called on integer values, the parsing is pre done!
 					// if(c<'0'||c>'9')throw new LazyException("'"+getStringValue(source)+"' is not a valid integer",startIndex);
 					value+='0'-c;
@@ -372,13 +376,12 @@ public final class LazyNode{
 	 * Parses the characters of this token and attempts to construct a double
 	 * value from them.
 	 *
-	 * @param source the source character array for this token
 	 * @return the double value if it could be parsed
 	 * @throws LazyException if the value could not be parsed
 	 */
-	protected double getDoubleValue(char[] source,StringBuilder dirtyBuf) throws LazyException{
+	protected double getDoubleValue() throws LazyException{
 		double d=0.0;
-		String str=getStringValue(source,dirtyBuf);
+		String str=getStringValue();
 		try{
 			d=Double.parseDouble(str);
 		}catch(NumberFormatException nfe){
@@ -397,17 +400,16 @@ public final class LazyNode{
 	 * token was marked as having escaped characters, they will be unescaped
 	 * before the value is returned.
 	 *
-	 * @param source the source character array for this token
 	 * @return the string value held by this token
 	 */
-	protected String getStringValue(char[] source,StringBuilder dirtyBuf){
+	protected String getStringValue(){
 		if(type==VALUE_NULL){
 			return null;
 		}else if(!(type==VALUE_ESTRING||type==EFIELD)){
 			if(dirty){
 				return dirtyBuf.substring(startIndex,endIndex);
 			}
-			return new String(source,startIndex,endIndex-startIndex);
+			return new String(cbuf,startIndex,endIndex-startIndex);
 		}else{
 			StringBuilder buf=new StringBuilder(endIndex-startIndex);
 			if(dirty){
@@ -439,10 +441,10 @@ public final class LazyNode{
 				}
 			}else{
 				for(int i=startIndex;i<endIndex;i++){
-					char c=source[i];
+					char c=cbuf[i];
 					if(c=='\\'){
 						i++;
-						c=source[i];
+						c=cbuf[i];
 						if(c=='"' || c=='\\' || c=='/'){
 							buf.append(c);
 						}else if(c=='b'){
@@ -456,7 +458,7 @@ public final class LazyNode{
 						}else if(c=='t'){
 							buf.append('\t');
 						}else if(c=='u'){
-							String code=new String(source,i+1,4);
+							String code=new String(cbuf,i+1,4);
 							buf.append((char)Integer.parseInt(code, 16));
 							i+=4;
 						}
@@ -469,25 +471,24 @@ public final class LazyNode{
 		}
 	}
 
-	protected String getRawStringValue(char[] source,StringBuilder dirtyBuf){
+	protected String getRawStringValue(){
 		if(dirty){
 			return dirtyBuf.substring(startIndex,endIndex);
 		}else{
-			return new String(source,startIndex,endIndex-startIndex);
+			return new String(cbuf,startIndex,endIndex-startIndex);
 		}
 	}
 
 	/**
 	 * Returns a string iterator for this tokens children.
 	 *
-	 * @param cbuf the source character array for this token
 	 * @return an iterator for the children of this token as strings
 	 */
-	protected Iterator<String> getStringIterator(char[] cbuf,StringBuilder dirtyBuf){
-		return new StringIterator(this,cbuf,dirtyBuf);
+	protected Iterator<String> getStringIterator(){
+		return new StringIterator(this);
 	}
 
-	/*
+	
 	// Debug method used for development purposes only
 
 	protected String toString(int pad){
@@ -499,10 +500,19 @@ public final class LazyNode{
 			out+="[";
 		}else if(type==FIELD){
 			out+="\"";
-		}else if(type==VALUE){
-			out+="V";
+		}else if(type==VALUE_INTEGER){
+			out+="i";
+		}else if(type==VALUE_TRUE || type==VALUE_FALSE){
+			out+="b";
+		}else if(type==VALUE_FLOAT){
+			out+="f";
+		}else if(type==VALUE_STRING || type==VALUE_ESTRING){
+			out+="s";
+		}else if(type==VALUE_NULL){
+			out+="n";
 		}
 		out+=":["+startIndex+","+endIndex+"]";
+		if(dirty)out+="d";
 		out+="\n";
 		if(child!=null){
 			LazyNode token=child;
@@ -516,18 +526,14 @@ public final class LazyNode{
 			}
 		}
 		return out;
-	}*/
+	}
 
 	// Internal class used to iterate over children as strings
 	private final class StringIterator implements Iterator<String>{
 		private LazyNode next;
-		private char[] cbuf;
-		private StringBuilder dirtyBuf;
 
-		protected StringIterator(LazyNode token,char[] cbuf,StringBuilder dirtyBuf){
+		protected StringIterator(LazyNode token){
 			next=token.child;
-			this.cbuf=cbuf;
-			this.dirtyBuf=dirtyBuf;
 		}
 
 		public boolean hasNext(){
@@ -540,7 +546,7 @@ public final class LazyNode{
 
 		public String next() throws NoSuchElementException{
 			if(hasNext()){
-				String value=next.getStringValue(cbuf,dirtyBuf);
+				String value=next.getStringValue();
 				next=next.next; // If only I could squeeze one more "next" into this statement
 				return value;
 			}
@@ -548,7 +554,7 @@ public final class LazyNode{
 		}
 	}
 	// Functionality for extracting templates
-	private void addCommaSeparatedChildren(char[] cbuf,Template template){
+	private void addCommaSeparatedChildren(Template template){
 		LazyNode next=child;
 		boolean first=true;
 		while(next!=null){
@@ -557,21 +563,17 @@ public final class LazyNode{
 			}else{
 				template.addConstant(",");
 			}
-			next.addSegments(cbuf,template);
+			next.addSegments(template);
 			next=next.next;
 		}
 	}
 
-	private String getFieldString(char[] cbuf){
-		return "\""+getRawStringValue(cbuf,null)+"\":";
+	private String getFieldString(){
+		return "\""+getRawStringValue()+"\":";
 	}
 
-	private String getFieldString(char[] cbuf,StringBuilder dirtyBuf){
-		return "\""+getRawStringValue(cbuf,dirtyBuf)+"\":";
-	}
-
-	private void putString(char[] cbuf,StringBuilder dirtyBuf,ByteBuffer buf,DictionaryCache dict){
-		String str=getStringValue(cbuf,dirtyBuf); 
+	private void putString(ByteBuffer buf,DictionaryCache dict){
+		String str=getStringValue(); 
 		short pos=dict.put(str);
 		buf.putShort(pos);
 		if(pos>-1){
@@ -587,11 +589,11 @@ public final class LazyNode{
 		buf.put(data);
 	}
 
-	protected void writeSegmentValues(char cbuf[], StringBuilder dirtyBuf,ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
+	protected void writeSegmentValues(ByteBuffer buf,DictionaryCache dict) throws BufferOverflowException{
 		if(type==OBJECT || type==ARRAY){
 			LazyNode next=child;
 			while(next!=null){
-				next.writeSegmentValues(cbuf,dirtyBuf,buf,dict);
+				next.writeSegmentValues(buf,dict);
 				next=next.next;
 			}
 		}else if(type==FIELD){
@@ -600,9 +602,9 @@ public final class LazyNode{
 			}else if(child.type==VALUE_FALSE){
 				buf.put((byte)0);
 			}else if(child.type==VALUE_STRING || type==VALUE_ESTRING){
-				child.putString(cbuf,dirtyBuf,buf,dict);
+				child.putString(buf,dict);
 			}else if(child.type==VALUE_INTEGER){
-				long l=child.getLongValue(cbuf);
+				long l=child.getLongValue();
 				if(l<128 && l>=-128){
 					buf.put((byte)l);
 				}else if(l<32768 && l>=-32768){
@@ -613,18 +615,18 @@ public final class LazyNode{
 					buf.putLong(l);
 				}
 			}else if(child.type==VALUE_FLOAT){
-				buf.putDouble(child.getDoubleValue(cbuf,dirtyBuf));
+				buf.putDouble(child.getDoubleValue());
 			}else{
-				child.writeSegmentValues(cbuf,dirtyBuf,buf,dict);
+				child.writeSegmentValues(buf,dict);
 			}
 		}else if(type==VALUE_TRUE){
 			buf.put((byte)1);
 		}else if(type==VALUE_FALSE){
 			buf.put((byte)0);
 		}else if(type==VALUE_STRING || type==VALUE_ESTRING){
-			putString(cbuf,dirtyBuf,buf,dict);
+			putString(buf,dict);
 		}else if(type==VALUE_INTEGER){
-			long l=getLongValue(cbuf);
+			long l=getLongValue();
 			if(l<128 && l>=-128){
 				buf.put((byte)l);
 			}else if(l<32768 && l>=-32768){
@@ -635,43 +637,43 @@ public final class LazyNode{
 				buf.putLong(l);
 			}
 		}else if(type==VALUE_FLOAT){
-			buf.putDouble(getDoubleValue(cbuf,dirtyBuf));
+			buf.putDouble(getDoubleValue());
 		}
 	}
 
-	protected void addSegments(char[] cbuf,Template template){
+	protected void addSegments(Template template){
 		if(type==OBJECT){
 			template.addConstant("{");
-			addCommaSeparatedChildren(cbuf,template);
+			addCommaSeparatedChildren(template);
 			template.addConstant("}");
 		}else if(type==ARRAY){
 			template.addConstant("[");
-			addCommaSeparatedChildren(cbuf,template);
+			addCommaSeparatedChildren(template);
 			template.addConstant("]");
 		}else if(type==FIELD){
 			if(child.type==VALUE_TRUE || child.type==VALUE_FALSE){
-				template.addBoolean(getFieldString(cbuf));
+				template.addBoolean(getFieldString());
 			}else if(child.type==VALUE_STRING){
-				template.addString(getFieldString(cbuf));
+				template.addString(getFieldString());
 			}else if(child.type==VALUE_NULL){
-				template.addNull(getFieldString(cbuf));
+				template.addNull(getFieldString());
 			}else if(child.type==VALUE_INTEGER){
-				long l=child.getLongValue(cbuf);
+				long l=child.getLongValue();
 				if(l<128 && l>=-128){
-					template.addByte(getFieldString(cbuf));
+					template.addByte(getFieldString());
 				}else if(l<32768 && l>=-32768){
-					template.addShort(getFieldString(cbuf));
+					template.addShort(getFieldString());
 				}else if(l<=2147483647 && l>=-2147483648){
-					template.addInt(getFieldString(cbuf));
+					template.addInt(getFieldString());
 				}else{
-					template.addLong(getFieldString(cbuf));
+					template.addLong(getFieldString());
 				}
 			}else if(child.type==VALUE_FLOAT){
 				// TODO: could we differentiate for float's vs doubles?
-				template.addDouble(getFieldString(cbuf));
+				template.addDouble(getFieldString());
 			}else{
-				template.addConstant(getFieldString(cbuf));
-				child.addSegments(cbuf,template);
+				template.addConstant(getFieldString());
+				child.addSegments(template);
 			}
 		}else if(type==VALUE_TRUE || type==VALUE_FALSE){
 			template.addBoolean();
@@ -680,7 +682,7 @@ public final class LazyNode{
 		}else if(type==VALUE_STRING){
 			template.addString();
 		}else if(type==VALUE_INTEGER){
-			long l=getLongValue(cbuf);
+			long l=getLongValue();
 			if(l<128 && l>=-128){
 				template.addByte();
 			}else if(l<32768 && l>=-32768){
