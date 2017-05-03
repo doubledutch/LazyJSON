@@ -34,6 +34,16 @@ public class ModifyTest{
         LazyObject obj=new LazyObject(str);
         root.put("test",obj);
         assertEquals(root.toString(),"{\"test\":{\"foo\":\"bar\",\"baz\":42}}");
+        assertNotNull(obj.keys());
+    }
+
+    @Test
+    public void addObjectByKeysTest() throws LazyException{
+        String str="{\"foo\":{\"bar\":9}}";
+        LazyObject root=new LazyObject();
+        LazyObject obj=new LazyObject(str);
+        root.put("test",obj.get("foo"));
+        assertNotNull(obj.toString());
     }
 
     @Test
