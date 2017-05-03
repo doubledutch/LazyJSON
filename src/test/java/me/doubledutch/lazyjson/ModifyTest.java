@@ -53,6 +53,22 @@ public class ModifyTest{
     }
 
     @Test
+    public void testRemoveKeys() throws LazyException{
+        String str="{\"test\":42}";
+        LazyObject obj=new LazyObject(str);
+        obj.put("foo",9);
+        obj.put("bar",10);
+        obj.remove("test");
+       // obj.put("baz",11);
+        Iterator<String> it=obj.keys();
+        assertTrue(it.hasNext());
+        assertEquals("foo",it.next());
+        assertTrue(it.hasNext());
+        assertEquals("bar",it.next());
+        assertFalse(it.hasNext());
+    }
+
+    @Test
     public void buildObjectTest() throws LazyException{
         LazyObject obj=new LazyObject();
         obj.put("foo","bar");

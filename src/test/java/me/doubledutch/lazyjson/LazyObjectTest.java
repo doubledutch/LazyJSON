@@ -30,6 +30,16 @@ public class LazyObjectTest{
         assertFalse(keys.contains("bar"));
     }
 
+     @Test
+    public void keysetWithNullTest() throws LazyException{
+        String str="{\"foo\":\"bar\",\"baz\":42,\"test\":null}";
+        LazyObject obj=new LazyObject(str);
+        Set<String> keys=obj.keySet();
+        assertTrue(keys.contains("foo"));
+        assertTrue(keys.contains("baz"));
+        assertFalse(keys.contains("bar"));
+    }
+
     @Test
     public void innerEqualsTest() throws LazyException{
         String str1="{\"foo\":\"bar\",\"baz\":42}";
