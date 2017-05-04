@@ -227,7 +227,9 @@ public final class LazyNode{
 		int i=startIndex;
 		boolean sign=false;
 		int value=0;
-		if(type==VALUE_STRING || type==VALUE_ESTRING){
+		if(type==VALUE_FLOAT){
+			return (int)getDoubleValue();
+		}else if(type==VALUE_STRING || type==VALUE_ESTRING){
 			// Attempt to parse as an int, throw if impossible
 			if(dirty){
 				if(dirtyBuf.charAt(i)=='-'){
@@ -303,7 +305,9 @@ public final class LazyNode{
 		int i=startIndex;
 		boolean sign=false;
 		long value=0;
-		if(type==VALUE_STRING || type==VALUE_ESTRING){
+		if(type==VALUE_FLOAT){
+			return (long)getDoubleValue();
+		}else if(type==VALUE_STRING || type==VALUE_ESTRING){
 			// Attempt to parse as an int, throw if impossible
 			if(dirty){
 				if(dirtyBuf.charAt(i)=='-'){
