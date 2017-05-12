@@ -261,36 +261,84 @@ public class LazyArray extends LazyElement{
 
 	public LazyArray put(LazyArray value) throws LazyException{
 		appendChild(value.root);
-		/*if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
-			value.root.dirty=true;
-			appendChild(value.root);
-		}else if(value.cbuf!=cbuf){
-			// Differen't sources
-			StringBuilder buf=getDirtyBuf();
-			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
-			value.root.dirty=true;
-			appendChild(value.root);
-			value.dirtyBuf=buf;
-			// System.out.println("not matching put conditions");
-		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");*/
 		return this;
 	}
 
 	public LazyArray put(LazyObject value) throws LazyException{
 		appendChild(value.root);
-		/*if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
-			value.root.dirty=true;
-			appendChild(value.root);
-		}else if(value.cbuf!=cbuf){
-			// Differen't sources
-			StringBuilder buf=getDirtyBuf();
-			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
-			value.root.dirty=true;
-			appendChild(value.root);
-			value.dirtyBuf=buf;
-			// System.out.println("not matching put conditions");
-		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");*/
 		return this;
+	}
+
+	public LazyArray put(Object value) throws LazyException{
+		if(value==LazyObject.NULL){
+			LazyNode child=LazyNode.cValueNull(-1);
+			child.dirty=true;
+			appendChild(child);
+			return this;
+		}else if(value==null){
+			// TODO: hmmm... maybe throw exception? or also put LazyObject.NULL?
+		}
+		if(value instanceof java.lang.Integer){
+			return put(((Integer)value).intValue());
+		}
+		if(value instanceof java.lang.Long){
+			return put(((Long)value).longValue());
+		}
+		if(value instanceof java.lang.Float){
+			return put(((Float)value).floatValue());
+		}
+		if(value instanceof java.lang.Double){
+			return put(((Double)value).doubleValue());
+		}
+		if(value instanceof java.lang.Boolean){
+			return put(((Boolean)value).booleanValue());
+		}
+		if(value instanceof java.lang.String){
+			return put((String)value);
+		}
+		if(value instanceof me.doubledutch.lazyjson.LazyObject){
+			return put((LazyObject)value);
+		}
+		if(value instanceof me.doubledutch.lazyjson.LazyArray){
+			return put((LazyArray)value);
+		}
+		throw new LazyException("Unsupported object type");
+	}
+
+	public LazyArray put(int index,Object value) throws LazyException{
+		if(value==LazyObject.NULL){
+			LazyNode child=LazyNode.cValueNull(-1);
+			child.dirty=true;
+			insertChild(index,child);
+			return this;
+		}else if(value==null){
+			// TODO: hmmm... maybe throw exception? or also put LazyObject.NULL?
+		}
+		if(value instanceof java.lang.Integer){
+			return put(index,((Integer)value).intValue());
+		}
+		if(value instanceof java.lang.Long){
+			return put(index,((Long)value).longValue());
+		}
+		if(value instanceof java.lang.Float){
+			return put(index,((Float)value).floatValue());
+		}
+		if(value instanceof java.lang.Double){
+			return put(index,((Double)value).doubleValue());
+		}
+		if(value instanceof java.lang.Boolean){
+			return put(index,((Boolean)value).booleanValue());
+		}
+		if(value instanceof java.lang.String){
+			return put(index,(String)value);
+		}
+		if(value instanceof me.doubledutch.lazyjson.LazyObject){
+			return put(index,(LazyObject)value);
+		}
+		if(value instanceof me.doubledutch.lazyjson.LazyArray){
+			return put(index,(LazyArray)value);
+		}
+		throw new LazyException("Unsupported object type");
 	}
 
 	public LazyArray put(int index,String value) throws LazyException{
@@ -342,33 +390,11 @@ public class LazyArray extends LazyElement{
 
 	public LazyArray put(int index,LazyArray value) throws LazyException{
 		insertChild(index,value.root);
-		/*if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
-			value.root.dirty=true;
-			insertChild(index,value.root);
-		}else if(value.cbuf!=cbuf){
-			// Differen't sources
-			StringBuilder buf=getDirtyBuf();
-			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
-			value.root.dirty=true;
-			insertChild(index,value.root);
-			// System.out.println("not matching put conditions");
-		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");*/
 		return this;
 	}
 
 	public LazyArray put(int index,LazyObject value) throws LazyException{
 		insertChild(index,value.root);
-		/*if(value.cbuf==cbuf && value.dirtyBuf==dirtyBuf){
-			value.root.dirty=true;
-			insertChild(index,value.root);
-		}else if(value.cbuf!=cbuf){
-			// Differen't sources
-			StringBuilder buf=getDirtyBuf();
-			value.root.moveInto(buf,value.cbuf,value.dirtyBuf);
-			value.root.dirty=true;
-			insertChild(index,value.root);
-			// System.out.println("not matching put conditions");
-		}// else throw new LazyException("Unknown data merge condition :-( :-( :-(");*/
 		return this;
 	}
 

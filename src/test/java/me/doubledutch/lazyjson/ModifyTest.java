@@ -152,7 +152,7 @@ public class ModifyTest{
     	arr.put(false);
     	arr.put(new LazyArray("[2,2,4]"));
     	arr.put(new LazyObject("{\"foo\":42}"));
-    	// arr.put(LazyObject.NULL);
+    	arr.put(LazyObject.NULL);
     	assertEquals(arr.getString(0),"foo");
     	assertEquals(arr.getInt(1),42);
     	assertEquals(arr.getLong(2),99l);
@@ -160,7 +160,7 @@ public class ModifyTest{
     	assertEquals(arr.getDouble(4),2.9,0.0001);
     	assertEquals(arr.getBoolean(5),true);
     	assertEquals(arr.getBoolean(6),false);
-    	assertEquals(arr.toString(),"[\"foo\",42,99,3.1415,2.9,true,false,[2,2,4],{\"foo\":42}]");
+    	assertEquals(arr.toString(),"[\"foo\",42,99,3.1415,2.9,true,false,[2,2,4],{\"foo\":42},null]");
     }
 
     @Test
