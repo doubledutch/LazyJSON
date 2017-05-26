@@ -206,6 +206,10 @@ public class LazyObject extends LazyElement{
 	}
 
 	public LazyObject put(String key,String value) throws LazyException{
+		if(value==null){
+			remove(key);
+			return this;
+		}
 		LazyNode child=null;
 		if(shouldQuoteString(value)){
 			child=appendAndSetDirtyString(LazyNode.VALUE_ESTRING,quoteString(value));

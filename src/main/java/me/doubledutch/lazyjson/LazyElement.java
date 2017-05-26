@@ -65,6 +65,7 @@ public abstract class LazyElement{
 	}
 
 	protected static boolean shouldQuoteString(String str){
+		if(str==null)return false;
 		boolean found=false;
 		int length=str.length();
 		char[] cbuf=new char[length];
