@@ -314,4 +314,12 @@ public class LazyArrayTest{
         assertNotNull(obj2);
         assertEquals(obj.getString("[]"),"{}");
     }
+
+    @Test
+    public void testSerializeStringWithEscapedQuotes() {
+        LazyArray lazyArray = new LazyArray();
+        lazyArray.put("\"foo\" bar");
+        lazyArray.put("baz");
+        assertEquals("[\"\\\"foo\\\" bar\",\"baz\"]", lazyArray.toString());
+    }
 }

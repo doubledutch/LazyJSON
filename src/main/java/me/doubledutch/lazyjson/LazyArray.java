@@ -52,9 +52,13 @@ public class LazyArray extends LazyElement{
 				buf.append(new LazyObject(pointer).toString());
 			}else if(pointer.type==LazyNode.ARRAY){
 				buf.append(new LazyArray(pointer).toString());
-			}else if(pointer.type==LazyNode.VALUE_STRING || pointer.type==LazyNode.VALUE_ESTRING){
+			}else if(pointer.type==LazyNode.VALUE_STRING){
 				buf.append("\"");
 				buf.append(pointer.getStringValue());
+				buf.append("\"");
+			}else if (pointer.type==LazyNode.VALUE_ESTRING){
+				buf.append("\"");
+				buf.append(pointer.getRawStringValue());
 				buf.append("\"");
 			}else if(pointer.type==LazyNode.VALUE_TRUE){
 				buf.append("true");
